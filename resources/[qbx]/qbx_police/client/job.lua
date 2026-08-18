@@ -366,7 +366,7 @@ RegisterNetEvent('police:client:ImpoundVehicle', function(fullImpound, price)
 
     if cache.vehicle or #(GetEntityCoords(cache.ped) - GetEntityCoords(vehicle)) > 5.0 then return end
 
-    if lib.progressCircle({
+    if lib.progressBar({
         duration = 5000,
         position = 'bottom',
         label = locale('progressbar.impound'),

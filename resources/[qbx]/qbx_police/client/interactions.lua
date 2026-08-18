@@ -141,7 +141,7 @@ RegisterNetEvent('police:client:RobPlayer', function()
         return exports.qbx_core:Notify(locale('error.no_rob'), 'error')
     end
 
-    if lib.progressCircle({
+    if lib.progressBar({
             duration = math.random(5000, 7000),
             position = 'bottom',
             label = locale('progressbar.robbing'),

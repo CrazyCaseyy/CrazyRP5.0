@@ -91,7 +91,7 @@ end)
 RegisterNetEvent('evidence:client:ClearBlooddropsInArea', function()
     local pos = GetEntityCoords(cache.ped)
     local bloodDropList = {}
-    if lib.progressCircle({
+    if lib.progressBar({
             duration = 5000,
             position = 'bottom',
             label = locale('progressbar.blood_clear'),
@@ -136,7 +136,7 @@ RegisterNetEvent('evidence:client:ClearCasingsInArea', function()
     local pos = GetEntityCoords(cache.ped)
     local casingList = {}
 
-    if lib.progressCircle({
+    if lib.progressBar({
             duration = 5000,
             position = 'bottom',
             label = locale('progressbar.bullet_casing'),

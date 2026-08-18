@@ -273,7 +273,7 @@ local function getInTrunk()
         return exports.qbx_core:Notify(locale('error.too_far_from_trunk'), 'error')
     end
 
-    if lib.progressCircle({
+    if lib.progressBar({
         duration = 2000,
         position = 'bottom',
         useWhileDead = false,
@@ -298,7 +298,7 @@ local function getInTrunk()
 end
 
 local function deliver()
-    if lib.progressCircle({
+    if lib.progressBar({
         duration = 3000,
         position = 'bottom',
         useWhileDead = false,

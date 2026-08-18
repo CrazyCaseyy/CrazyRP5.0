@@ -112,7 +112,7 @@ local function updatePlantStats()
                     qbx.drawText3d({text = locale('text.harvest_plant'), coords = vec3(plant.coords.x, plant.coords.y, plant.coords.z + 0.2)})
                     qbx.drawText3d({text = label, coords = plant.coords})
                     if IsControlJustPressed(0, 38) then
-                        if lib.progressCircle({
+                        if lib.progressBar({
                             duration = 8000,
                             position = 'bottom',
                             label = locale('text.harvesting_plant'),
@@ -143,7 +143,7 @@ local function updatePlantStats()
                 sleep = 0
                 qbx.drawText3d({text = locale('error.plant_has_died'), coords = plant.coords})
                 if IsControlJustPressed(0, 38) then
-                    if lib.progressCircle({
+                    if lib.progressBar({
                             duration = 8000,
                             position = 'bottom',
                             label = locale('text.removing_the_plant'),
@@ -189,7 +189,7 @@ exports('placePlant', function(type, item)
     end
 
     LocalPlayer.state:set('invBusy', true, true)
-    if lib.progressCircle({
+    if lib.progressBar({
         duration = 8000,
         position = 'bottom',
         label = locale('text.planting'),
@@ -232,7 +232,7 @@ exports('foodPlant', function()
     end
 
     LocalPlayer.state:set('invBusy', true, true)
-    if lib.progressCircle({
+    if lib.progressBar({
             duration = math.random(4000, 8000),
             position = 'bottom',
             label = locale('text.feeding_plant'),

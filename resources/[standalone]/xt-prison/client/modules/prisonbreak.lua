@@ -98,7 +98,7 @@ function prisonBreakModules.startGateHack(ID)
     TriggerServerEvent('xt-prison:server:removePrisonbreakItems', success)
 
     if success then
-        if lib.progressCircle({
+        if lib.progressBar({
             label = locale('input.hacking'),
             duration = (prisonBreakcfg.HackLength * 1000),
             position = 'bottom',

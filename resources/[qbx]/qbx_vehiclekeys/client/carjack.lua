@@ -75,7 +75,7 @@ local function carjackVehicle(driver, vehicle)
         end
     end)
 
-    if lib.progressCircle({
+    if lib.progressBar({
         duration = config.carjackingTimeInMs,
         label = locale('progress.attempting_carjack'),
         position = 'bottom',

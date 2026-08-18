@@ -188,7 +188,7 @@ function Handler:fixTire(vehicle, coords)
     local lastdirt = GetVehicleDirtLevel(vehicle)
     local success = false
 
-    if lib.progressCircle(Progress['tirekit']) then
+    if lib.progressBar(Progress['tirekit']) then
         success = true
 
         lib.callback('vehiclehandler:sync', false, function()
@@ -229,7 +229,7 @@ function Handler:fixVehicle(vehicle, coords, fixtype)
         end)
     end
 
-    if lib.progressCircle(Progress[fixtype]) then
+    if lib.progressBar(Progress[fixtype]) then
         success = true
     end
 
@@ -291,7 +291,7 @@ function Handler:basicwash()
     local success = false
     TaskStartScenarioInPlace(cache.ped, "WORLD_HUMAN_MAID_CLEAN", 0, true)
 
-    if lib.progressCircle(Progress['cleankit']) then
+    if lib.progressBar(Progress['cleankit']) then
         success = true
 
         lib.callback('vehiclehandler:sync', false, function()

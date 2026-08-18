@@ -36,7 +36,7 @@ local function findKeys(vehicleModel, vehicleClass, vehicle)
             Wait(100)
         end
     end)
-    if lib.progressCircle({
+    if lib.progressBar({
         duration = hotwireTime,
         label = locale('progress.searching_keys'),
         position = 'bottom',

@@ -1,8 +1,17 @@
 @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap");
 
+@font-face {
+  font-family: "Geom Graphic W03";
+  src: url("fonts/GeomGraphic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --color-default: #cfd2da;
   --color-hover: white;
+  --color-accent: #1573ed;
 }
 
 body {
@@ -27,12 +36,20 @@ p {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 22pt;
-  fill: black;
+}
+
+#eyeSvg {
+  display: block;
+  width: 6.5px;
+  height: 6.5px;
+  background-color: var(--color-accent);
+  transform: rotate(45deg);
+  box-shadow: 0 0 6px rgba(21, 115, 237, 0.7);
+  transition: background-color 150ms ease;
 }
 
 .eye-hover {
-  fill: var(--color-default);
+  background-color: white;
 }
 
 #options-wrapper {
@@ -47,45 +64,45 @@ p {
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-  font-family: "Nunito";
-  background: linear-gradient(
-    90deg,
-    rgba(20, 20, 20, 0.7) 0%,
-    rgba(20, 20, 20, 0.6) 66%,
-    rgba(47, 48, 53, 0) 100%
-  );
-  font-size: 11pt;
-  line-height: 22pt;
+  font-family: "Geom Graphic W03", "Nunito", sans-serif;
+  background: rgba(20, 20, 23, 0.78);
+  border: 1px solid rgba(21, 115, 237, 0.4);
+  border-radius: 4pt;
+  font-size: 10.5pt;
+  line-height: 1.3;
   vertical-align: middle;
   margin: 2pt;
   transition: 300ms;
   transform-origin: left top;
   scale: 1;
-  height: 22pt;
+  min-height: 22pt;
+  height: auto;
   width: 150pt;
+  padding: 2pt 0;
   top: 0;
 }
 
 .option-container:hover {
-  background: linear-gradient(
-    90deg,
-    rgba(30, 30, 30, 0.7) 0%,
-    rgba(30, 30, 30, 0.6) 66%,
-    rgba(57, 58, 63, 0) 100%
-  );
+  background: rgba(21, 115, 237, 0.25);
+  border-color: var(--color-accent);
   transform-origin: left top;
   color: var(--color-hover);
   margin-left: 4pt;
 }
 
 .option-icon {
-  font-size: 12pt;
-  line-height: 22pt;
+  font-size: 11pt;
+  line-height: 1.3;
   width: 14pt;
   margin: 5pt;
   color: var(--color-default);
+  align-self: center;
+  flex-shrink: 0;
 }
 
 .option-label {
   font-weight: 500;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }

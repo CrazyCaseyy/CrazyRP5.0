@@ -161,7 +161,7 @@ local function deliverStuff()
         Wait(500)
         TriggerEvent('animations:client:EmoteCommandStart', {'bumbin'})
         TriggerServerEvent('qb-drugs:server:randomPoliceAlert')
-        if lib.progressCircle({
+        if lib.progressBar({
             label = locale('info.delivering_products'),
             duration = 3500,
             position = 'bottom',

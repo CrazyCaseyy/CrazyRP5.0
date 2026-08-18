@@ -27,6 +27,7 @@ return {
     vehicleMaximumLockingDistance = 5.0, -- Maximum distance for vehicle locking
     getKeysWhenEngineIsRunning = true, -- when enabled, gives keys to a player who doesn't have them if they enter the driver seat when the engine is running
     keepEngineOnWhenAbandoned = true, -- when enabled, keeps a vehicle's engine running after exiting
+    keySearchBind = 'G', -- default key for toggling the vehicle engine (was previously unset/unbound)
 
     -- Carjack Settings
     carjackEnable = true,                -- Enables the ability to carjack pedestrian vehicles, stealing them by pointing a weapon at them

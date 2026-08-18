@@ -2,7 +2,7 @@ local config = require 'config.client'
 local painkillerAmount = 0
 
 lib.callback.register('hospital:client:UseIfaks', function()
-    if lib.progressCircle({
+    if lib.progressBar({
         duration = 3000,
         position = 'bottom',
         label = locale('progress.ifaks'),
@@ -38,7 +38,7 @@ lib.callback.register('hospital:client:UseIfaks', function()
 end)
 
 lib.callback.register('hospital:client:UseBandage', function()
-    if lib.progressCircle({
+    if lib.progressBar({
         duration = 4000,
         position = 'bottom',
         label = locale('progress.bandage'),
@@ -71,7 +71,7 @@ lib.callback.register('hospital:client:UseBandage', function()
 end)
 
 lib.callback.register('hospital:client:UsePainkillers', function()
-    if lib.progressCircle({
+    if lib.progressBar({
         duration = 3000,
         position = 'bottom',
         label = locale('progress.painkillers'),

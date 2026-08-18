@@ -18,7 +18,7 @@ local function setLocationsBlip()
 end
 
 local function pickProcess()
-    if lib.progressCircle({
+    if lib.progressBar({
         duration = math.random(6000, 8000),
         label = locale('progress.pick_grapes'),
         useWhileDead = false,

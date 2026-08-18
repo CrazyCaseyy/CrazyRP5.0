@@ -85,7 +85,7 @@ local function checkIn(hospitalName)
     local canCheckIn = lib.callback.await('qbx_ambulancejob:server:canCheckIn', false, hospitalName)
     if not canCheckIn then return end
 
-    if lib.progressCircle({
+    if lib.progressBar({
         duration = 2000,
         position = 'bottom',
         label = locale('progress.checking_in'),

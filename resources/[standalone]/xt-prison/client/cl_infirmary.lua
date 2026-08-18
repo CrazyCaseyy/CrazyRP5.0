@@ -18,7 +18,7 @@ local function initPrisonDoctor()
                         label = 'Receive Check-Up',
                         icon = 'fas fa-stethoscope',
                         action = function()
-                            if lib.progressCircle({
+                            if lib.progressBar({
                                 label = 'Receiving Checkup...',
                                 duration = (docInfo.healLength * 1000),
                                 position = 'bottom',
@@ -45,7 +45,7 @@ local function initPrisonDoctor()
                 label = 'Receive Check-Up',
                 icon = 'fas fa-stethoscope',
                 onSelect = function()
-                    if lib.progressCircle({
+                    if lib.progressBar({
                         label = 'Receiving Checkup...',
                         duration = (docInfo.healLength * 1000),
                         position = 'bottom',

@@ -124,7 +124,7 @@ RegisterNetEvent('hospital:client:RevivePlayer', function()
         return
     end
 
-    if lib.progressCircle({
+    if lib.progressBar({
         duration = 5000,
         position = 'bottom',
         label = locale('progress.revive'),
@@ -166,7 +166,7 @@ RegisterNetEvent('hospital:client:TreatWounds', function()
         return
     end
 
-    if lib.progressCircle({
+    if lib.progressBar({
         duration = 5000,
         position = 'bottom',
         label = locale('progress.healing'),

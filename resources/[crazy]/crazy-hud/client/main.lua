@@ -599,3 +599,34 @@ CreateThread(function()
         end
     end
 end)
+
+-- Engine start prompt (driver seat, engine off) - queries qbx_vehiclekeys' actual keybind
+-- via its hash rather than duplicating the RegisterKeyMapping, so player rebinds are respected
+-- without risking a second registration of the same control.
+
+local engineBindHash = joaat('+toggleengine') | 0x80000000
+local lastEnginePromptKey = nil
+
+CreateThread(function()
+    while true do
+        local shouldShow = LocalPlayer.state.isLoggedIn
+            and cache.vehicle
+            and cache.seat == -1
+            and not GetIsVehicleEngineRunning(cache.vehicle)
+            and not IsPauseMenuActive()
+            and not LocalPlayer.state.invOpen
+
+        if shouldShow then
+            local key = GetControlInstructionalButton(0, engineBindHash, true):sub(3)
+            if key ~= lastEnginePromptKey then
+                SendNUIMessage({ action = 'engineStartPrompt', show = true, key = key })
+                lastEnginePromptKey = key
+            end
+        elseif lastEnginePromptKey ~= nil then
+            SendNUIMessage({ action = 'engineStartPrompt', show = false })
+            lastEnginePromptKey = nil
+        end
+
+        Wait(500)
+    end
+end)

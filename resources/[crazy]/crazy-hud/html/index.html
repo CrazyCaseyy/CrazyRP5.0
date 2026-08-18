@@ -50,13 +50,69 @@
             fill: #1573ed !important;
         }
 
-        /* Compass heading diamond, matched by its distinctive shape/transform rather than by
-           color value - covers the case where the actual red isn't one of the patterns above. */
+        /* Prestige's own compass heading diamond has a red glow baked into the obfuscated
+           bundle that we've never been able to fully recolor (see the "&::after"-style
+           attempts above) - so instead of fighting it, hide it completely and draw our own
+           simple diamond in its place, same technique as the ox_target eye reticle. */
         [style*="rotate(45deg)"] {
-            background: #1573ed !important;
-            box-shadow: 0 0 8px rgba(21, 115, 237, 0.9) !important;
-            filter: drop-shadow(0 0 8px rgba(21, 115, 237, 0.9)) !important;
-            border-color: #1573ed !important;
+            display: none !important;
+        }
+
+        #crazy-compass-dot {
+            display: none;
+            position: fixed;
+            top: 2.9vh;
+            left: 50%;
+            width: 8px;
+            height: 8px;
+            background-color: #1573ed;
+            box-shadow: 0 0 6px rgba(21, 115, 237, 0.8);
+            transform: translateX(-50%) rotate(45deg);
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        /* Engine start prompt - shown in the driver seat while the engine is off. Badge-style
+           key indicator + short label, matching the reference (colored key badge, terse
+           action text) rather than a full "Press X to..." sentence. */
+        #crazy-engine-prompt {
+            display: none;
+            position: fixed;
+            bottom: 6vh;
+            left: 50%;
+            transform: translateX(-50%);
+            align-items: center;
+            gap: 9px;
+            background: rgba(20, 20, 23, 0.85);
+            border: 1px solid rgba(21, 115, 237, 0.5);
+            border-radius: 6px;
+            padding: 5px 14px 5px 5px;
+            font-family: 'Geom Graphic W03', sans-serif;
+            white-space: nowrap;
+            box-shadow: 0 0 10px rgba(21, 115, 237, 0.25);
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        #crazy-engine-prompt .crazy-key-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 22px;
+            height: 22px;
+            padding: 0 5px;
+            background: #1573ed;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 13px;
+            border-radius: 4px;
+            box-shadow: 0 0 6px rgba(21, 115, 237, 0.6);
+        }
+
+        #crazy-engine-prompt .crazy-prompt-label {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
         }
     </style>
     <title>React App</title>
@@ -66,6 +122,34 @@
 
 <body><noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    <div id="crazy-compass-dot"></div>
+    <div id="crazy-engine-prompt">
+        <span class="crazy-key-badge" id="crazy-engine-key"></span>
+        <span class="crazy-prompt-label">Start Engine</span>
+    </div>
+    <script>
+        window.addEventListener("message", function (event) {
+            if (!event.data) return;
+
+            if (event.data.action === "setVisible" && event.data.data && event.data.data.resource === "VEHICLEHUDVISABLE") {
+                var dot = document.getElementById("crazy-compass-dot");
+                if (dot) dot.style.display = event.data.data.state ? "block" : "none";
+            }
+
+            if (event.data.action === "engineStartPrompt") {
+                var box = document.getElementById("crazy-engine-prompt");
+                var keyEl = document.getElementById("crazy-engine-key");
+                if (box) {
+                    if (event.data.show) {
+                        if (keyEl) keyEl.textContent = event.data.key || "?";
+                        box.style.display = "flex";
+                    } else {
+                        box.style.display = "none";
+                    }
+                }
+            }
+        });
+    </script>
     <script src="./theme-scrubber.js?cb=4"></script>
     <script>fetch("./sprites/duotone.svg").then((e => e.text())).then((e => { var t = document.createElement("div"); t.innerHTML = e; var n = t.querySelector("svg"); if (n) { for (var d = 0; d < n.children.length; d++) { var r = n.children[d]; r.id && (r.id = "duotone-" + r.id) } n.style.display = "none", document.body.insertBefore(n, document.body.firstChild) } }))</script>
 </body>

@@ -32,7 +32,7 @@ local function handleHousePickup(pickup)
             dropFingerprint()
             local canStart = lib.callback.await('qbx_houserobbery:server:checkPickup', false, house, pickupId)
             if not canStart then return end
-            if lib.progressCircle({
+            if lib.progressBar({
                     duration = math.random(4000, 8000),
                     position = 'bottom',
                     canCancel = true,
@@ -76,7 +76,7 @@ local function handleHouseLoot(lootId)
             dropFingerprint()
             local canStart = lib.callback.await('qbx_houserobbery:server:checkLoot', false, house, lootId)
             if not canStart then return end
-            if lib.progressCircle({
+            if lib.progressBar({
                     duration = math.random(4000, 8000),
                     position = 'bottom',
                     canCancel = true,

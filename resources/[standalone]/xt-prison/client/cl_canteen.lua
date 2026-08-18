@@ -7,7 +7,7 @@ local canteenBlip
 
 local function onSelectCanteen()
     local canteenInfo = config.CanteenPed
-    if lib.progressCircle({
+    if lib.progressBar({
         label = 'Receiving Canteen Meal...',
         duration = (canteenInfo.mealLength * 1000),
         position = 'bottom',

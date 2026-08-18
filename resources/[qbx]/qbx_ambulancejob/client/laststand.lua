@@ -27,7 +27,7 @@ end)
 ---@param targetId number playerId
 RegisterNetEvent('hospital:client:HelpPerson', function(targetId)
     if GetInvokingResource() then return end
-    if lib.progressCircle({
+    if lib.progressBar({
         duration = math.random(30000, 60000),
         position = 'bottom',
         label = locale('progress.revive'),

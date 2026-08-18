@@ -22,7 +22,7 @@ function fuel.getPetrolCan(coords, refuel)
 	TaskTurnPedToFaceCoord(cache.ped, coords.x, coords.y, coords.z, config.petrolCan.duration)
 	Wait(500)
 
-	if lib.progressCircle({
+	if lib.progressBar({
 			duration = config.petrolCan.duration,
 			useWhileDead = false,
 			canCancel = true,
@@ -83,7 +83,7 @@ function fuel.startFueling(vehicle, isPump)
 	Wait(500)
 
 	CreateThread(function()
-		lib.progressCircle({
+		lib.progressBar({
 			duration = duration,
 			useWhileDead = false,
 			canCancel = true,

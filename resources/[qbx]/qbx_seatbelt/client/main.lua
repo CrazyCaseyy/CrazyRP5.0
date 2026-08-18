@@ -92,7 +92,7 @@ RegisterNetEvent('qbx_seatbelt:client:UseHarness', function(ItemData)
     end
 
     if not playerState.harness then
-        if lib.progressCircle({
+        if lib.progressBar({
             duration = 5000,
             label = locale('progress.attachHarness'),
             position = 'bottom',
@@ -106,7 +106,7 @@ RegisterNetEvent('qbx_seatbelt:client:UseHarness', function(ItemData)
             toggleHarness()
         end
     else
-        if lib.progressCircle({
+        if lib.progressBar({
             duration = 5000,
             label = locale('progress.removeHarness'),
             position = 'bottom',
