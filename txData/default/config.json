@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "general": {
+    "serverName": "Crazy RP"
+  },
+  "server": {
+    "dataPath": "C:/Users/casey/Desktop/Crazy RP/"
+  }
+}

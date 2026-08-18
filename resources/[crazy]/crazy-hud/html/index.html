@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="./favicon.ico" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Web site created using create-react-app" />
+    <link rel="apple-touch-icon" href="./logo192.png" />
+    <style>
+        @font-face {
+            font-family: 'Geom Graphic W03';
+            src: url('./fonts/GeomGraphic.woff2') format('woff2');
+            font-weight: 400;
+            font-style: normal
+        }
+
+        /* Recolor the tachometer arc (built on MUI CircularProgress) from red to blue,
+           without touching the obfuscated bundle - the color is set inline via SVG stroke
+           at render time, so this needs !important to win over it. */
+        .MuiCircularProgress-root,
+        .MuiCircularProgress-svg,
+        .MuiCircularProgress-circle {
+            color: #1573ed !important;
+            stroke: #1573ed !important;
+        }
+
+        /* Belt-and-suspenders for elements that re-render very frequently (e.g. the compass
+           heading dot, updated on every degree of movement) - theme-scrubber.js can lose a
+           timing race against React repeatedly re-applying its own inline style, but a CSS
+           rule with !important is re-evaluated by the browser on every repaint, no race at all. */
+        [style*="218,27,50"],
+        [style*="218, 27, 50"] {
+            box-shadow: 0 0 8px rgba(21, 115, 237, 0.9) !important;
+            filter: drop-shadow(0 0 8px rgba(21, 115, 237, 0.9)) !important;
+        }
+        [style*="239,22,22"],
+        [style*="239, 22, 22"] {
+            color: #1573ed !important;
+        }
+        [style*="#da1b32"] {
+            background: #1573ed !important;
+            border-color: #1573ed !important;
+        }
+        [stroke="#da1b32"] {
+            stroke: #1573ed !important;
+        }
+        [fill="#da1b32"] {
+            fill: #1573ed !important;
+        }
+
+        /* Compass heading diamond, matched by its distinctive shape/transform rather than by
+           color value - covers the case where the actual red isn't one of the patterns above. */
+        [style*="rotate(45deg)"] {
+            background: #1573ed !important;
+            box-shadow: 0 0 8px rgba(21, 115, 237, 0.9) !important;
+            filter: drop-shadow(0 0 8px rgba(21, 115, 237, 0.9)) !important;
+            border-color: #1573ed !important;
+        }
+    </style>
+    <title>React App</title>
+    <script defer="defer" src="./static/js/main.19930c47.js?cb=6"></script>
+    <link href="./static/css/main.13e6b553.css?cb=2" rel="stylesheet">
+</head>
+
+<body><noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script src="./theme-scrubber.js?cb=4"></script>
+    <script>fetch("./sprites/duotone.svg").then((e => e.text())).then((e => { var t = document.createElement("div"); t.innerHTML = e; var n = t.querySelector("svg"); if (n) { for (var d = 0; d < n.children.length; d++) { var r = n.children[d]; r.id && (r.id = "duotone-" + r.id) } n.style.display = "none", document.body.insertBefore(n, document.body.firstChild) } }))</script>
+</body>
+
+</html>

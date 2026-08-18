@@ -1,0 +1,1831 @@
+║             TXADMIN║ ================================================================
+║             TXADMIN║ ======== [14740] FXServer Starting - 8/18/2026, 2:38:51 AM      
+║             TXADMIN║ ================================================================
+[                 cmd] Argument count mismatch (passed 1, wanted 2)
+[           resources] Scanning resources.
+[           resources] Found 100 resources.
+[          svadhesive] Authenticating server license key...
+[          svadhesive] Server license key authentication succeeded. Welcome!
+[    c-scripting-core] Creating script environments for monitor
+[      script:monitor] [txAdmin] Resource v8.1.1 threads and commands set up. All Ready.
+[           resources] Started resource monitor
+[                 cmd] Argument count mismatch (passed 1, wanted 2)
+[    c-scripting-core] Creating script environments for mapmanager
+[           resources] Started resource mapmanager
+[    c-scripting-core] Creating script environments for chat
+[           resources] Started resource chat
+[           resources] Started resource spawnmanager
+[    c-scripting-core] Creating script environments for sessionmanager
+[           resources] Started resource sessionmanager
+[    c-scripting-core] Creating script environments for hardcap
+[           resources] Started resource hardcap
+[    c-scripting-core] Creating script environments for baseevents
+[           resources] Started resource baseevents
+[    c-scripting-core] Creating script environments for ox_lib
+[           resources] Started resource ox_lib
+[    c-scripting-core] Creating script environments for oxmysql
+[           resources] Started resource oxmysql
+[    c-scripting-core] Creating script environments for qbx_core
+[     script:qbx_core] [qbx_core] [INFO] Stopping hardcap...
+[           resources] Stopping resource hardcap
+[           resources] Started resource qbx_core
+[    c-scripting-core] Creating script environments for ox_target
+[           resources] Started resource ox_target
+[    c-scripting-core] Creating script environments for ox_doorlock
+[           resources] Started resource ox_doorlock
+[    c-scripting-core] Creating script environments for ox_inventory
+[           resources] Started resource ox_inventory
+[    c-scripting-core] Creating script environments for ox_fuel
+[           resources] Started resource ox_fuel
+[    c-scripting-core] Creating script environments for qbx_adminmenu
+[           resources] Started resource qbx_adminmenu
+[    c-scripting-core] Creating script environments for qbx_medical
+[           resources] Started resource qbx_medical
+[    c-scripting-core] Creating script environments for qbx_ambulancejob
+[           resources] Started resource qbx_ambulancejob
+[    c-scripting-core] Creating script environments for qbx_bankrobbery
+[           resources] Started resource qbx_bankrobbery
+[    c-scripting-core] Creating script environments for qbx_binoculars
+[           resources] Started resource qbx_binoculars
+[    c-scripting-core] Creating script environments for qbx_busjob
+[           resources] Started resource qbx_busjob
+[    c-scripting-core] Creating script environments for qbx_carwash
+[           resources] Started resource qbx_carwash
+[    c-scripting-core] Creating script environments for qbx_chat_theme
+[           resources] Started resource qbx_chat_theme
+[    c-scripting-core] Creating script environments for qbx_cityhall
+[           resources] Started resource qbx_cityhall
+[    c-scripting-core] Creating script environments for qbx_customs
+[           resources] Started resource qbx_customs
+[           resources] Started resource qbx_density
+[    c-scripting-core] Creating script environments for qbx_divegear
+[           resources] Started resource qbx_divegear
+[    c-scripting-core] Creating script environments for qbx_diving
+[           resources] Started resource qbx_diving
+[    c-scripting-core] Creating script environments for qbx_drugs
+[           resources] Started resource qbx_drugs
+[    c-scripting-core] Creating script environments for qbx_fireworks
+[           resources] Started resource qbx_fireworks
+[    c-scripting-core] Creating script environments for qbx_garages
+[           resources] Started resource qbx_garages
+[    c-scripting-core] Creating script environments for qbx_garbagejob
+[           resources] Started resource qbx_garbagejob
+[    c-scripting-core] Creating script environments for qbx_houserobbery
+[           resources] Started resource qbx_houserobbery
+[    c-scripting-core] Creating script environments for qbx_hud
+[           resources] Started resource qbx_hud
+[           resources] Started resource MugShotBase64
+[    c-scripting-core] Creating script environments for qbx_idcard
+[           resources] Started resource qbx_idcard
+[    c-scripting-core] Creating script environments for qbx_jewelery
+[           resources] Started resource qbx_jewelery
+[    c-scripting-core] Creating script environments for qbx_lapraces
+[           resources] Started resource qbx_lapraces
+[    c-scripting-core] Creating script environments for qbx_management
+[           resources] Started resource qbx_management
+[    c-scripting-core] Creating script environments for qbx_mechanicjob
+[           resources] Started resource qbx_mechanicjob
+[    c-scripting-core] Creating script environments for qbx_newsjob
+[           resources] Started resource qbx_newsjob
+[    c-scripting-core] Creating script environments for qbx_pawnshop
+[           resources] Started resource qbx_pawnshop
+[    c-scripting-core] Creating script environments for qbx_police
+[           resources] Started resource qbx_police
+[    c-scripting-core] Creating script environments for qbx_properties
+[           resources] Started resource qbx_properties
+[    c-scripting-core] Creating script environments for qbx_radialmenu
+[           resources] Started resource qbx_radialmenu
+[    c-scripting-core] Creating script environments for qbx_recyclejob
+[           resources] Started resource qbx_recyclejob
+[    c-scripting-core] Creating script environments for qbx_scoreboard
+[           resources] Started resource qbx_scoreboard
+[    c-scripting-core] Creating script environments for qbx_scrapyard
+[           resources] Started resource qbx_scrapyard
+[    c-scripting-core] Creating script environments for qbx_seatbelt
+[           resources] Started resource qbx_seatbelt
+[    c-scripting-core] Creating script environments for qbx_smallresources
+[script:qbx_smallreso] [qbx_smallresources] [WARN] [qbx_entitiesblacklist] You have entity blacklist enabled, this means that any entity that is blacklisted in config.lua will not be able to spawn, you can change this in qbx_smallresource/qbx_entitiesblacklist/config.lua
+[           resources] Started resource qbx_smallresources
+[    c-scripting-core] Creating script environments for qbx_spawn
+[           resources] Started resource qbx_spawn
+[    c-scripting-core] Creating script environments for qbx_storerobbery
+[           resources] Started resource qbx_storerobbery
+[    c-scripting-core] Creating script environments for qbx_streetraces
+[           resources] Started resource qbx_streetraces
+[    c-scripting-core] Creating script environments for qbx_taxijob
+[           resources] Started resource qbx_taxijob
+[    c-scripting-core] Creating script environments for qbx_towjob
+[           resources] Started resource qbx_towjob
+[    c-scripting-core] Creating script environments for qbx_truckerjob
+[           resources] Started resource qbx_truckerjob
+[    c-scripting-core] Creating script environments for qbx_truckrobbery
+[           resources] Started resource qbx_truckrobbery
+[    c-scripting-core] Creating script environments for qbx_vehiclekeys
+[           resources] Started resource qbx_vehiclekeys
+[    c-scripting-core] Creating script environments for qbx_vehicles
+[           resources] Started resource qbx_vehicles
+[    c-scripting-core] Creating script environments for qbx_vehiclesales
+[           resources] Started resource qbx_vehiclesales
+[    c-scripting-core] Creating script environments for qbx_vehicleshop
+[           resources] Started resource qbx_vehicleshop
+[    c-scripting-core] Creating script environments for qbx_vineyard
+[           resources] Started resource qbx_vineyard
+[    c-scripting-core] Creating script environments for qbx_weed
+[           resources] Started resource qbx_weed
+[    c-scripting-core] Creating script environments for Renewed-Banking
+[           resources] Started resource Renewed-Banking
+[    c-scripting-core] Creating script environments for Renewed-Weathersync
+[           resources] Started resource Renewed-Weathersync
+[           resources] Started resource bob74_ipl
+[    c-scripting-core] Creating script environments for illenium-appearance
+[           resources] Started resource illenium-appearance
+[    c-scripting-core] Creating script environments for loadscreen
+[           resources] Started resource loadscreen
+[    c-scripting-core] Creating script environments for mana_audio
+[           resources] Started resource mana_audio
+[           resources] Started resource mhacking
+[           resources] Started resource safecracker
+[    c-scripting-core] Creating script environments for screencapture
+[script:screencapture] [screencapture] Sentry enabled
+[           resources] Started resource screencapture
+[    c-scripting-core] Creating script environments for scully_emotemenu
+[           resources] Started resource scully_emotemenu
+[    c-scripting-core] Creating script environments for ultra-voltlab
+[           resources] Started resource ultra-voltlab
+[    c-scripting-core] Creating script environments for vehiclehandler
+[           resources] Started resource vehiclehandler
+[    c-scripting-core] Creating script environments for xt-prison
+[           resources] Started resource xt-prison
+[    c-scripting-core] Creating script environments for pma-voice
+[           resources] Started resource pma-voice
+[    c-scripting-core] Creating script environments for mm_radio
+[           resources] Started resource mm_radio
+[           resources] Started resource pillbox
+[    c-scripting-core] Creating script environments for npwd_qbx_garages
+[           resources] Started resource npwd_qbx_garages
+[    c-scripting-core] Creating script environments for npwd_qbx_mail
+[           resources] Started resource npwd_qbx_mail
+[    c-scripting-core] Creating script environments for qbx_npwd
+[           resources] Started resource qbx_npwd
+[    c-scripting-core] Creating script environments for npwd
+[           resources] Started resource npwd
+[ citizen-server-impl] server thread hitch warning: timer interval of 393 milliseconds
+[      script:oxmysql] [12.3.2-MariaDB] Database server connection established!
+[    script:xt-prison] [xt-prison] [INFO] Initializing Table: xt_prison
+[    script:xt-prison] [xt-prison] [INFO] Initializing Table: xt_prison_items
+[     script:qbx_core] [qbx_core] [INFO] Removed invalid groups from player_groups table
+[     script:qbx_core] 
+[     script:qbx_core] Welcome to Qbox!
+[     script:qbx_core] To learn more, please check out the documentation at https://docs.qbox.re/.
+[     script:qbx_core] To turn this message off, set the qbx:acknowledge convar to true in your server.cfg file.
+[     script:qbx_core] 
+[ script:ox_inventory] [ox_inventory] [INFO] Inventory has loaded 301 items
+[script:scully_emotem] [scully_emotemenu] You are currently running the latest version.
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/players.json (Get "https://45.26.163.143:30120/players.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+║             TXADMIN║ ================================================================
+║             TXADMIN║ ======== [36744] FXServer Starting - 8/18/2026, 3:02:39 AM      
+║             TXADMIN║ ================================================================
+[                 cmd] Argument count mismatch (passed 1, wanted 2)
+[           resources] Scanning resources.
+[           resources] Found 100 resources.
+[          svadhesive] Authenticating server license key...
+[          svadhesive] Server license key authentication succeeded. Welcome!
+[    c-scripting-core] Creating script environments for monitor
+[      script:monitor] [txAdmin] Resource v8.1.1 threads and commands set up. All Ready.
+[           resources] Started resource monitor
+[                 cmd] Argument count mismatch (passed 1, wanted 2)
+[    c-scripting-core] Creating script environments for mapmanager
+[           resources] Started resource mapmanager
+[    c-scripting-core] Creating script environments for chat
+[           resources] Started resource chat
+[           resources] Started resource spawnmanager
+[    c-scripting-core] Creating script environments for sessionmanager
+[           resources] Started resource sessionmanager
+[    c-scripting-core] Creating script environments for hardcap
+[           resources] Started resource hardcap
+[    c-scripting-core] Creating script environments for baseevents
+[           resources] Started resource baseevents
+[    c-scripting-core] Creating script environments for ox_lib
+[           resources] Started resource ox_lib
+[    c-scripting-core] Creating script environments for oxmysql
+[           resources] Started resource oxmysql
+[    c-scripting-core] Creating script environments for qbx_core
+[     script:qbx_core] [qbx_core] [INFO] Stopping hardcap...
+[           resources] Stopping resource hardcap
+[           resources] Started resource qbx_core
+[    c-scripting-core] Creating script environments for ox_target
+[           resources] Started resource ox_target
+[    c-scripting-core] Creating script environments for ox_doorlock
+[           resources] Started resource ox_doorlock
+[    c-scripting-core] Creating script environments for ox_inventory
+[           resources] Started resource ox_inventory
+[    c-scripting-core] Creating script environments for ox_fuel
+[           resources] Started resource ox_fuel
+[    c-scripting-core] Creating script environments for qbx_adminmenu
+[           resources] Started resource qbx_adminmenu
+[    c-scripting-core] Creating script environments for qbx_medical
+[           resources] Started resource qbx_medical
+[    c-scripting-core] Creating script environments for qbx_ambulancejob
+[           resources] Started resource qbx_ambulancejob
+[    c-scripting-core] Creating script environments for qbx_bankrobbery
+[           resources] Started resource qbx_bankrobbery
+[    c-scripting-core] Creating script environments for qbx_binoculars
+[           resources] Started resource qbx_binoculars
+[    c-scripting-core] Creating script environments for qbx_busjob
+[           resources] Started resource qbx_busjob
+[    c-scripting-core] Creating script environments for qbx_carwash
+[           resources] Started resource qbx_carwash
+[    c-scripting-core] Creating script environments for qbx_chat_theme
+[           resources] Started resource qbx_chat_theme
+[    c-scripting-core] Creating script environments for qbx_cityhall
+[           resources] Started resource qbx_cityhall
+[    c-scripting-core] Creating script environments for qbx_customs
+[           resources] Started resource qbx_customs
+[           resources] Started resource qbx_density
+[    c-scripting-core] Creating script environments for qbx_divegear
+[           resources] Started resource qbx_divegear
+[    c-scripting-core] Creating script environments for qbx_diving
+[           resources] Started resource qbx_diving
+[    c-scripting-core] Creating script environments for qbx_drugs
+[           resources] Started resource qbx_drugs
+[    c-scripting-core] Creating script environments for qbx_fireworks
+[           resources] Started resource qbx_fireworks
+[    c-scripting-core] Creating script environments for qbx_garages
+[           resources] Started resource qbx_garages
+[    c-scripting-core] Creating script environments for qbx_garbagejob
+[           resources] Started resource qbx_garbagejob
+[    c-scripting-core] Creating script environments for qbx_houserobbery
+[           resources] Started resource qbx_houserobbery
+[           resources] Started resource MugShotBase64
+[    c-scripting-core] Creating script environments for qbx_idcard
+[           resources] Started resource qbx_idcard
+[    c-scripting-core] Creating script environments for qbx_jewelery
+[           resources] Started resource qbx_jewelery
+[    c-scripting-core] Creating script environments for qbx_lapraces
+[           resources] Started resource qbx_lapraces
+[    c-scripting-core] Creating script environments for qbx_management
+[           resources] Started resource qbx_management
+[    c-scripting-core] Creating script environments for qbx_mechanicjob
+[           resources] Started resource qbx_mechanicjob
+[    c-scripting-core] Creating script environments for qbx_newsjob
+[           resources] Started resource qbx_newsjob
+[    c-scripting-core] Creating script environments for qbx_pawnshop
+[           resources] Started resource qbx_pawnshop
+[    c-scripting-core] Creating script environments for qbx_police
+[           resources] Started resource qbx_police
+[    c-scripting-core] Creating script environments for qbx_properties
+[           resources] Started resource qbx_properties
+[    c-scripting-core] Creating script environments for qbx_radialmenu
+[           resources] Started resource qbx_radialmenu
+[    c-scripting-core] Creating script environments for qbx_recyclejob
+[           resources] Started resource qbx_recyclejob
+[    c-scripting-core] Creating script environments for qbx_scoreboard
+[           resources] Started resource qbx_scoreboard
+[    c-scripting-core] Creating script environments for qbx_scrapyard
+[           resources] Started resource qbx_scrapyard
+[    c-scripting-core] Creating script environments for qbx_seatbelt
+[           resources] Started resource qbx_seatbelt
+[    c-scripting-core] Creating script environments for qbx_smallresources
+[script:qbx_smallreso] [qbx_smallresources] [WARN] [qbx_entitiesblacklist] You have entity blacklist enabled, this means that any entity that is blacklisted in config.lua will not be able to spawn, you can change this in qbx_smallresource/qbx_entitiesblacklist/config.lua
+[           resources] Started resource qbx_smallresources
+[    c-scripting-core] Creating script environments for qbx_spawn
+[           resources] Started resource qbx_spawn
+[    c-scripting-core] Creating script environments for qbx_storerobbery
+[           resources] Started resource qbx_storerobbery
+[    c-scripting-core] Creating script environments for qbx_streetraces
+[           resources] Started resource qbx_streetraces
+[    c-scripting-core] Creating script environments for qbx_taxijob
+[           resources] Started resource qbx_taxijob
+[    c-scripting-core] Creating script environments for qbx_towjob
+[           resources] Started resource qbx_towjob
+[    c-scripting-core] Creating script environments for qbx_truckerjob
+[           resources] Started resource qbx_truckerjob
+[    c-scripting-core] Creating script environments for qbx_truckrobbery
+[           resources] Started resource qbx_truckrobbery
+[    c-scripting-core] Creating script environments for qbx_vehiclekeys
+[           resources] Started resource qbx_vehiclekeys
+[    c-scripting-core] Creating script environments for qbx_vehicles
+[           resources] Started resource qbx_vehicles
+[    c-scripting-core] Creating script environments for qbx_vehiclesales
+[           resources] Started resource qbx_vehiclesales
+[    c-scripting-core] Creating script environments for qbx_vehicleshop
+[           resources] Started resource qbx_vehicleshop
+[    c-scripting-core] Creating script environments for qbx_vineyard
+[           resources] Started resource qbx_vineyard
+[    c-scripting-core] Creating script environments for qbx_weed
+[           resources] Started resource qbx_weed
+[    c-scripting-core] Creating script environments for Renewed-Banking
+[           resources] Started resource Renewed-Banking
+[    c-scripting-core] Creating script environments for Renewed-Weathersync
+[           resources] Started resource Renewed-Weathersync
+[           resources] Started resource bob74_ipl
+[    c-scripting-core] Creating script environments for illenium-appearance
+[           resources] Started resource illenium-appearance
+[    c-scripting-core] Creating script environments for loadscreen
+[           resources] Started resource loadscreen
+[    c-scripting-core] Creating script environments for mana_audio
+[           resources] Started resource mana_audio
+[           resources] Started resource mhacking
+[           resources] Started resource safecracker
+[    c-scripting-core] Creating script environments for screencapture
+[script:screencapture] [screencapture] Sentry enabled
+[           resources] Started resource screencapture
+[    c-scripting-core] Creating script environments for scully_emotemenu
+[           resources] Started resource scully_emotemenu
+[    c-scripting-core] Creating script environments for ultra-voltlab
+[           resources] Started resource ultra-voltlab
+[    c-scripting-core] Creating script environments for vehiclehandler
+[           resources] Started resource vehiclehandler
+[    c-scripting-core] Creating script environments for xt-prison
+[           resources] Started resource xt-prison
+[    c-scripting-core] Creating script environments for pma-voice
+[           resources] Started resource pma-voice
+[    c-scripting-core] Creating script environments for mm_radio
+[           resources] Started resource mm_radio
+[           resources] Started resource pillbox
+[    c-scripting-core] Creating script environments for crazy-hud
+[           resources] Started resource crazy-hud
+[    c-scripting-core] Creating script environments for npwd_qbx_garages
+[           resources] Started resource npwd_qbx_garages
+[    c-scripting-core] Creating script environments for npwd_qbx_mail
+[           resources] Started resource npwd_qbx_mail
+[    c-scripting-core] Creating script environments for qbx_npwd
+[           resources] Started resource qbx_npwd
+[    c-scripting-core] Creating script environments for npwd
+[           resources] Started resource npwd
+[ citizen-server-impl] server thread hitch warning: timer interval of 494 milliseconds
+[      script:oxmysql] [12.3.2-MariaDB] Database server connection established!
+[    script:xt-prison] [xt-prison] [INFO] Initializing Table: xt_prison
+[    script:xt-prison] [xt-prison] [INFO] Initializing Table: xt_prison_items
+[     script:qbx_core] [qbx_core] [INFO] Removed invalid groups from player_groups table
+[     script:qbx_core] 
+[     script:qbx_core] Welcome to Qbox!
+[     script:qbx_core] To learn more, please check out the documentation at https://docs.qbox.re/.
+[     script:qbx_core] To turn this message off, set the qbx:acknowledge convar to true in your server.cfg file.
+[     script:qbx_core] 
+[ script:ox_inventory] [ox_inventory] [INFO] Inventory has loaded 301 items
+[script:scully_emotem] [scully_emotemenu] You are currently running the latest version.
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[     script:qbx_core] [qbx_core] [INFO] CrazyCasey has created a character
+║             TXADMIN║ txaReportResources 
+[      script:monitor] [txAdmin] Sending resources list to txAdmin.
+║         crazy-fivem║ ensure "crazy-hud"
+[           resources] Stopping resource crazy-hud
+[    c-scripting-core] Creating script environments for crazy-hud
+[           resources] Started resource crazy-hud
+║             TXADMIN║ txaReportResources 
+[      script:monitor] [txAdmin] Sending resources list to txAdmin.
+[ script:ox_inventory] [ox_inventory] [INFO] Saving 1 inventories to the database
+[ script:ox_inventory] [ox_inventory] [INFO] Saved 1/1 players (47.8193 ms)
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/players.json (Get "https://45.26.163.143:30120/players.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/players.json (Get "https://45.26.163.143:30120/players.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": read tcp 10.0.5.27:45484->45.26.163.143:30120: read: connection reset by peer)
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/players.json (Get "https://45.26.163.143:30120/players.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/players.json (Get "https://45.26.163.143:30120/players.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/players.json (Get "https://45.26.163.143:30120/players.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[script:ox_inventory:] Warning: unable to generate
+[script:ox_inventory:] colaitem does not exist↩
+║         crazy-fivem║ ensure crazy-hud
+Stopping resource crazy-hud
+[    c-scripting-core] Creating script environments for crazy-hud
+[ resources:crazy-hud] Warning: could not find file `html/styles.css` (defined in fxmanifest.lua:23)
+[ resources:crazy-hud] Warning: could not find file `html/responsive.css` (defined in fxmanifest.lua:23)
+[ resources:crazy-hud] Warning: could not find file `html/app.js` (defined in fxmanifest.lua:23)
+[           resources] Started resource crazy-hud (3 warnings)
+║         crazy-fivem║ ensure crazy-hud
+[           resources] Stopping resource crazy-hud
+[    c-scripting-core] Creating script environments for crazy-hud
+[           resources] Started resource crazy-hud
+║         crazy-fivem║ refresh
+[           resources] Scanning resources.
+[           resources] Found 0 new resources, and refreshed 0/100 resources.
+║         crazy-fivem║ ensure crazy-hud
+[           resources] Stopping resource crazy-hud
+[    c-scripting-core] Creating script environments for crazy-hud
+[           resources] Started resource crazy-hud
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/players.json (Get "https://45.26.163.143:30120/players.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/players.json (Get "https://45.26.163.143:30120/players.json": read tcp 10.0.5.27:45082->45.26.163.143:30120: read: connection reset by peer)
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ script:ox_inventory] [ox_inventory] [INFO] Saving 1 inventories to the database
+[ script:ox_inventory] [ox_inventory] [INFO] Saved 1/1 players (45.9933 ms)
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/players.json (Get "https://45.26.163.143:30120/players.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+║             TXADMIN║ txaEvent "serverShuttingDown" "{\"delay\":5000,\"author\":\"crazy-fivem\",\"message\":\"Server restarting (admin request).\"}"
+[      script:monitor] [txAdmin] Server shutting down. Kicking all players.
+
+║             TXADMIN║ ================================================================
+║             TXADMIN║ ======== [3928] FXServer Starting - 8/18/2026, 4:30:53 AM       
+║             TXADMIN║ ================================================================
+[                 cmd] Argument count mismatch (passed 1, wanted 2)
+[           resources] Scanning resources.
+[           resources] Found 100 resources.
+[          svadhesive] Authenticating server license key...
+[          svadhesive] Server license key authentication succeeded. Welcome!
+[    c-scripting-core] Creating script environments for monitor
+[      script:monitor] [txAdmin] Resource v8.1.1 threads and commands set up. All Ready.
+[           resources] Started resource monitor
+[                 cmd] Argument count mismatch (passed 1, wanted 2)
+[    c-scripting-core] Creating script environments for mapmanager
+[           resources] Started resource mapmanager
+[    c-scripting-core] Creating script environments for chat
+[           resources] Started resource chat
+[           resources] Started resource spawnmanager
+[    c-scripting-core] Creating script environments for sessionmanager
+[           resources] Started resource sessionmanager
+[    c-scripting-core] Creating script environments for hardcap
+[           resources] Started resource hardcap
+[    c-scripting-core] Creating script environments for baseevents
+[           resources] Started resource baseevents
+[    c-scripting-core] Creating script environments for ox_lib
+[           resources] Started resource ox_lib
+[    c-scripting-core] Creating script environments for oxmysql
+[           resources] Started resource oxmysql
+[    c-scripting-core] Creating script environments for qbx_core
+[     script:qbx_core] [qbx_core] [INFO] Stopping hardcap...
+[           resources] Stopping resource hardcap
+[           resources] Started resource qbx_core
+[    c-scripting-core] Creating script environments for ox_target
+[           resources] Started resource ox_target
+[    c-scripting-core] Creating script environments for ox_doorlock
+[           resources] Started resource ox_doorlock
+[    c-scripting-core] Creating script environments for ox_inventory
+[           resources] Started resource ox_inventory
+[    c-scripting-core] Creating script environments for ox_fuel
+[           resources] Started resource ox_fuel
+[    c-scripting-core] Creating script environments for qbx_adminmenu
+[           resources] Started resource qbx_adminmenu
+[    c-scripting-core] Creating script environments for qbx_medical
+[           resources] Started resource qbx_medical
+[    c-scripting-core] Creating script environments for qbx_ambulancejob
+[           resources] Started resource qbx_ambulancejob
+[    c-scripting-core] Creating script environments for qbx_bankrobbery
+[           resources] Started resource qbx_bankrobbery
+[    c-scripting-core] Creating script environments for qbx_binoculars
+[           resources] Started resource qbx_binoculars
+[    c-scripting-core] Creating script environments for qbx_busjob
+[           resources] Started resource qbx_busjob
+[    c-scripting-core] Creating script environments for qbx_carwash
+[           resources] Started resource qbx_carwash
+[    c-scripting-core] Creating script environments for qbx_chat_theme
+[           resources] Started resource qbx_chat_theme
+[    c-scripting-core] Creating script environments for qbx_cityhall
+[           resources] Started resource qbx_cityhall
+[    c-scripting-core] Creating script environments for qbx_customs
+[           resources] Started resource qbx_customs
+[           resources] Started resource qbx_density
+[    c-scripting-core] Creating script environments for qbx_divegear
+[           resources] Started resource qbx_divegear
+[    c-scripting-core] Creating script environments for qbx_diving
+[           resources] Started resource qbx_diving
+[    c-scripting-core] Creating script environments for qbx_drugs
+[           resources] Started resource qbx_drugs
+[    c-scripting-core] Creating script environments for qbx_fireworks
+[           resources] Started resource qbx_fireworks
+[    c-scripting-core] Creating script environments for qbx_garages
+[           resources] Started resource qbx_garages
+[    c-scripting-core] Creating script environments for qbx_garbagejob
+[           resources] Started resource qbx_garbagejob
+[    c-scripting-core] Creating script environments for qbx_houserobbery
+[           resources] Started resource qbx_houserobbery
+[           resources] Started resource MugShotBase64
+[    c-scripting-core] Creating script environments for qbx_idcard
+[           resources] Started resource qbx_idcard
+[    c-scripting-core] Creating script environments for qbx_jewelery
+[           resources] Started resource qbx_jewelery
+[    c-scripting-core] Creating script environments for qbx_lapraces
+[           resources] Started resource qbx_lapraces
+[    c-scripting-core] Creating script environments for qbx_management
+[           resources] Started resource qbx_management
+[    c-scripting-core] Creating script environments for qbx_mechanicjob
+[           resources] Started resource qbx_mechanicjob
+[    c-scripting-core] Creating script environments for qbx_newsjob
+[           resources] Started resource qbx_newsjob
+[    c-scripting-core] Creating script environments for qbx_pawnshop
+[           resources] Started resource qbx_pawnshop
+[    c-scripting-core] Creating script environments for qbx_police
+[           resources] Started resource qbx_police
+[    c-scripting-core] Creating script environments for qbx_properties
+[           resources] Started resource qbx_properties
+[    c-scripting-core] Creating script environments for qbx_radialmenu
+[           resources] Started resource qbx_radialmenu
+[    c-scripting-core] Creating script environments for qbx_recyclejob
+[           resources] Started resource qbx_recyclejob
+[    c-scripting-core] Creating script environments for qbx_scoreboard
+[           resources] Started resource qbx_scoreboard
+[    c-scripting-core] Creating script environments for qbx_scrapyard
+[           resources] Started resource qbx_scrapyard
+[    c-scripting-core] Creating script environments for qbx_seatbelt
+[           resources] Started resource qbx_seatbelt
+[    c-scripting-core] Creating script environments for qbx_smallresources
+[script:qbx_smallreso] [qbx_smallresources] [WARN] [qbx_entitiesblacklist] You have entity blacklist enabled, this means that any entity that is blacklisted in config.lua will not be able to spawn, you can change this in qbx_smallresource/qbx_entitiesblacklist/config.lua
+[           resources] Started resource qbx_smallresources
+[    c-scripting-core] Creating script environments for qbx_spawn
+[           resources] Started resource qbx_spawn
+[    c-scripting-core] Creating script environments for qbx_storerobbery
+[           resources] Started resource qbx_storerobbery
+[    c-scripting-core] Creating script environments for qbx_streetraces
+[           resources] Started resource qbx_streetraces
+[    c-scripting-core] Creating script environments for qbx_taxijob
+[           resources] Started resource qbx_taxijob
+[    c-scripting-core] Creating script environments for qbx_towjob
+[           resources] Started resource qbx_towjob
+[    c-scripting-core] Creating script environments for qbx_truckerjob
+[           resources] Started resource qbx_truckerjob
+[    c-scripting-core] Creating script environments for qbx_truckrobbery
+[           resources] Started resource qbx_truckrobbery
+[    c-scripting-core] Creating script environments for qbx_vehiclekeys
+[           resources] Started resource qbx_vehiclekeys
+[    c-scripting-core] Creating script environments for qbx_vehicles
+[           resources] Started resource qbx_vehicles
+[    c-scripting-core] Creating script environments for qbx_vehiclesales
+[           resources] Started resource qbx_vehiclesales
+[    c-scripting-core] Creating script environments for qbx_vehicleshop
+[           resources] Started resource qbx_vehicleshop
+[    c-scripting-core] Creating script environments for qbx_vineyard
+[           resources] Started resource qbx_vineyard
+[    c-scripting-core] Creating script environments for qbx_weed
+[           resources] Started resource qbx_weed
+[    c-scripting-core] Creating script environments for Renewed-Banking
+[           resources] Started resource Renewed-Banking
+[    c-scripting-core] Creating script environments for Renewed-Weathersync
+[           resources] Started resource Renewed-Weathersync
+[           resources] Started resource bob74_ipl
+[    c-scripting-core] Creating script environments for illenium-appearance
+[           resources] Started resource illenium-appearance
+[    c-scripting-core] Creating script environments for lb-phone
+[           resources] Started resource lb-phone
+[           resources] Started resource lb-phoneprop
+[    c-scripting-core] Creating script environments for loadscreen
+[           resources] Started resource loadscreen
+[    c-scripting-core] Creating script environments for mana_audio
+[           resources] Started resource mana_audio
+[           resources] Started resource mhacking
+[           resources] Started resource safecracker
+[    c-scripting-core] Creating script environments for screencapture
+[script:screencapture] [screencapture] Sentry enabled
+[           resources] Started resource screencapture
+[    c-scripting-core] Creating script environments for scully_emotemenu
+[           resources] Started resource scully_emotemenu
+[    c-scripting-core] Creating script environments for ultra-voltlab
+[           resources] Started resource ultra-voltlab
+[    c-scripting-core] Creating script environments for vehiclehandler
+[           resources] Started resource vehiclehandler
+[    c-scripting-core] Creating script environments for xt-prison
+[           resources] Started resource xt-prison
+[    c-scripting-core] Creating script environments for pma-voice
+[           resources] Started resource pma-voice
+[    c-scripting-core] Creating script environments for mm_radio
+[           resources] Started resource mm_radio
+[           resources] Started resource pillbox
+[    c-scripting-core] Creating script environments for crazy-hud
+[           resources] Started resource crazy-hud
+[ citizen-server-impl] Couldn't find resource category [npwd-apps].
+[    c-scripting-core] Creating script environments for qbx_npwd
+[           resources] Started resource qbx_npwd
+[    c-scripting-core] Creating script environments for npwd
+[           resources] Started resource npwd
+[     script:lb-phone] [INFO] You are running the latest version.
+[ citizen-server-impl] server thread hitch warning: timer interval of 366 milliseconds
+[      script:oxmysql] [12.3.2-MariaDB] Database server connection established!
+[    script:xt-prison] [xt-prison] [INFO] Initializing Table: xt_prison
+[    script:xt-prison] [xt-prison] [INFO] Initializing Table: xt_prison_items
+[     script:qbx_core] [qbx_core] [INFO] Removed invalid groups from player_groups table
+[     script:qbx_core] 
+[     script:qbx_core] Welcome to Qbox!
+[     script:qbx_core] To learn more, please check out the documentation at https://docs.qbox.re/.
+[     script:qbx_core] To turn this message off, set the qbx:acknowledge convar to true in your server.cfg file.
+[     script:qbx_core] 
+[ script:ox_inventory] [ox_inventory] [INFO] Inventory has loaded 301 items
+[script:scully_emotem] [scully_emotemenu] You are currently running the latest version.
+[     script:lb-phone] [LB Phone 2.8.3] [SUCCESS]: Database checker: Created tables successfully
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[     script:qbx_core] [qbx_core] [INFO] CrazyCasey (Citizen ID: NXU4TK75 ID: 1) has successfully loaded!
+[ script:ox_inventory] [ox_inventory] [INFO] Saving 1 inventories to the database
+[ script:ox_inventory] [ox_inventory] [INFO] Saved 1/1 players (15.7624 ms)
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": read tcp 10.0.5.27:36504->45.26.163.143:30120: read: connection reset by peer)
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/players.json (Get "https://45.26.163.143:30120/players.json": read tcp 10.0.5.27:55418->45.26.163.143:30120: read: connection reset by peer)
+[ script:ox_inventory] [ox_inventory] [INFO] Saving 1 inventories to the database
+[ script:ox_inventory] [ox_inventory] [INFO] Saved 1/1 players (14.9894 ms)
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+║             TXADMIN║ ================================================================
+║             TXADMIN║ ======== [11396] FXServer Starting - 8/18/2026, 2:05:57 PM      
+║             TXADMIN║ ================================================================
+[                 cmd] Argument count mismatch (passed 1, wanted 2)
+[           resources] Scanning resources.
+[           resources] Found 100 resources.
+[          svadhesive] Authenticating server license key...
+[          svadhesive] Server license key authentication succeeded. Welcome!
+[    c-scripting-core] Creating script environments for monitor
+[      script:monitor] [txAdmin] Resource v8.1.1 threads and commands set up. All Ready.
+[           resources] Started resource monitor
+[                 cmd] Argument count mismatch (passed 1, wanted 2)
+[    c-scripting-core] Creating script environments for mapmanager
+[           resources] Started resource mapmanager
+[    c-scripting-core] Creating script environments for chat
+[           resources] Started resource chat
+[           resources] Started resource spawnmanager
+[    c-scripting-core] Creating script environments for sessionmanager
+[           resources] Started resource sessionmanager
+[    c-scripting-core] Creating script environments for hardcap
+[           resources] Started resource hardcap
+[    c-scripting-core] Creating script environments for baseevents
+[           resources] Started resource baseevents
+[    c-scripting-core] Creating script environments for ox_lib
+[           resources] Started resource ox_lib
+[    c-scripting-core] Creating script environments for oxmysql
+[           resources] Started resource oxmysql
+[    c-scripting-core] Creating script environments for qbx_core
+[     script:qbx_core] [qbx_core] [INFO] Stopping hardcap...
+[           resources] Stopping resource hardcap
+[           resources] Started resource qbx_core
+[    c-scripting-core] Creating script environments for ox_target
+[           resources] Started resource ox_target
+[    c-scripting-core] Creating script environments for ox_doorlock
+[           resources] Started resource ox_doorlock
+[    c-scripting-core] Creating script environments for ox_inventory
+[           resources] Started resource ox_inventory
+[    c-scripting-core] Creating script environments for ox_fuel
+[           resources] Started resource ox_fuel
+[    c-scripting-core] Creating script environments for qbx_adminmenu
+[           resources] Started resource qbx_adminmenu
+[    c-scripting-core] Creating script environments for qbx_medical
+[           resources] Started resource qbx_medical
+[    c-scripting-core] Creating script environments for qbx_ambulancejob
+[           resources] Started resource qbx_ambulancejob
+[    c-scripting-core] Creating script environments for qbx_bankrobbery
+[           resources] Started resource qbx_bankrobbery
+[    c-scripting-core] Creating script environments for qbx_binoculars
+[           resources] Started resource qbx_binoculars
+[    c-scripting-core] Creating script environments for qbx_busjob
+[           resources] Started resource qbx_busjob
+[    c-scripting-core] Creating script environments for qbx_carwash
+[           resources] Started resource qbx_carwash
+[    c-scripting-core] Creating script environments for qbx_chat_theme
+[           resources] Started resource qbx_chat_theme
+[    c-scripting-core] Creating script environments for qbx_cityhall
+[           resources] Started resource qbx_cityhall
+[    c-scripting-core] Creating script environments for qbx_customs
+[           resources] Started resource qbx_customs
+[           resources] Started resource qbx_density
+[    c-scripting-core] Creating script environments for qbx_divegear
+[           resources] Started resource qbx_divegear
+[    c-scripting-core] Creating script environments for qbx_diving
+[           resources] Started resource qbx_diving
+[    c-scripting-core] Creating script environments for qbx_drugs
+[           resources] Started resource qbx_drugs
+[    c-scripting-core] Creating script environments for qbx_fireworks
+[           resources] Started resource qbx_fireworks
+[    c-scripting-core] Creating script environments for qbx_garages
+[           resources] Started resource qbx_garages
+[    c-scripting-core] Creating script environments for qbx_garbagejob
+[           resources] Started resource qbx_garbagejob
+[    c-scripting-core] Creating script environments for qbx_houserobbery
+[           resources] Started resource qbx_houserobbery
+[           resources] Started resource MugShotBase64
+[    c-scripting-core] Creating script environments for qbx_idcard
+[           resources] Started resource qbx_idcard
+[    c-scripting-core] Creating script environments for qbx_jewelery
+[           resources] Started resource qbx_jewelery
+[    c-scripting-core] Creating script environments for qbx_lapraces
+[           resources] Started resource qbx_lapraces
+[    c-scripting-core] Creating script environments for qbx_management
+[           resources] Started resource qbx_management
+[    c-scripting-core] Creating script environments for qbx_mechanicjob
+[           resources] Started resource qbx_mechanicjob
+[    c-scripting-core] Creating script environments for qbx_newsjob
+[           resources] Started resource qbx_newsjob
+[    c-scripting-core] Creating script environments for qbx_pawnshop
+[           resources] Started resource qbx_pawnshop
+[    c-scripting-core] Creating script environments for qbx_police
+[           resources] Started resource qbx_police
+[    c-scripting-core] Creating script environments for qbx_properties
+[           resources] Started resource qbx_properties
+[    c-scripting-core] Creating script environments for qbx_radialmenu
+[           resources] Started resource qbx_radialmenu
+[    c-scripting-core] Creating script environments for qbx_recyclejob
+[           resources] Started resource qbx_recyclejob
+[    c-scripting-core] Creating script environments for qbx_scoreboard
+[           resources] Started resource qbx_scoreboard
+[    c-scripting-core] Creating script environments for qbx_scrapyard
+[           resources] Started resource qbx_scrapyard
+[    c-scripting-core] Creating script environments for qbx_seatbelt
+[           resources] Started resource qbx_seatbelt
+[    c-scripting-core] Creating script environments for qbx_smallresources
+[script:qbx_smallreso] [qbx_smallresources] [WARN] [qbx_entitiesblacklist] You have entity blacklist enabled, this means that any entity that is blacklisted in config.lua will not be able to spawn, you can change this in qbx_smallresource/qbx_entitiesblacklist/config.lua
+[           resources] Started resource qbx_smallresources
+[    c-scripting-core] Creating script environments for qbx_spawn
+[           resources] Started resource qbx_spawn
+[    c-scripting-core] Creating script environments for qbx_storerobbery
+[           resources] Started resource qbx_storerobbery
+[    c-scripting-core] Creating script environments for qbx_streetraces
+[           resources] Started resource qbx_streetraces
+[    c-scripting-core] Creating script environments for qbx_taxijob
+[           resources] Started resource qbx_taxijob
+[    c-scripting-core] Creating script environments for qbx_towjob
+[           resources] Started resource qbx_towjob
+[    c-scripting-core] Creating script environments for qbx_truckerjob
+[           resources] Started resource qbx_truckerjob
+[    c-scripting-core] Creating script environments for qbx_truckrobbery
+[           resources] Started resource qbx_truckrobbery
+[    c-scripting-core] Creating script environments for qbx_vehiclekeys
+[           resources] Started resource qbx_vehiclekeys
+[    c-scripting-core] Creating script environments for qbx_vehicles
+[           resources] Started resource qbx_vehicles
+[    c-scripting-core] Creating script environments for qbx_vehiclesales
+[           resources] Started resource qbx_vehiclesales
+[    c-scripting-core] Creating script environments for qbx_vehicleshop
+[           resources] Started resource qbx_vehicleshop
+[    c-scripting-core] Creating script environments for qbx_vineyard
+[           resources] Started resource qbx_vineyard
+[    c-scripting-core] Creating script environments for qbx_weed
+[           resources] Started resource qbx_weed
+[    c-scripting-core] Creating script environments for Renewed-Banking
+[           resources] Started resource Renewed-Banking
+[    c-scripting-core] Creating script environments for Renewed-Weathersync
+[           resources] Started resource Renewed-Weathersync
+[           resources] Started resource bob74_ipl
+[    c-scripting-core] Creating script environments for illenium-appearance
+[           resources] Started resource illenium-appearance
+[    c-scripting-core] Creating script environments for lb-phone
+[           resources] Started resource lb-phone
+[           resources] Started resource lb-phoneprop
+[    c-scripting-core] Creating script environments for loadscreen
+[           resources] Started resource loadscreen
+[    c-scripting-core] Creating script environments for mana_audio
+[           resources] Started resource mana_audio
+[           resources] Started resource mhacking
+[           resources] Started resource safecracker
+[    c-scripting-core] Creating script environments for screencapture
+[script:screencapture] [screencapture] Sentry enabled
+[           resources] Started resource screencapture
+[    c-scripting-core] Creating script environments for scully_emotemenu
+[           resources] Started resource scully_emotemenu
+[    c-scripting-core] Creating script environments for ultra-voltlab
+[           resources] Started resource ultra-voltlab
+[    c-scripting-core] Creating script environments for vehiclehandler
+[           resources] Started resource vehiclehandler
+[    c-scripting-core] Creating script environments for xt-prison
+[           resources] Started resource xt-prison
+[    c-scripting-core] Creating script environments for pma-voice
+[           resources] Started resource pma-voice
+[    c-scripting-core] Creating script environments for mm_radio
+[           resources] Started resource mm_radio
+[           resources] Started resource pillbox
+[    c-scripting-core] Creating script environments for crazy-hud
+[           resources] Started resource crazy-hud
+[ citizen-server-impl] Couldn't find resource category [npwd-apps].
+[    c-scripting-core] Creating script environments for qbx_npwd
+[           resources] Started resource qbx_npwd
+[    c-scripting-core] Creating script environments for npwd
+[           resources] Started resource npwd
+[     script:lb-phone] [INFO] You are running the latest version.
+[ citizen-server-impl] server thread hitch warning: timer interval of 401 milliseconds
+[      script:oxmysql] [12.3.2-MariaDB] Database server connection established!
+[    script:xt-prison] [xt-prison] [INFO] Initializing Table: xt_prison
+[    script:xt-prison] [xt-prison] [INFO] Initializing Table: xt_prison_items
+[     script:qbx_core] [qbx_core] [INFO] Removed invalid groups from player_groups table
+[     script:qbx_core] 
+[     script:qbx_core] Welcome to Qbox!
+[     script:qbx_core] To learn more, please check out the documentation at https://docs.qbox.re/.
+[     script:qbx_core] To turn this message off, set the qbx:acknowledge convar to true in your server.cfg file.
+[     script:qbx_core] 
+[ script:ox_inventory] [ox_inventory] [INFO] Inventory has loaded 301 items
+[script:scully_emotem] [scully_emotemenu] You are currently running the latest version.
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/players.json (Get "https://45.26.163.143:30120/players.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/players.json (Get "https://45.26.163.143:30120/players.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/players.json (Get "https://45.26.163.143:30120/players.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[     script:qbx_core] [qbx_core] [INFO] CrazyCasey (Citizen ID: NXU4TK75 ID: 2) has successfully loaded!
+[ script:ox_inventory] [ox_inventory] [INFO] Saving 1 inventories to the database
+[ script:ox_inventory] [ox_inventory] [INFO] Saved 1/1 players (48.1273 ms)
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+║         crazy-fivem║ ensure crazy-hud
+[           resources] Stopping resource crazy-hud
+[    c-scripting-core] Creating script environments for crazy-hud
+[           resources] Started resource crazy-hud
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/players.json (Get "https://45.26.163.143:30120/players.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/players.json (Get "https://45.26.163.143:30120/players.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+║             TXADMIN║ txaReportResources 
+[      script:monitor] [txAdmin] Sending resources list to txAdmin.
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/players.json (Get "https://45.26.163.143:30120/players.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+║         crazy-fivem║ stop "npwd"
+[           resources] Stopping resource npwd
+║             TXADMIN║ txaReportResources 
+[      script:monitor] [txAdmin] Sending resources list to txAdmin.
+║         crazy-fivem║ stop "qbx_npwd"
+[           resources] Stopping resource qbx_npwd
+║             TXADMIN║ txaReportResources 
+[      script:monitor] [txAdmin] Sending resources list to txAdmin.
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/players.json (Get "https://45.26.163.143:30120/players.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ script:ox_inventory] [ox_inventory] [INFO] Saving 1 inventories to the database
+[ script:ox_inventory] [ox_inventory] [INFO] Saved 1/1 players (46.8685 ms)
+[ citizen-server-impl] server thread hitch warning: timer interval of 200 milliseconds
+[     script:lb-phone] [INFO] You are running the latest version.
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/players.json (Get "https://45.26.163.143:30120/players.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ script:ox_inventory] [ox_inventory] [INFO] Saving 1 inventories to the database
+[ script:ox_inventory] [ox_inventory] [INFO] Saved 1/1 players (31.3651 ms)
+[ citizen-server-impl] server thread hitch warning: timer interval of 246 milliseconds
+[   script:qbx_police] SCRIPT ERROR: @qbx_police/server/main.lua:23: No such export GetQBPlayers in resource qbx_core
+[ citizen-server-impl] server thread hitch warning: timer interval of 169 milliseconds
+[   script:qbx_police] SCRIPT ERROR: @qbx_police/server/main.lua:586: No such export GetJobs in resource qbx_core
+[ script:ox_inventory] SCRIPT ERROR: @ox_inventory/modules/bridge/qbx/server.lua:35: No such export GetPlayersData in resource qbx_core
+[ script:ox_inventory] [ox_inventory] [INFO] Inventory has loaded 301 items
+[   script:qbx_police] SCRIPT ERROR: @qbx_police/server/main.lua:586: No such export GetJobs in resource qbx_core
+[ script:ox_inventory] SCRIPT ERROR: @ox_inventory/modules/bridge/qbx/server.lua:35: No such export GetPlayersData in resource qbx_core
+[ script:ox_inventory] [ox_inventory] [INFO] Inventory has loaded 301 items
+[ citizen-server-impl] server thread hitch warning: timer interval of 155 milliseconds
+[   script:qbx_police] SCRIPT ERROR: @qbx_police/server/main.lua:586: No such export GetJobs in resource qbx_core
+[ script:ox_inventory] SCRIPT ERROR: @ox_inventory/modules/bridge/qbx/server.lua:35: No such export GetPlayersData in resource qbx_core
+[ script:ox_inventory] [ox_inventory] [INFO] Inventory has loaded 301 items
+[ citizen-server-impl] server thread hitch warning: timer interval of 152 milliseconds
+[   script:qbx_police] SCRIPT ERROR: @qbx_police/server/main.lua:586: No such export GetJobs in resource qbx_core
+[ script:ox_inventory] SCRIPT ERROR: @ox_inventory/modules/bridge/qbx/server.lua:35: No such export GetPlayersData in resource qbx_core
+[ script:ox_inventory] [ox_inventory] [INFO] Inventory has loaded 301 items
+[ citizen-server-impl] server thread hitch warning: timer interval of 152 milliseconds
+[ citizen-server-impl] server thread hitch warning: timer interval of 160 milliseconds
+[   script:qbx_police] SCRIPT ERROR: @qbx_police/server/main.lua:586: No such export GetJobs in resource qbx_core
+[ script:ox_inventory] SCRIPT ERROR: @ox_inventory/modules/bridge/qbx/server.lua:35: No such export GetPlayersData in resource qbx_core
+[ script:ox_inventory] [ox_inventory] [INFO] Inventory has loaded 301 items
+[   script:qbx_police] SCRIPT ERROR: @qbx_police/server/main.lua:586: No such export GetJobs in resource qbx_core
+[ script:ox_inventory] SCRIPT ERROR: @ox_inventory/modules/bridge/qbx/server.lua:35: No such export GetPlayersData in resource qbx_core
+[ script:ox_inventory] [ox_inventory] [INFO] Inventory has loaded 301 items
+[   script:qbx_police] SCRIPT ERROR: @qbx_police/server/main.lua:586: No such export GetJobs in resource qbx_core
+[ script:ox_inventory] SCRIPT ERROR: @ox_inventory/modules/bridge/qbx/server.lua:35: No such export GetPlayersData in resource qbx_core
+[ script:ox_inventory] [ox_inventory] [INFO] Inventory has loaded 301 items
+[    script:xt-prison] SCRIPT ERROR: @xt-prison/bridge/server/qbx.lua:8: No such export GetPlayer in resource qbx_core
+[script:qbx_vehicleke] SCRIPT ERROR: @qbx_vehiclekeys/server/keys.lua:17: No such export GetPlayer in resource qbx_core
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+║             TXADMIN║ txaEvent "serverShuttingDown" "{\"delay\":5000,\"author\":\"crazy-fivem\",\"message\":\"Server restarting (admin request).\"}"
+[     script:lb-phone] [LB Phone 2.8.3] [INFO]: Saving all settings
+[      script:monitor] [txAdmin] Server shutting down. Kicking all players.
+
+║             TXADMIN║ ================================================================
+║             TXADMIN║ ======== [34988] FXServer Starting - 8/18/2026, 3:07:31 PM      
+║             TXADMIN║ ================================================================
+[                 cmd] Argument count mismatch (passed 1, wanted 2)
+[           resources] Scanning resources.
+[           resources] Found 99 resources.
+[          svadhesive] Authenticating server license key...
+[          svadhesive] Server license key authentication succeeded. Welcome!
+[    c-scripting-core] Creating script environments for monitor
+[      script:monitor] [txAdmin] Resource v8.1.1 threads and commands set up. All Ready.
+[           resources] Started resource monitor
+[                 cmd] Argument count mismatch (passed 1, wanted 2)
+[    c-scripting-core] Creating script environments for mapmanager
+[           resources] Started resource mapmanager
+[    c-scripting-core] Creating script environments for chat
+[           resources] Started resource chat
+[           resources] Started resource spawnmanager
+[    c-scripting-core] Creating script environments for sessionmanager
+[           resources] Started resource sessionmanager
+[    c-scripting-core] Creating script environments for hardcap
+[           resources] Started resource hardcap
+[    c-scripting-core] Creating script environments for baseevents
+[           resources] Started resource baseevents
+[    c-scripting-core] Creating script environments for ox_lib
+[           resources] Started resource ox_lib
+[    c-scripting-core] Creating script environments for oxmysql
+[           resources] Started resource oxmysql
+[    c-scripting-core] Creating script environments for qbx_core
+[     script:qbx_core] [qbx_core] [INFO] Stopping hardcap...
+[           resources] Stopping resource hardcap
+[           resources] Started resource qbx_core
+[    c-scripting-core] Creating script environments for ox_target
+[           resources] Started resource ox_target
+[    c-scripting-core] Creating script environments for ox_doorlock
+[           resources] Started resource ox_doorlock
+[    c-scripting-core] Creating script environments for ox_inventory
+[           resources] Started resource ox_inventory
+[    c-scripting-core] Creating script environments for ox_fuel
+[           resources] Started resource ox_fuel
+[    c-scripting-core] Creating script environments for qbx_adminmenu
+[           resources] Started resource qbx_adminmenu
+[    c-scripting-core] Creating script environments for qbx_medical
+[           resources] Started resource qbx_medical
+[    c-scripting-core] Creating script environments for qbx_ambulancejob
+[           resources] Started resource qbx_ambulancejob
+[    c-scripting-core] Creating script environments for qbx_bankrobbery
+[           resources] Started resource qbx_bankrobbery
+[    c-scripting-core] Creating script environments for qbx_binoculars
+[           resources] Started resource qbx_binoculars
+[    c-scripting-core] Creating script environments for qbx_busjob
+[           resources] Started resource qbx_busjob
+[    c-scripting-core] Creating script environments for qbx_carwash
+[           resources] Started resource qbx_carwash
+[    c-scripting-core] Creating script environments for qbx_chat_theme
+[           resources] Started resource qbx_chat_theme
+[    c-scripting-core] Creating script environments for qbx_cityhall
+[           resources] Started resource qbx_cityhall
+[    c-scripting-core] Creating script environments for qbx_customs
+[           resources] Started resource qbx_customs
+[           resources] Started resource qbx_density
+[    c-scripting-core] Creating script environments for qbx_divegear
+[           resources] Started resource qbx_divegear
+[    c-scripting-core] Creating script environments for qbx_diving
+[           resources] Started resource qbx_diving
+[    c-scripting-core] Creating script environments for qbx_drugs
+[           resources] Started resource qbx_drugs
+[    c-scripting-core] Creating script environments for qbx_fireworks
+[           resources] Started resource qbx_fireworks
+[    c-scripting-core] Creating script environments for qbx_garages
+[           resources] Started resource qbx_garages
+[    c-scripting-core] Creating script environments for qbx_garbagejob
+[           resources] Started resource qbx_garbagejob
+[    c-scripting-core] Creating script environments for qbx_houserobbery
+[           resources] Started resource qbx_houserobbery
+[           resources] Started resource MugShotBase64
+[    c-scripting-core] Creating script environments for qbx_idcard
+[           resources] Started resource qbx_idcard
+[    c-scripting-core] Creating script environments for qbx_jewelery
+[           resources] Started resource qbx_jewelery
+[    c-scripting-core] Creating script environments for qbx_lapraces
+[           resources] Started resource qbx_lapraces
+[    c-scripting-core] Creating script environments for qbx_management
+[           resources] Started resource qbx_management
+[    c-scripting-core] Creating script environments for qbx_mechanicjob
+[           resources] Started resource qbx_mechanicjob
+[    c-scripting-core] Creating script environments for qbx_newsjob
+[           resources] Started resource qbx_newsjob
+[    c-scripting-core] Creating script environments for qbx_pawnshop
+[           resources] Started resource qbx_pawnshop
+[    c-scripting-core] Creating script environments for qbx_police
+[           resources] Started resource qbx_police
+[    c-scripting-core] Creating script environments for qbx_properties
+[           resources] Started resource qbx_properties
+[    c-scripting-core] Creating script environments for qbx_radialmenu
+[           resources] Started resource qbx_radialmenu
+[    c-scripting-core] Creating script environments for qbx_recyclejob
+[           resources] Started resource qbx_recyclejob
+[    c-scripting-core] Creating script environments for qbx_scoreboard
+[           resources] Started resource qbx_scoreboard
+[    c-scripting-core] Creating script environments for qbx_scrapyard
+[           resources] Started resource qbx_scrapyard
+[    c-scripting-core] Creating script environments for qbx_seatbelt
+[           resources] Started resource qbx_seatbelt
+[    c-scripting-core] Creating script environments for qbx_smallresources
+[script:qbx_smallreso] [qbx_smallresources] [WARN] [qbx_entitiesblacklist] You have entity blacklist enabled, this means that any entity that is blacklisted in config.lua will not be able to spawn, you can change this in qbx_smallresource/qbx_entitiesblacklist/config.lua
+[           resources] Started resource qbx_smallresources
+[    c-scripting-core] Creating script environments for qbx_spawn
+[           resources] Started resource qbx_spawn
+[    c-scripting-core] Creating script environments for qbx_storerobbery
+[           resources] Started resource qbx_storerobbery
+[    c-scripting-core] Creating script environments for qbx_streetraces
+[           resources] Started resource qbx_streetraces
+[    c-scripting-core] Creating script environments for qbx_taxijob
+[           resources] Started resource qbx_taxijob
+[    c-scripting-core] Creating script environments for qbx_towjob
+[           resources] Started resource qbx_towjob
+[    c-scripting-core] Creating script environments for qbx_truckerjob
+[           resources] Started resource qbx_truckerjob
+[    c-scripting-core] Creating script environments for qbx_truckrobbery
+[           resources] Started resource qbx_truckrobbery
+[    c-scripting-core] Creating script environments for qbx_vehiclekeys
+[           resources] Started resource qbx_vehiclekeys
+[    c-scripting-core] Creating script environments for qbx_vehicles
+[           resources] Started resource qbx_vehicles
+[    c-scripting-core] Creating script environments for qbx_vehiclesales
+[           resources] Started resource qbx_vehiclesales
+[    c-scripting-core] Creating script environments for qbx_vehicleshop
+[           resources] Started resource qbx_vehicleshop
+[    c-scripting-core] Creating script environments for qbx_vineyard
+[           resources] Started resource qbx_vineyard
+[    c-scripting-core] Creating script environments for qbx_weed
+[           resources] Started resource qbx_weed
+[    c-scripting-core] Creating script environments for Renewed-Banking
+[           resources] Started resource Renewed-Banking
+[    c-scripting-core] Creating script environments for Renewed-Weathersync
+[           resources] Started resource Renewed-Weathersync
+[           resources] Started resource bob74_ipl
+[    c-scripting-core] Creating script environments for illenium-appearance
+[           resources] Started resource illenium-appearance
+[    c-scripting-core] Creating script environments for lb-phone
+[           resources] Started resource lb-phone
+[           resources] Started resource lb-phoneprop
+[    c-scripting-core] Creating script environments for loadscreen
+[           resources] Started resource loadscreen
+[    c-scripting-core] Creating script environments for mana_audio
+[           resources] Started resource mana_audio
+[           resources] Started resource mhacking
+[           resources] Started resource safecracker
+[    c-scripting-core] Creating script environments for screencapture
+[script:screencapture] [screencapture] Sentry enabled
+[           resources] Started resource screencapture
+[    c-scripting-core] Creating script environments for scully_emotemenu
+[           resources] Started resource scully_emotemenu
+[    c-scripting-core] Creating script environments for ultra-voltlab
+[           resources] Started resource ultra-voltlab
+[    c-scripting-core] Creating script environments for vehiclehandler
+[           resources] Started resource vehiclehandler
+[    c-scripting-core] Creating script environments for xt-prison
+[           resources] Started resource xt-prison
+[    c-scripting-core] Creating script environments for pma-voice
+[           resources] Started resource pma-voice
+[    c-scripting-core] Creating script environments for mm_radio
+[           resources] Started resource mm_radio
+[           resources] Started resource pillbox
+[    c-scripting-core] Creating script environments for crazy-hud
+[           resources] Started resource crazy-hud
+[ citizen-server-impl] Couldn't find resource category [npwd-apps].
+[ citizen-server-impl] Couldn't find resource qbx_npwd.
+[    c-scripting-core] Creating script environments for npwd
+[           resources] Started resource npwd
+[     script:lb-phone] [INFO] You are running the latest version.
+[      script:oxmysql] [12.3.2-MariaDB] Database server connection established!
+[ citizen-server-impl] server thread hitch warning: timer interval of 408 milliseconds
+[    script:xt-prison] [xt-prison] [INFO] Initializing Table: xt_prison
+[    script:xt-prison] [xt-prison] [INFO] Initializing Table: xt_prison_items
+[script:qbx_core:warn] Warning: Table 'npwd_calls' does not exist in database, please remove it from qbx_core/config/server.lua or create the table
+[script:qbx_core:warn] Warning: Table 'npwd_darkchat_channel_members' does not exist in database, please remove it from qbx_core/config/server.lua or create the table
+[script:qbx_core:warn] Warning: Table 'npwd_marketplace_listings' does not exist in database, please remove it from qbx_core/config/server.lua or create the table
+[script:qbx_core:warn] Warning: Table 'npwd_messages_participants' does not exist in database, please remove it from qbx_core/config/server.lua or create the table
+[script:qbx_core:warn] Warning: Table 'npwd_notes' does not exist in database, please remove it from qbx_core/config/server.lua or create the table
+[script:qbx_core:warn] Warning: Table 'npwd_phone_contacts' does not exist in database, please remove it from qbx_core/config/server.lua or create the table
+[script:qbx_core:warn] Warning: Table 'npwd_phone_gallery' does not exist in database, please remove it from qbx_core/config/server.lua or create the table
+[script:qbx_core:warn] Warning: Table 'npwd_twitter_profiles' does not exist in database, please remove it from qbx_core/config/server.lua or create the table
+[script:qbx_core:warn] Warning: Table 'npwd_match_profiles' does not exist in database, please remove it from qbx_core/config/server.lua or create the table
+[     script:qbx_core] [qbx_core] [INFO] Removed invalid groups from player_groups table
+[     script:qbx_core] 
+[     script:qbx_core] Welcome to Qbox!
+[     script:qbx_core] To learn more, please check out the documentation at https://docs.qbox.re/.
+[     script:qbx_core] To turn this message off, set the qbx:acknowledge convar to true in your server.cfg file.
+[     script:qbx_core] 
+[ script:ox_inventory] [ox_inventory] [INFO] Inventory has loaded 301 items
+[script:scully_emotem] [scully_emotemenu] You are currently running the latest version.
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[     script:qbx_core] [qbx_core] [INFO] CrazyCasey (Citizen ID: NXU4TK75 ID: 1) has successfully loaded!
+[         script:npwd] [NPWD] [DBInterface] [error]: Error executing (
+[         script:npwd]         SELECT *
+[         script:npwd]         FROM npwd_twitter_profiles
+[         script:npwd]         WHERE identifier = ?
+[         script:npwd]         LIMIT 1
+[         script:npwd] 		 ["NXU4TK75"]) with error message Table 'qbox_8408b6.npwd_twitter_profiles' doesn't exist
+[         script:npwd] [NPWD] [twitter] [error]: Fetching tweets failed, (intermediate value) is not iterable
+[         script:npwd] [NPWD] [DBInterface] [error]: Error executing (
+[         script:npwd]         SELECT *
+[         script:npwd]         FROM npwd_twitter_profiles
+[         script:npwd]         WHERE identifier = ?
+[         script:npwd]         LIMIT 1
+[         script:npwd] 		 ["NXU4TK75"]) with error message Table 'qbox_8408b6.npwd_twitter_profiles' doesn't exist
+[         script:npwd] [NPWD] [twitter] [error]: Failed to get or create profile, (intermediate value) is not iterable
+[         script:npwd] [NPWD] [DBInterface] [error]: Error executing (
+[         script:npwd]         SELECT *,
+[         script:npwd]                UNIX_TIMESTAMP(updatedAt) AS lastActive
+[         script:npwd]         FROM npwd_match_profiles
+[         script:npwd]         WHERE identifier = ?
+[         script:npwd]         LIMIT 1
+[         script:npwd] 		 ["NXU4TK75"]) with error message Table 'qbox_8408b6.npwd_match_profiles' doesn't exist
+[         script:npwd] [NPWD] [match] [error]: Failed to get player profile, (intermediate value) is not iterable
+[         script:npwd] [NPWD] [DBInterface] [error]: Error executing (SELECT npwd_messages_conversations.id,
+[         script:npwd]                           npwd_messages_conversations.conversation_list         as conversationList,
+[         script:npwd]                           npwd_messages_participants.unread_count               as unreadCount,
+[         script:npwd]                           npwd_messages_conversations.is_group_chat             as isGroupChat,
+[         script:npwd]                           npwd_messages_conversations.label,
+[         script:npwd]                           UNIX_TIMESTAMP(npwd_messages_conversations.updatedAt) as updatedAt,
+[         script:npwd]                           npwd_messages_participants.participant
+[         script:npwd]                    FROM npwd_messages_conversations
+[         script:npwd]                             INNER JOIN npwd_messages_participants
+[         script:npwd]                                        on npwd_messages_conversations.id = npwd_messages_participants.conversation_id
+[         script:npwd]                    WHERE npwd_messages_participants.participant = ? ["1567371134"]) with error message Table 'qbox_8408b6.npwd_messages_conversations' doesn't exist
+[         script:npwd] [NPWD] [DBInterface] [error]: Error executing (SELECT * FROM npwd_phone_contacts WHERE identifier = ? ORDER BY display ASC ["NXU4TK75"]) with error message Table 'qbox_8408b6.npwd_phone_contacts' doesn't exist
+[         script:npwd] [NPWD] [contact] [error]: Error in handleFetchContact (NXU4TK75), (intermediate value) is not iterable
+[ script:ox_inventory] [ox_inventory] [INFO] Saving 1 inventories to the database
+[ script:ox_inventory] [ox_inventory] [INFO] Saved 1/1 players (11.2044 ms)
+[ citizen-server-impl] server thread hitch warning: timer interval of 228 milliseconds
+[         script:npwd] Error: Unhandled promise failure: Error: An error occurred while calling export GetCoreObject of resource qb-core - see above for details
+[         script:npwd]     at Proxy.<anonymous> (C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:601:15)
+[         script:npwd]     at @npwd/dist/game/server/server.js:51498:48
+[         script:npwd]     at C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:523:30
+[         script:npwd]     at Number.__cfx_wrap_216 (C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:24:12)
+[         script:npwd]     at C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:30:16
+[         script:npwd]     at C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:485:3
+[   script:qbx_police] SCRIPT ERROR: @qbx_police/server/main.lua:23: No such export GetQBPlayers in resource qbx_core
+[   script:qbx_police] SCRIPT ERROR: @qbx_police/server/main.lua:586: No such export GetJobs in resource qbx_core
+[         script:npwd] Error: Unhandled promise failure: Error: An error occurred while calling export GetCoreObject of resource qb-core - see above for details
+[         script:npwd]     at Proxy.<anonymous> (C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:601:15)
+[         script:npwd]     at @npwd/dist/game/server/server.js:51498:48
+[         script:npwd]     at C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:523:30
+[         script:npwd]     at Number.__cfx_wrap_218 (C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:24:12)
+[         script:npwd]     at C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:30:16
+[         script:npwd]     at C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:485:3
+[ script:ox_inventory] SCRIPT ERROR: @ox_inventory/modules/bridge/qbx/server.lua:35: No such export GetPlayersData in resource qbx_core
+[ script:ox_inventory] [ox_inventory] [INFO] Inventory has loaded 301 items
+[         script:npwd] Error: Unhandled promise failure: Error: An error occurred while calling export GetCoreObject of resource qb-core - see above for details
+[         script:npwd]     at Proxy.<anonymous> (C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:601:15)
+[         script:npwd]     at @npwd/dist/game/server/server.js:51498:48
+[         script:npwd]     at C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:523:30
+[         script:npwd]     at Number.__cfx_wrap_220 (C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:24:12)
+[         script:npwd]     at C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:30:16
+[         script:npwd]     at C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:485:3
+[   script:qbx_police] SCRIPT ERROR: @qbx_police/server/main.lua:586: No such export GetJobs in resource qbx_core
+[         script:npwd] Error: Unhandled promise failure: Error: An error occurred while calling export GetCoreObject of resource qb-core - see above for details
+[         script:npwd]     at Proxy.<anonymous> (C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:601:15)
+[         script:npwd]     at @npwd/dist/game/server/server.js:51498:48
+[         script:npwd]     at C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:523:30
+[         script:npwd]     at Number.__cfx_wrap_224 (C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:24:12)
+[         script:npwd]     at C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:30:16
+[         script:npwd]     at C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:485:3
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ script:ox_inventory] SCRIPT ERROR: @ox_inventory/modules/bridge/qbx/server.lua:35: No such export GetPlayersData in resource qbx_core
+[ script:ox_inventory] [ox_inventory] [INFO] Inventory has loaded 301 items
+[   script:qbx_police] SCRIPT ERROR: @qbx_police/server/main.lua:586: No such export GetJobs in resource qbx_core
+[         script:npwd] Error: Unhandled promise failure: Error: An error occurred while calling export GetCoreObject of resource qb-core - see above for details
+[         script:npwd]     at Proxy.<anonymous> (C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:601:15)
+[         script:npwd]     at @npwd/dist/game/server/server.js:51498:48
+[         script:npwd]     at C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:523:30
+[         script:npwd]     at Number.__cfx_wrap_228 (C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:24:12)
+[         script:npwd]     at C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:30:16
+[         script:npwd]     at C:\Users\casey\Desktop\Crazy RP\server\citizen/scripting/v8/main.js:485:3
+[ script:ox_inventory] SCRIPT ERROR: @ox_inventory/modules/bridge/qbx/server.lua:35: No such export GetPlayersData in resource qbx_core
+[ script:ox_inventory] [ox_inventory] [INFO] Inventory has loaded 301 items
+[    script:xt-prison] SCRIPT ERROR: @xt-prison/bridge/server/qbx.lua:8: No such export GetPlayer in resource qbx_core
+[script:qbx_vehicleke] SCRIPT ERROR: @qbx_vehiclekeys/server/keys.lua:17: No such export GetPlayer in resource qbx_core
+[         script:npwd] [NPWD] [DBInterface] [error]: Error executing (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? ["NXU4TK75"]) with error message Table 'qbox_8408b6.npwd_marketplace_listings' doesn't exist
+[         script:npwd] [NPWD] [marketplace] [error]: Error when deleting listings on player drop, (intermediate value) is not iterable
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": read tcp 10.0.6.29:41772->45.26.163.143:30120: read: connection reset by peer (Client.Timeout exceeded while awaiting headers))
+║             TXADMIN║ txaEvent "serverShuttingDown" "{\"delay\":5000,\"author\":\"crazy-fivem\",\"message\":\"Server restarting (admin request).\"}"
+[     script:lb-phone] [LB Phone 2.8.3] [INFO]: Saving all settings
+[      script:monitor] [txAdmin] Server shutting down. Kicking all players.
+
+║             TXADMIN║ ================================================================
+║             TXADMIN║ ======== [33236] FXServer Starting - 8/18/2026, 3:11:41 PM      
+║             TXADMIN║ ================================================================
+[                 cmd] Argument count mismatch (passed 1, wanted 2)
+[           resources] Scanning resources.
+[           resources] Found 99 resources.
+[          svadhesive] Authenticating server license key...
+[          svadhesive] Server license key authentication succeeded. Welcome!
+[    c-scripting-core] Creating script environments for monitor
+[      script:monitor] [txAdmin] Resource v8.1.1 threads and commands set up. All Ready.
+[           resources] Started resource monitor
+[                 cmd] Argument count mismatch (passed 1, wanted 2)
+[    c-scripting-core] Creating script environments for mapmanager
+[           resources] Started resource mapmanager
+[    c-scripting-core] Creating script environments for chat
+[           resources] Started resource chat
+[           resources] Started resource spawnmanager
+[    c-scripting-core] Creating script environments for sessionmanager
+[           resources] Started resource sessionmanager
+[    c-scripting-core] Creating script environments for hardcap
+[           resources] Started resource hardcap
+[    c-scripting-core] Creating script environments for baseevents
+[           resources] Started resource baseevents
+[    c-scripting-core] Creating script environments for ox_lib
+[           resources] Started resource ox_lib
+[    c-scripting-core] Creating script environments for oxmysql
+[           resources] Started resource oxmysql
+[    c-scripting-core] Creating script environments for qbx_core
+[     script:qbx_core] [qbx_core] [INFO] Stopping hardcap...
+[           resources] Stopping resource hardcap
+[           resources] Started resource qbx_core
+[    c-scripting-core] Creating script environments for ox_target
+[           resources] Started resource ox_target
+[    c-scripting-core] Creating script environments for ox_doorlock
+[           resources] Started resource ox_doorlock
+[    c-scripting-core] Creating script environments for ox_inventory
+[           resources] Started resource ox_inventory
+[    c-scripting-core] Creating script environments for ox_fuel
+[           resources] Started resource ox_fuel
+[    c-scripting-core] Creating script environments for qbx_adminmenu
+[           resources] Started resource qbx_adminmenu
+[    c-scripting-core] Creating script environments for qbx_medical
+[           resources] Started resource qbx_medical
+[    c-scripting-core] Creating script environments for qbx_ambulancejob
+[           resources] Started resource qbx_ambulancejob
+[    c-scripting-core] Creating script environments for qbx_bankrobbery
+[           resources] Started resource qbx_bankrobbery
+[    c-scripting-core] Creating script environments for qbx_binoculars
+[           resources] Started resource qbx_binoculars
+[    c-scripting-core] Creating script environments for qbx_busjob
+[           resources] Started resource qbx_busjob
+[    c-scripting-core] Creating script environments for qbx_carwash
+[           resources] Started resource qbx_carwash
+[    c-scripting-core] Creating script environments for qbx_chat_theme
+[           resources] Started resource qbx_chat_theme
+[    c-scripting-core] Creating script environments for qbx_cityhall
+[           resources] Started resource qbx_cityhall
+[    c-scripting-core] Creating script environments for qbx_customs
+[           resources] Started resource qbx_customs
+[           resources] Started resource qbx_density
+[    c-scripting-core] Creating script environments for qbx_divegear
+[           resources] Started resource qbx_divegear
+[    c-scripting-core] Creating script environments for qbx_diving
+[           resources] Started resource qbx_diving
+[    c-scripting-core] Creating script environments for qbx_drugs
+[           resources] Started resource qbx_drugs
+[    c-scripting-core] Creating script environments for qbx_fireworks
+[           resources] Started resource qbx_fireworks
+[    c-scripting-core] Creating script environments for qbx_garages
+[           resources] Started resource qbx_garages
+[    c-scripting-core] Creating script environments for qbx_garbagejob
+[           resources] Started resource qbx_garbagejob
+[    c-scripting-core] Creating script environments for qbx_houserobbery
+[           resources] Started resource qbx_houserobbery
+[           resources] Started resource MugShotBase64
+[    c-scripting-core] Creating script environments for qbx_idcard
+[           resources] Started resource qbx_idcard
+[    c-scripting-core] Creating script environments for qbx_jewelery
+[           resources] Started resource qbx_jewelery
+[    c-scripting-core] Creating script environments for qbx_lapraces
+[           resources] Started resource qbx_lapraces
+[    c-scripting-core] Creating script environments for qbx_management
+[           resources] Started resource qbx_management
+[    c-scripting-core] Creating script environments for qbx_mechanicjob
+[           resources] Started resource qbx_mechanicjob
+[    c-scripting-core] Creating script environments for qbx_newsjob
+[           resources] Started resource qbx_newsjob
+[    c-scripting-core] Creating script environments for qbx_pawnshop
+[           resources] Started resource qbx_pawnshop
+[    c-scripting-core] Creating script environments for qbx_police
+[           resources] Started resource qbx_police
+[    c-scripting-core] Creating script environments for qbx_properties
+[           resources] Started resource qbx_properties
+[    c-scripting-core] Creating script environments for qbx_radialmenu
+[           resources] Started resource qbx_radialmenu
+[    c-scripting-core] Creating script environments for qbx_recyclejob
+[           resources] Started resource qbx_recyclejob
+[    c-scripting-core] Creating script environments for qbx_scoreboard
+[           resources] Started resource qbx_scoreboard
+[    c-scripting-core] Creating script environments for qbx_scrapyard
+[           resources] Started resource qbx_scrapyard
+[    c-scripting-core] Creating script environments for qbx_seatbelt
+[           resources] Started resource qbx_seatbelt
+[    c-scripting-core] Creating script environments for qbx_smallresources
+[script:qbx_smallreso] [qbx_smallresources] [WARN] [qbx_entitiesblacklist] You have entity blacklist enabled, this means that any entity that is blacklisted in config.lua will not be able to spawn, you can change this in qbx_smallresource/qbx_entitiesblacklist/config.lua
+[           resources] Started resource qbx_smallresources
+[    c-scripting-core] Creating script environments for qbx_spawn
+[           resources] Started resource qbx_spawn
+[    c-scripting-core] Creating script environments for qbx_storerobbery
+[           resources] Started resource qbx_storerobbery
+[    c-scripting-core] Creating script environments for qbx_streetraces
+[           resources] Started resource qbx_streetraces
+[    c-scripting-core] Creating script environments for qbx_taxijob
+[           resources] Started resource qbx_taxijob
+[    c-scripting-core] Creating script environments for qbx_towjob
+[           resources] Started resource qbx_towjob
+[    c-scripting-core] Creating script environments for qbx_truckerjob
+[           resources] Started resource qbx_truckerjob
+[    c-scripting-core] Creating script environments for qbx_truckrobbery
+[           resources] Started resource qbx_truckrobbery
+[    c-scripting-core] Creating script environments for qbx_vehiclekeys
+[           resources] Started resource qbx_vehiclekeys
+[    c-scripting-core] Creating script environments for qbx_vehicles
+[           resources] Started resource qbx_vehicles
+[    c-scripting-core] Creating script environments for qbx_vehiclesales
+[           resources] Started resource qbx_vehiclesales
+[    c-scripting-core] Creating script environments for qbx_vehicleshop
+[           resources] Started resource qbx_vehicleshop
+[    c-scripting-core] Creating script environments for qbx_vineyard
+[           resources] Started resource qbx_vineyard
+[    c-scripting-core] Creating script environments for qbx_weed
+[           resources] Started resource qbx_weed
+[    c-scripting-core] Creating script environments for Renewed-Banking
+[           resources] Started resource Renewed-Banking
+[    c-scripting-core] Creating script environments for Renewed-Weathersync
+[           resources] Started resource Renewed-Weathersync
+[           resources] Started resource bob74_ipl
+[    c-scripting-core] Creating script environments for illenium-appearance
+[           resources] Started resource illenium-appearance
+[    c-scripting-core] Creating script environments for lb-phone
+[           resources] Started resource lb-phone
+[           resources] Started resource lb-phoneprop
+[    c-scripting-core] Creating script environments for loadscreen
+[           resources] Started resource loadscreen
+[    c-scripting-core] Creating script environments for mana_audio
+[           resources] Started resource mana_audio
+[           resources] Started resource mhacking
+[           resources] Started resource safecracker
+[    c-scripting-core] Creating script environments for screencapture
+[script:screencapture] [screencapture] Sentry enabled
+[           resources] Started resource screencapture
+[    c-scripting-core] Creating script environments for scully_emotemenu
+[           resources] Started resource scully_emotemenu
+[    c-scripting-core] Creating script environments for ultra-voltlab
+[           resources] Started resource ultra-voltlab
+[    c-scripting-core] Creating script environments for vehiclehandler
+[           resources] Started resource vehiclehandler
+[    c-scripting-core] Creating script environments for xt-prison
+[           resources] Started resource xt-prison
+[    c-scripting-core] Creating script environments for pma-voice
+[           resources] Started resource pma-voice
+[    c-scripting-core] Creating script environments for mm_radio
+[           resources] Started resource mm_radio
+[           resources] Started resource pillbox
+[    c-scripting-core] Creating script environments for crazy-hud
+[           resources] Started resource crazy-hud
+[ citizen-server-impl] Couldn't find resource category [npwd-apps].
+[ citizen-server-impl] Couldn't find resource qbx_npwd.
+[    c-scripting-core] Creating script environments for npwd
+[           resources] Started resource npwd
+[     script:lb-phone] [INFO] You are running the latest version.
+[ citizen-server-impl] server thread hitch warning: timer interval of 393 milliseconds
+[      script:oxmysql] [12.3.2-MariaDB] Database server connection established!
+[    script:xt-prison] [xt-prison] [INFO] Initializing Table: xt_prison
+[    script:xt-prison] [xt-prison] [INFO] Initializing Table: xt_prison_items
+[script:qbx_core:warn] Warning: Table 'npwd_calls' does not exist in database, please remove it from qbx_core/config/server.lua or create the table
+[script:qbx_core:warn] Warning: Table 'npwd_darkchat_channel_members' does not exist in database, please remove it from qbx_core/config/server.lua or create the table
+[script:qbx_core:warn] Warning: Table 'npwd_marketplace_listings' does not exist in database, please remove it from qbx_core/config/server.lua or create the table
+[script:qbx_core:warn] Warning: Table 'npwd_messages_participants' does not exist in database, please remove it from qbx_core/config/server.lua or create the table
+[script:qbx_core:warn] Warning: Table 'npwd_notes' does not exist in database, please remove it from qbx_core/config/server.lua or create the table
+[script:qbx_core:warn] Warning: Table 'npwd_phone_contacts' does not exist in database, please remove it from qbx_core/config/server.lua or create the table
+[script:qbx_core:warn] Warning: Table 'npwd_phone_gallery' does not exist in database, please remove it from qbx_core/config/server.lua or create the table
+[script:qbx_core:warn] Warning: Table 'npwd_twitter_profiles' does not exist in database, please remove it from qbx_core/config/server.lua or create the table
+[script:qbx_core:warn] Warning: Table 'npwd_match_profiles' does not exist in database, please remove it from qbx_core/config/server.lua or create the table
+[     script:qbx_core] [qbx_core] [INFO] Removed invalid groups from player_groups table
+[     script:qbx_core] 
+[     script:qbx_core] Welcome to Qbox!
+[     script:qbx_core] To learn more, please check out the documentation at https://docs.qbox.re/.
+[     script:qbx_core] To turn this message off, set the qbx:acknowledge convar to true in your server.cfg file.
+[     script:qbx_core] 
+[ script:ox_inventory] [ox_inventory] [INFO] Inventory has loaded 301 items
+[script:scully_emotem] [scully_emotemenu] You are currently running the latest version.
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": read tcp 10.0.6.29:41772->45.26.163.143:30120: read: connection reset by peer (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[     script:qbx_core] [qbx_core] [INFO] CrazyCasey (Citizen ID: NXU4TK75 ID: 1) has successfully loaded!
+[         script:npwd] [NPWD] [DBInterface] [error]: Error executing (
+[         script:npwd]         SELECT *
+[         script:npwd]         FROM npwd_twitter_profiles
+[         script:npwd]         WHERE identifier = ?
+[         script:npwd]         LIMIT 1
+[         script:npwd] 		 ["NXU4TK75"]) with error message Table 'qbox_8408b6.npwd_twitter_profiles' doesn't exist
+[         script:npwd] [NPWD] [twitter] [error]: Fetching tweets failed, (intermediate value) is not iterable
+[         script:npwd] [NPWD] [DBInterface] [error]: Error executing (
+[         script:npwd]         SELECT *
+[         script:npwd]         FROM npwd_twitter_profiles
+[         script:npwd]         WHERE identifier = ?
+[         script:npwd]         LIMIT 1
+[         script:npwd] 		 ["NXU4TK75"]) with error message Table 'qbox_8408b6.npwd_twitter_profiles' doesn't exist
+[         script:npwd] [NPWD] [twitter] [error]: Failed to get or create profile, (intermediate value) is not iterable
+[         script:npwd] [NPWD] [DBInterface] [error]: Error executing (
+[         script:npwd]         SELECT *,
+[         script:npwd]                UNIX_TIMESTAMP(updatedAt) AS lastActive
+[         script:npwd]         FROM npwd_match_profiles
+[         script:npwd]         WHERE identifier = ?
+[         script:npwd]         LIMIT 1
+[         script:npwd] 		 ["NXU4TK75"]) with error message Table 'qbox_8408b6.npwd_match_profiles' doesn't exist
+[         script:npwd] [NPWD] [match] [error]: Failed to get player profile, (intermediate value) is not iterable
+[         script:npwd] [NPWD] [DBInterface] [error]: Error executing (SELECT npwd_messages_conversations.id,
+[         script:npwd]                           npwd_messages_conversations.conversation_list         as conversationList,
+[         script:npwd]                           npwd_messages_participants.unread_count               as unreadCount,
+[         script:npwd]                           npwd_messages_conversations.is_group_chat             as isGroupChat,
+[         script:npwd]                           npwd_messages_conversations.label,
+[         script:npwd]                           UNIX_TIMESTAMP(npwd_messages_conversations.updatedAt) as updatedAt,
+[         script:npwd]                           npwd_messages_participants.participant
+[         script:npwd]                    FROM npwd_messages_conversations
+[         script:npwd]                             INNER JOIN npwd_messages_participants
+[         script:npwd]                                        on npwd_messages_conversations.id = npwd_messages_participants.conversation_id
+[         script:npwd]                    WHERE npwd_messages_participants.participant = ? ["1567371134"]) with error message Table 'qbox_8408b6.npwd_messages_conversations' doesn't exist
+[         script:npwd] [NPWD] [DBInterface] [error]: Error executing (SELECT * FROM npwd_phone_contacts WHERE identifier = ? ORDER BY display ASC ["NXU4TK75"]) with error message Table 'qbox_8408b6.npwd_phone_contacts' doesn't exist
+[         script:npwd] [NPWD] [contact] [error]: Error in handleFetchContact (NXU4TK75), (intermediate value) is not iterable
+[         script:npwd] [NPWD] [DBInterface] [error]: Error executing (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? ["NXU4TK75"]) with error message Table 'qbox_8408b6.npwd_marketplace_listings' doesn't exist
+[         script:npwd] [NPWD] [marketplace] [error]: Error when deleting listings on player drop, (intermediate value) is not iterable
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": read tcp 10.0.5.27:60184->45.26.163.143:30120: read: connection reset by peer)
+║             TXADMIN║ txaEvent "serverShuttingDown" "{\"delay\":5000,\"author\":\"crazy-fivem\",\"message\":\"Server restarting (admin request).\"}"
+[     script:lb-phone] [LB Phone 2.8.3] [INFO]: Saving all settings
+[      script:monitor] [txAdmin] Server shutting down. Kicking all players.
+
+║             TXADMIN║ ================================================================
+║             TXADMIN║ ======== [30876] FXServer Starting - 8/18/2026, 3:22:44 PM      
+║             TXADMIN║ ================================================================
+[                 cmd] Argument count mismatch (passed 1, wanted 2)
+[           resources] Scanning resources.
+[           resources] Found 100 resources.
+[          svadhesive] Authenticating server license key...
+[          svadhesive] Server license key authentication succeeded. Welcome!
+[    c-scripting-core] Creating script environments for monitor
+[      script:monitor] [txAdmin] Resource v8.1.1 threads and commands set up. All Ready.
+[           resources] Started resource monitor
+[                 cmd] Argument count mismatch (passed 1, wanted 2)
+[    c-scripting-core] Creating script environments for mapmanager
+[           resources] Started resource mapmanager
+[    c-scripting-core] Creating script environments for chat
+[           resources] Started resource chat
+[           resources] Started resource spawnmanager
+[    c-scripting-core] Creating script environments for sessionmanager
+[           resources] Started resource sessionmanager
+[    c-scripting-core] Creating script environments for hardcap
+[           resources] Started resource hardcap
+[    c-scripting-core] Creating script environments for baseevents
+[           resources] Started resource baseevents
+[    c-scripting-core] Creating script environments for ox_lib
+[           resources] Started resource ox_lib
+[    c-scripting-core] Creating script environments for oxmysql
+[           resources] Started resource oxmysql
+[    c-scripting-core] Creating script environments for qbx_core
+[     script:qbx_core] [qbx_core] [INFO] Stopping hardcap...
+[           resources] Stopping resource hardcap
+[           resources] Started resource qbx_core
+[    c-scripting-core] Creating script environments for ox_target
+[           resources] Started resource ox_target
+[    c-scripting-core] Creating script environments for ox_doorlock
+[           resources] Started resource ox_doorlock
+[    c-scripting-core] Creating script environments for ox_inventory
+[           resources] Started resource ox_inventory
+[    c-scripting-core] Creating script environments for ox_fuel
+[           resources] Started resource ox_fuel
+[    c-scripting-core] Creating script environments for qbx_adminmenu
+[           resources] Started resource qbx_adminmenu
+[    c-scripting-core] Creating script environments for qbx_medical
+[           resources] Started resource qbx_medical
+[    c-scripting-core] Creating script environments for qbx_ambulancejob
+[           resources] Started resource qbx_ambulancejob
+[    c-scripting-core] Creating script environments for qbx_bankrobbery
+[           resources] Started resource qbx_bankrobbery
+[    c-scripting-core] Creating script environments for qbx_binoculars
+[           resources] Started resource qbx_binoculars
+[    c-scripting-core] Creating script environments for qbx_busjob
+[           resources] Started resource qbx_busjob
+[    c-scripting-core] Creating script environments for qbx_carwash
+[           resources] Started resource qbx_carwash
+[    c-scripting-core] Creating script environments for qbx_chat_theme
+[           resources] Started resource qbx_chat_theme
+[    c-scripting-core] Creating script environments for qbx_cityhall
+[           resources] Started resource qbx_cityhall
+[    c-scripting-core] Creating script environments for qbx_customs
+[           resources] Started resource qbx_customs
+[           resources] Started resource qbx_density
+[    c-scripting-core] Creating script environments for qbx_divegear
+[           resources] Started resource qbx_divegear
+[    c-scripting-core] Creating script environments for qbx_diving
+[           resources] Started resource qbx_diving
+[    c-scripting-core] Creating script environments for qbx_drugs
+[           resources] Started resource qbx_drugs
+[    c-scripting-core] Creating script environments for qbx_fireworks
+[           resources] Started resource qbx_fireworks
+[    c-scripting-core] Creating script environments for qbx_garages
+[           resources] Started resource qbx_garages
+[    c-scripting-core] Creating script environments for qbx_garbagejob
+[           resources] Started resource qbx_garbagejob
+[    c-scripting-core] Creating script environments for qbx_houserobbery
+[           resources] Started resource qbx_houserobbery
+[           resources] Started resource MugShotBase64
+[    c-scripting-core] Creating script environments for qbx_idcard
+[           resources] Started resource qbx_idcard
+[    c-scripting-core] Creating script environments for qbx_jewelery
+[           resources] Started resource qbx_jewelery
+[    c-scripting-core] Creating script environments for qbx_lapraces
+[           resources] Started resource qbx_lapraces
+[    c-scripting-core] Creating script environments for qbx_management
+[           resources] Started resource qbx_management
+[    c-scripting-core] Creating script environments for qbx_mechanicjob
+[           resources] Started resource qbx_mechanicjob
+[    c-scripting-core] Creating script environments for qbx_newsjob
+[           resources] Started resource qbx_newsjob
+[    c-scripting-core] Creating script environments for qbx_pawnshop
+[           resources] Started resource qbx_pawnshop
+[    c-scripting-core] Creating script environments for qbx_police
+[           resources] Started resource qbx_police
+[    c-scripting-core] Creating script environments for qbx_properties
+[           resources] Started resource qbx_properties
+[    c-scripting-core] Creating script environments for qbx_radialmenu
+[           resources] Started resource qbx_radialmenu
+[    c-scripting-core] Creating script environments for qbx_recyclejob
+[           resources] Started resource qbx_recyclejob
+[    c-scripting-core] Creating script environments for qbx_scoreboard
+[           resources] Started resource qbx_scoreboard
+[    c-scripting-core] Creating script environments for qbx_scrapyard
+[           resources] Started resource qbx_scrapyard
+[    c-scripting-core] Creating script environments for qbx_seatbelt
+[           resources] Started resource qbx_seatbelt
+[    c-scripting-core] Creating script environments for qbx_smallresources
+[script:qbx_smallreso] [qbx_smallresources] [WARN] [qbx_entitiesblacklist] You have entity blacklist enabled, this means that any entity that is blacklisted in config.lua will not be able to spawn, you can change this in qbx_smallresource/qbx_entitiesblacklist/config.lua
+[           resources] Started resource qbx_smallresources
+[    c-scripting-core] Creating script environments for qbx_spawn
+[           resources] Started resource qbx_spawn
+[    c-scripting-core] Creating script environments for qbx_storerobbery
+[           resources] Started resource qbx_storerobbery
+[    c-scripting-core] Creating script environments for qbx_streetraces
+[           resources] Started resource qbx_streetraces
+[    c-scripting-core] Creating script environments for qbx_taxijob
+[           resources] Started resource qbx_taxijob
+[    c-scripting-core] Creating script environments for qbx_towjob
+[           resources] Started resource qbx_towjob
+[    c-scripting-core] Creating script environments for qbx_truckerjob
+[           resources] Started resource qbx_truckerjob
+[    c-scripting-core] Creating script environments for qbx_truckrobbery
+[           resources] Started resource qbx_truckrobbery
+[    c-scripting-core] Creating script environments for qbx_vehiclekeys
+[           resources] Started resource qbx_vehiclekeys
+[    c-scripting-core] Creating script environments for qbx_vehicles
+[           resources] Started resource qbx_vehicles
+[    c-scripting-core] Creating script environments for qbx_vehiclesales
+[           resources] Started resource qbx_vehiclesales
+[    c-scripting-core] Creating script environments for qbx_vehicleshop
+[           resources] Started resource qbx_vehicleshop
+[    c-scripting-core] Creating script environments for qbx_vineyard
+[           resources] Started resource qbx_vineyard
+[    c-scripting-core] Creating script environments for qbx_weed
+[           resources] Started resource qbx_weed
+[    c-scripting-core] Creating script environments for Renewed-Banking
+[           resources] Started resource Renewed-Banking
+[    c-scripting-core] Creating script environments for Renewed-Weathersync
+[           resources] Started resource Renewed-Weathersync
+[           resources] Started resource bob74_ipl
+[    c-scripting-core] Creating script environments for crazy-map
+[    c-scripting-core] Failed to load script @ReaperV4/imports/bypass.lua.
+[    c-scripting-core] Failed to load script @ReaperV4/imports/bypass_s.lua.
+[    c-scripting-core] Failed to load script @ReaperV4/imports/bypass_c.lua.
+[    c-scripting-core] Failed to load script @FiniAC/fini_events.lua.
+[           resources] Started resource crazy-map
+[    c-scripting-core] Creating script environments for crazy-postals
+[    c-scripting-core] Failed to load script @ReaperV4/imports/bypass.js.
+[    c-scripting-core] Failed to load script @ReaperV4/imports/bypass.lua.
+[    c-scripting-core] Failed to load script @ReaperV4/imports/bypass_s.lua.
+[    c-scripting-core] Failed to load script @ReaperV4/imports/bypass_c.lua.
+[    c-scripting-core] Failed to load script @FiniAC/fini_events.js.
+[    c-scripting-core] Failed to load script @FiniAC/fini_events.lua.
+[           resources] Started resource crazy-postals
+[    c-scripting-core] Creating script environments for illenium-appearance
+[           resources] Started resource illenium-appearance
+[    c-scripting-core] Creating script environments for lb-phone
+[           resources] Started resource lb-phone
+[           resources] Started resource lb-phoneprop
+[    c-scripting-core] Creating script environments for loadscreen
+[           resources] Started resource loadscreen
+[    c-scripting-core] Creating script environments for mana_audio
+[           resources] Started resource mana_audio
+[           resources] Started resource mhacking
+[           resources] Started resource safecracker
+[    c-scripting-core] Creating script environments for screencapture
+[script:screencapture] [screencapture] Sentry enabled
+[           resources] Started resource screencapture
+[    c-scripting-core] Creating script environments for scully_emotemenu
+[           resources] Started resource scully_emotemenu
+[    c-scripting-core] Creating script environments for ultra-voltlab
+[           resources] Started resource ultra-voltlab
+[    c-scripting-core] Creating script environments for vehiclehandler
+[           resources] Started resource vehiclehandler
+[    c-scripting-core] Creating script environments for xt-prison
+[           resources] Started resource xt-prison
+[    c-scripting-core] Creating script environments for pma-voice
+[           resources] Started resource pma-voice
+[    c-scripting-core] Creating script environments for mm_radio
+[           resources] Started resource mm_radio
+[           resources] Started resource pillbox
+[    c-scripting-core] Creating script environments for crazy-hud
+[           resources] Started resource crazy-hud
+[     script:lb-phone] [INFO] You are running the latest version.
+[      script:oxmysql] [12.3.2-MariaDB] Database server connection established!
+[script:crazy-postals] -------------------------------------------------------
+[script:crazy-postals] nearest-postal
+[script:crazy-postals] UPDATE: 1.5.4 AVAILABLE
+[script:crazy-postals] CHANGELOG: Added developer event 'nearest-postal:removedPostalBlip' that triggers when a player canceles their current postal route.
+[script:crazy-postals] -------------------------------------------------------
+[script:crazy-postals] 
+[    script:xt-prison] [xt-prison] [INFO] Initializing Table: xt_prison
+[    script:xt-prison] [xt-prison] [INFO] Initializing Table: xt_prison_items
+[     script:qbx_core] [qbx_core] [INFO] Removed invalid groups from player_groups table
+[     script:qbx_core] 
+[     script:qbx_core] Welcome to Qbox!
+[     script:qbx_core] To learn more, please check out the documentation at https://docs.qbox.re/.
+[     script:qbx_core] To turn this message off, set the qbx:acknowledge convar to true in your server.cfg file.
+[     script:qbx_core] 
+[ script:ox_inventory] [ox_inventory] [INFO] Inventory has loaded 301 items
+[script:scully_emotem] [scully_emotemenu] You are currently running the latest version.
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[     script:qbx_core] [qbx_core] [INFO] CrazyCasey (Citizen ID: NXU4TK75 ID: 1) has successfully loaded!
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/players.json (Get "https://45.26.163.143:30120/players.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] server thread hitch warning: timer interval of 202 milliseconds
+[   script:qbx_police] SCRIPT ERROR: @qbx_police/server/main.lua:23: No such export GetQBPlayers in resource qbx_core
+[   script:qbx_police] SCRIPT ERROR: @qbx_police/server/main.lua:586: No such export GetJobs in resource qbx_core
+[ script:ox_inventory] SCRIPT ERROR: @ox_inventory/modules/bridge/qbx/server.lua:35: No such export GetPlayersData in resource qbx_core
+[ script:ox_inventory] [ox_inventory] [INFO] Inventory has loaded 301 items
+[   script:qbx_police] SCRIPT ERROR: @qbx_police/server/main.lua:586: No such export GetJobs in resource qbx_core
+[ script:ox_inventory] SCRIPT ERROR: @ox_inventory/modules/bridge/qbx/server.lua:35: No such export GetPlayersData in resource qbx_core
+[ script:ox_inventory] [ox_inventory] [INFO] Inventory has loaded 301 items
+[    script:xt-prison] SCRIPT ERROR: @xt-prison/bridge/server/qbx.lua:8: No such export GetPlayer in resource qbx_core
+[script:qbx_vehicleke] SCRIPT ERROR: @qbx_vehiclekeys/server/keys.lua:17: No such export GetPlayer in resource qbx_core
+║             TXADMIN║ txaEvent "serverShuttingDown" "{\"delay\":5000,\"author\":\"crazy-fivem\",\"message\":\"Server restarting (admin request).\"}"
+[     script:lb-phone] [LB Phone 2.8.3] [INFO]: Saving all settings
+[      script:monitor] [txAdmin] Server shutting down. Kicking all players.
+
+║             TXADMIN║ ================================================================
+║             TXADMIN║ ======== [30640] FXServer Starting - 8/18/2026, 3:29:53 PM      
+║             TXADMIN║ ================================================================
+[                 cmd] Argument count mismatch (passed 1, wanted 2)
+[           resources] Scanning resources.
+[           resources] Found 100 resources.
+[          svadhesive] Authenticating server license key...
+[          svadhesive] Server license key authentication succeeded. Welcome!
+[    c-scripting-core] Creating script environments for monitor
+[      script:monitor] [txAdmin] Resource v8.1.1 threads and commands set up. All Ready.
+[           resources] Started resource monitor
+[                 cmd] Argument count mismatch (passed 1, wanted 2)
+[    c-scripting-core] Creating script environments for mapmanager
+[           resources] Started resource mapmanager
+[    c-scripting-core] Creating script environments for chat
+[           resources] Started resource chat
+[           resources] Started resource spawnmanager
+[    c-scripting-core] Creating script environments for sessionmanager
+[           resources] Started resource sessionmanager
+[    c-scripting-core] Creating script environments for hardcap
+[           resources] Started resource hardcap
+[    c-scripting-core] Creating script environments for baseevents
+[           resources] Started resource baseevents
+[    c-scripting-core] Creating script environments for ox_lib
+[           resources] Started resource ox_lib
+[    c-scripting-core] Creating script environments for oxmysql
+[           resources] Started resource oxmysql
+[    c-scripting-core] Creating script environments for qbx_core
+[     script:qbx_core] [qbx_core] [INFO] Stopping hardcap...
+[           resources] Stopping resource hardcap
+[           resources] Started resource qbx_core
+[    c-scripting-core] Creating script environments for ox_target
+[           resources] Started resource ox_target
+[    c-scripting-core] Creating script environments for ox_doorlock
+[           resources] Started resource ox_doorlock
+[    c-scripting-core] Creating script environments for ox_inventory
+[           resources] Started resource ox_inventory
+[    c-scripting-core] Creating script environments for ox_fuel
+[           resources] Started resource ox_fuel
+[    c-scripting-core] Creating script environments for qbx_adminmenu
+[           resources] Started resource qbx_adminmenu
+[    c-scripting-core] Creating script environments for qbx_medical
+[           resources] Started resource qbx_medical
+[    c-scripting-core] Creating script environments for qbx_ambulancejob
+[           resources] Started resource qbx_ambulancejob
+[    c-scripting-core] Creating script environments for qbx_bankrobbery
+[           resources] Started resource qbx_bankrobbery
+[    c-scripting-core] Creating script environments for qbx_binoculars
+[           resources] Started resource qbx_binoculars
+[    c-scripting-core] Creating script environments for qbx_busjob
+[           resources] Started resource qbx_busjob
+[    c-scripting-core] Creating script environments for qbx_carwash
+[           resources] Started resource qbx_carwash
+[    c-scripting-core] Creating script environments for qbx_chat_theme
+[           resources] Started resource qbx_chat_theme
+[    c-scripting-core] Creating script environments for qbx_cityhall
+[           resources] Started resource qbx_cityhall
+[    c-scripting-core] Creating script environments for qbx_customs
+[           resources] Started resource qbx_customs
+[           resources] Started resource qbx_density
+[    c-scripting-core] Creating script environments for qbx_divegear
+[           resources] Started resource qbx_divegear
+[    c-scripting-core] Creating script environments for qbx_diving
+[           resources] Started resource qbx_diving
+[    c-scripting-core] Creating script environments for qbx_drugs
+[           resources] Started resource qbx_drugs
+[    c-scripting-core] Creating script environments for qbx_fireworks
+[           resources] Started resource qbx_fireworks
+[    c-scripting-core] Creating script environments for qbx_garages
+[           resources] Started resource qbx_garages
+[    c-scripting-core] Creating script environments for qbx_garbagejob
+[           resources] Started resource qbx_garbagejob
+[    c-scripting-core] Creating script environments for qbx_houserobbery
+[           resources] Started resource qbx_houserobbery
+[           resources] Started resource MugShotBase64
+[    c-scripting-core] Creating script environments for qbx_idcard
+[           resources] Started resource qbx_idcard
+[    c-scripting-core] Creating script environments for qbx_jewelery
+[           resources] Started resource qbx_jewelery
+[    c-scripting-core] Creating script environments for qbx_lapraces
+[           resources] Started resource qbx_lapraces
+[    c-scripting-core] Creating script environments for qbx_management
+[           resources] Started resource qbx_management
+[    c-scripting-core] Creating script environments for qbx_mechanicjob
+[           resources] Started resource qbx_mechanicjob
+[    c-scripting-core] Creating script environments for qbx_newsjob
+[           resources] Started resource qbx_newsjob
+[    c-scripting-core] Creating script environments for qbx_pawnshop
+[           resources] Started resource qbx_pawnshop
+[    c-scripting-core] Creating script environments for qbx_police
+[           resources] Started resource qbx_police
+[    c-scripting-core] Creating script environments for qbx_properties
+[           resources] Started resource qbx_properties
+[    c-scripting-core] Creating script environments for qbx_radialmenu
+[           resources] Started resource qbx_radialmenu
+[    c-scripting-core] Creating script environments for qbx_recyclejob
+[           resources] Started resource qbx_recyclejob
+[    c-scripting-core] Creating script environments for qbx_scoreboard
+[           resources] Started resource qbx_scoreboard
+[    c-scripting-core] Creating script environments for qbx_scrapyard
+[           resources] Started resource qbx_scrapyard
+[    c-scripting-core] Creating script environments for qbx_seatbelt
+[           resources] Started resource qbx_seatbelt
+[    c-scripting-core] Creating script environments for qbx_smallresources
+[script:qbx_smallreso] [qbx_smallresources] [WARN] [qbx_entitiesblacklist] You have entity blacklist enabled, this means that any entity that is blacklisted in config.lua will not be able to spawn, you can change this in qbx_smallresource/qbx_entitiesblacklist/config.lua
+[           resources] Started resource qbx_smallresources
+[    c-scripting-core] Creating script environments for qbx_spawn
+[           resources] Started resource qbx_spawn
+[    c-scripting-core] Creating script environments for qbx_storerobbery
+[           resources] Started resource qbx_storerobbery
+[    c-scripting-core] Creating script environments for qbx_streetraces
+[           resources] Started resource qbx_streetraces
+[    c-scripting-core] Creating script environments for qbx_taxijob
+[           resources] Started resource qbx_taxijob
+[    c-scripting-core] Creating script environments for qbx_towjob
+[           resources] Started resource qbx_towjob
+[    c-scripting-core] Creating script environments for qbx_truckerjob
+[           resources] Started resource qbx_truckerjob
+[    c-scripting-core] Creating script environments for qbx_truckrobbery
+[           resources] Started resource qbx_truckrobbery
+[    c-scripting-core] Creating script environments for qbx_vehiclekeys
+[           resources] Started resource qbx_vehiclekeys
+[    c-scripting-core] Creating script environments for qbx_vehicles
+[           resources] Started resource qbx_vehicles
+[    c-scripting-core] Creating script environments for qbx_vehiclesales
+[           resources] Started resource qbx_vehiclesales
+[    c-scripting-core] Creating script environments for qbx_vehicleshop
+[           resources] Started resource qbx_vehicleshop
+[    c-scripting-core] Creating script environments for qbx_vineyard
+[           resources] Started resource qbx_vineyard
+[    c-scripting-core] Creating script environments for qbx_weed
+[           resources] Started resource qbx_weed
+[    c-scripting-core] Creating script environments for Renewed-Banking
+[           resources] Started resource Renewed-Banking
+[    c-scripting-core] Creating script environments for Renewed-Weathersync
+[           resources] Started resource Renewed-Weathersync
+[           resources] Started resource bob74_ipl
+[    c-scripting-core] Creating script environments for crazy-map
+[    c-scripting-core] Failed to load script @ReaperV4/imports/bypass.lua.
+[    c-scripting-core] Failed to load script @ReaperV4/imports/bypass_s.lua.
+[    c-scripting-core] Failed to load script @ReaperV4/imports/bypass_c.lua.
+[    c-scripting-core] Failed to load script @FiniAC/fini_events.lua.
+[           resources] Started resource crazy-map
+[    c-scripting-core] Creating script environments for crazy-postals
+[    c-scripting-core] Failed to load script @ReaperV4/imports/bypass.js.
+[    c-scripting-core] Failed to load script @ReaperV4/imports/bypass.lua.
+[    c-scripting-core] Failed to load script @ReaperV4/imports/bypass_s.lua.
+[    c-scripting-core] Failed to load script @ReaperV4/imports/bypass_c.lua.
+[    c-scripting-core] Failed to load script @FiniAC/fini_events.js.
+[    c-scripting-core] Failed to load script @FiniAC/fini_events.lua.
+[           resources] Started resource crazy-postals
+[    c-scripting-core] Creating script environments for illenium-appearance
+[           resources] Started resource illenium-appearance
+[    c-scripting-core] Creating script environments for lb-phone
+[           resources] Started resource lb-phone
+[           resources] Started resource lb-phoneprop
+[    c-scripting-core] Creating script environments for loadscreen
+[           resources] Started resource loadscreen
+[    c-scripting-core] Creating script environments for mana_audio
+[           resources] Started resource mana_audio
+[           resources] Started resource mhacking
+[           resources] Started resource safecracker
+[    c-scripting-core] Creating script environments for screencapture
+[script:screencapture] [screencapture] Sentry enabled
+[           resources] Started resource screencapture
+[    c-scripting-core] Creating script environments for scully_emotemenu
+[           resources] Started resource scully_emotemenu
+[    c-scripting-core] Creating script environments for ultra-voltlab
+[           resources] Started resource ultra-voltlab
+[    c-scripting-core] Creating script environments for vehiclehandler
+[           resources] Started resource vehiclehandler
+[    c-scripting-core] Creating script environments for xt-prison
+[           resources] Started resource xt-prison
+[    c-scripting-core] Creating script environments for pma-voice
+[           resources] Started resource pma-voice
+[    c-scripting-core] Creating script environments for mm_radio
+[           resources] Started resource mm_radio
+[           resources] Started resource pillbox
+[    c-scripting-core] Creating script environments for crazy-hud
+[           resources] Started resource crazy-hud
+[     script:lb-phone] [INFO] You are running the latest version.
+[      script:oxmysql] [12.3.2-MariaDB] Database server connection established!
+[    script:xt-prison] [xt-prison] [INFO] Initializing Table: xt_prison
+[    script:xt-prison] [xt-prison] [INFO] Initializing Table: xt_prison_items
+[     script:qbx_core] [qbx_core] [INFO] Removed invalid groups from player_groups table
+[script:crazy-postals] -------------------------------------------------------
+[script:crazy-postals] nearest-postal
+[script:crazy-postals] UPDATE: 1.5.4 AVAILABLE
+[script:crazy-postals] CHANGELOG: Added developer event 'nearest-postal:removedPostalBlip' that triggers when a player canceles their current postal route.
+[script:crazy-postals] -------------------------------------------------------
+[script:crazy-postals] 
+[     script:qbx_core] 
+[     script:qbx_core] Welcome to Qbox!
+[     script:qbx_core] To learn more, please check out the documentation at https://docs.qbox.re/.
+[     script:qbx_core] To turn this message off, set the qbx:acknowledge convar to true in your server.cfg file.
+[     script:qbx_core] 
+[ script:ox_inventory] [ox_inventory] [INFO] Inventory has loaded 301 items
+[script:scully_emotem] [scully_emotemenu] You are currently running the latest version.
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/info.json (Get "https://45.26.163.143:30120/info.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[     script:qbx_core] [qbx_core] [INFO] CrazyCasey (Citizen ID: NXU4TK75 ID: 1) has successfully loaded!
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/dynamic.json (Get "https://45.26.163.143:30120/dynamic.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))
+[ citizen-server-impl] Server list query returned an error: server request failed: server request failed for endpoint https://45.26.163.143:30120/players.json (Get "https://45.26.163.143:30120/players.json": context deadline exceeded (Client.Timeout exceeded while awaiting headers))

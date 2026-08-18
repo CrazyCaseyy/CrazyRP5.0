@@ -1,0 +1,10 @@
+{
+    "primaryColor": "#1573ed",
+    "secondaryColor": "#c2c2c2",
+    "backgroundColor": "rgba(126, 126, 126, 0.9)",
+    "backgroundBoxes": "rgba(20, 20, 23, 0.75)",
+    "borderColor": "rgba(255, 255, 255, 0.6)",
+    "hoverColor": "#3b82f6",
+    "fontFamily": "Oswald, sans-serif",
+    "errorColor": "#1573ed"
+}

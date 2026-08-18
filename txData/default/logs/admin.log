@@ -1,0 +1,27 @@
+================================================================
+======== txAdmin v8.1.1 atop fxserver 34833 Starting - 8/18/2026, 2:38:09 AM
+================================================================
+[02:38:29][crazy-fivem] created admins file
+[02:38:51][crazy-fivem] Config changes: general.serverName, server.dataPath
+[02:38:51][crazy-fivem] Changing global/fxserver settings via setup stepper.
+================================================================
+======== txAdmin v8.1.1 atop fxserver 34833 Starting - 8/18/2026, 3:02:31 AM
+================================================================
+[03:04:37][crazy-fivem] Ensured resource "crazy-hud"
+[03:52:15][crazy-fivem] executed "ensure crazy-hud"
+[03:53:47][crazy-fivem] executed "ensure crazy-hud"
+[03:53:52][crazy-fivem] executed "refresh"
+[03:53:54][crazy-fivem] executed "ensure crazy-hud"
+[04:30:45][crazy-fivem] logged in from 127.0.0.1 via cfxre auth
+[04:30:47][crazy-fivem] executed "RESTART SERVER"
+================================================================
+======== txAdmin v8.1.1 atop fxserver 34833 Starting - 8/18/2026, 2:05:49 PM
+================================================================
+[14:15:08][crazy-fivem] logged in from 127.0.0.1 via cfxre auth
+[14:25:48][crazy-fivem] executed "ensure crazy-hud"
+[14:52:26][crazy-fivem] Stopped resource "npwd"
+[14:52:29][crazy-fivem] Stopped resource "qbx_npwd"
+[15:07:25][crazy-fivem] executed "RESTART SERVER"
+[15:11:35][crazy-fivem] executed "RESTART SERVER"
+[15:22:38][crazy-fivem] executed "RESTART SERVER"
+[15:29:47][crazy-fivem] executed "RESTART SERVER"

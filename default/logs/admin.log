@@ -1,0 +1,13 @@
+================================================================
+======== txAdmin v8.1.1 atop fxserver 34833 Starting - 8/18/2026, 2:21:43 AM
+================================================================
+================================================================
+======== txAdmin v8.1.1 atop fxserver 34833 Starting - 8/18/2026, 2:24:01 AM
+================================================================
+[02:24:28][crazy-fivem] created admins file
+[02:24:45][crazy-fivem] Config changes: general.serverName
+[02:24:45][crazy-fivem] Changing global settings via setup stepper and started Deployer.
+[02:24:48][crazy-fivem] Setting recipe.
+[02:26:40][crazy-fivem] Running recipe.
+[02:36:50][crazy-fivem] Config changes: server.dataPath
+[02:36:50][crazy-fivem] Completed and committed server deploy.
