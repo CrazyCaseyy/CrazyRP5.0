@@ -28,3 +28,6 @@ db/default/OPTIONS-000063
 cache/files/ox_lib/resource.rpf
 cache/files/ox_lib/resource.rpf.db
 db/default/LOCK
+/cache
+/db
+/txData

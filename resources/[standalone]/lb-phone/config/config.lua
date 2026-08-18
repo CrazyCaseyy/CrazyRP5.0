@@ -117,7 +117,24 @@ Config.LiveTray = true
 Config.SetupScreen = true -- if enabled, the phone will have a setup screen when the player first uses the phone.
 Config.AppDownloadTime = 2000 -- time (in ms) it takes to download an app from the app store
 
-Config.AutoDisableSparkAccounts = true -- automatically disable inactive spark accounts? This can be set to the amount of days the account needs to be inactive to disable it, or true to disable after 7 days.
+--[[
+    Spark (the "Tinder" app) was removed from the app store entirely - see config/config.json,
+    where the "Tinder" entry was deleted from the "apps" object (LB Scripts' documented method
+    for disabling an app, since JSON has no comment syntax to disable it in place).
+
+    To restore it, paste this back into config.json's "apps" object:
+
+    "Tinder": {
+        "name": "Spark",
+        "icon": "./assets/img/icons/apps/Spark.jpg",
+        "description": "Meet new people",
+        "removable": true,
+        "size": 187500,
+        "images": ["1.webp", "2.webp", "3.webp", "4.webp", "5.webp"]
+    },
+--]]
+
+Config.AutoDisableSparkAccounts = true -- inert now that Spark is removed, but lb-phone's config validator warns if this key is missing, so it's left set rather than commented out.
 Config.AutoDeleteNotifications = true -- notifications that are more than X hours old, will be deleted. set to false to disable. if set to true, it will delete 1 week old notifications.
 Config.MaxNotifications = 50 -- the maximum amount of notifications a player can have. if they have more than this, the oldest notifications will be deleted. set to false to disable
 Config.NotificationsUpdateZIndex = true -- update the z-index when receiving notifications? this makes the notifications appear above your hud

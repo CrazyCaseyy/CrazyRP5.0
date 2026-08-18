@@ -268,8 +268,8 @@ end
 -- Function to trigger seatbelt stuff in other huds
 Helper.externalSeatbeltToggle = function(toggle)
 
-	if isStarted("qbx_hud")  then
-		LocalPlayer.state:set("seatbelt", toggle, true) -- qbx_hud
+	if isStarted("qbx_hud") or isStarted("crazy-hud") then
+		LocalPlayer.state:set("seatbelt", toggle, true) -- qbx_hud / crazy-hud
 	else
 		if isStarted("0r-hud-v3") then
 			TriggerEvent('seatbelt:client:ToggleSeatbelt', toggle)

@@ -119,6 +119,10 @@ RegisterNetEvent('seatbelt:client:ToggleSeatbelt', function()
     end
 end)
 
+AddStateBagChangeHandler('seatbelt', ('player:%s'):format(cache.serverId), function(_, _, value)
+    playerState.isSeatbeltOn = value and true or false
+end)
+
 CreateThread(function()
     while true do
         if LocalPlayer.state.isLoggedIn then
