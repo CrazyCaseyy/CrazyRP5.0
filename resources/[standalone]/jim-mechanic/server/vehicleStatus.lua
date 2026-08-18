@@ -1,0 +1,209 @@
+---==[[ VEHICLE DAMAGES SERVER STUFF ]]==---
+onResourceStart(function()
+	local result = MySQL.Sync.fetchAll("SELECT `status`, `plate` FROM `"..vehDatabase.."` WHERE 1")
+	debugPrint("^5SQL^7: ^2Found "..#result.." ^3vehicleStatus ^2results^7")
+
+	for _, v in pairs(result) do
+		if type(json.decode(v.status)) == "table" then
+			debugPrint("^5SQL^7: ^2Found vehicleStatus ^7- '^6"..v.plate.."^7'", "'^3"..type(json.decode(v.status)).."^7'")
+			VehicleStatus[v.plate] = json.decode(v.status)
+			--Create a table and apply values at the same time, this will help if its retreived errornous info from database
+			for _, name in pairs({"oillevel", "shaftlevel", "cylinderlevel", "cablelevel", "fuellevel", "harness", "antiLag", "carwax", "manual", "underglow", "oriWheelX", "wheelWidth", "wheelSize", "stancerEnabled"}) do
+				if name == "oriWheelX" then
+					VehicleStatus[v.plate][name] = VehicleStatus[v.plate][name]
+				else
+					VehicleStatus[v.plate][name] = VehicleStatus[v.plate][name] or 0
+				end
+			end
+			for _, name in pairs({"oil", "axle", "spark", "battery", "fuel"}) do
+				VehicleStatus[v.plate][name] = VehicleStatus[v.plate][name] or 100
+			end
+			for _, id in pairs({0, 1, 2, 3, 4, 5, 6, 7, 45, 47}) do
+				VehicleStatus[v.plate]["wheelCamber"..id] = VehicleStatus[v.plate]["wheelCamber"..id] or 0
+				VehicleStatus[v.plate]["wheelSpacer"..id] = VehicleStatus[v.plate]["wheelSpacer"..id] or 0
+			end
+		end
+	end
+
+end, true)
+
+RegisterNetEvent(getScript()..":server:RequestFullStatusList", function()
+    local src = source
+    TriggerLatentClientEvent(getScript()..":client:ReceiveFullStatusList", src, 100000, VehicleStatus)
+end)
+
+onResourceStop(function()
+	GlobalState.vehicleNitrousUpdate = nil
+end, true)
+
+function GetVehicleStatus(plate)
+    debugPrint("^5Debug^7: ^2Server ^3GetVehicleStatus^7() ^2running^7")
+	if VehicleStatus[plate] and VehicleStatus[plate].oillevel then -- if it has oillevel it has all the info it needs
+		debugPrint("^5Debug^7: ^2Found info for ^3"..plate.."^7, ^2sending^7..")
+		return VehicleStatus[plate]
+	else  -- if not, get a fresh version from the db
+		debugPrint("^5SQL^7: ^2Info ^1not ^2found for ^3"..plate.." ^2retreiving from database^7")
+		local status = MySQL.query.await("SELECT status FROM "..vehDatabase.." WHERE plate = ?", { plate })
+		if status[1] and tostring(status[1].status) ~= "null" and tostring(status[1].status) ~= "0" and tostring(status[1].status) ~= "1" then
+			status = status[1].status and json.decode(status[1].status) or nil
+		end
+		return status
+	end
+end
+
+function setupVehicleStatus(netId)
+    debugPrint("^5Debug^7: ^2Setting up fresh vehicleStatus ^7'^3stateBag^7'^2 for NetID^7: "..netId)
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
+    if vehicle and DoesEntityExist(vehicle) then
+        local plate = Helper.getTrimmedPlate(vehicle)
+        local defaultStatus = {
+            engine = GetVehicleEngineHealth(vehicle) or 1000.0,
+            body = GetVehicleBodyHealth(vehicle) or 1000.0,
+            oil = 100.0, oillevel = 0,
+			axle = 100.0, shaftlevel = 0,
+			spark = 100.0, cylinderlevel = 0,
+			battery = 100.0, cablelevel = 0,
+			fuel = 100.0, fuellevel = 0,
+			harness = 0,
+			manual = 0,
+			underglow = 0,
+			antiLag = 0,
+
+			wheelWidth = 0,
+			wheelSize = 0,
+			wheelCamber0 = 0, wheelSpacer0 = 0,
+			wheelCamber1 = 0, wheelSpacer1 = 0,
+			wheelCamber2 = 0, wheelSpacer2 = 0,
+			wheelCamber3 = 0, wheelSpacer3 = 0,
+			wheelCamber4 = 0, wheelSpacer4 = 0,
+			wheelCamber5 = 0, wheelSpacer5 = 0,
+			wheelCamber45 = 0, wheelSpacer45 = 0,
+			wheelCamber47 = 0, wheelSpacer47 = 0,
+			oriWheelX = nil,
+			stancerEnabled = 0,
+        }
+        if HelperServer.isVehicleOwned(plate) then
+            debugPrint("^5Debug^7: ^2Vehicle is owned^7, ^2ensuring info^7..")
+			if VehicleStatus[plate] == nil then
+				debugPrint("^5Debug^7: ^3"..plate.." ^2Info ^1not ^2in database yet^3, ^2manually adding")
+				VehicleStatus[plate] = GetVehicleStatus(plate) or defaultStatus
+			end
+        else
+            VehicleStatus[plate] = VehicleStatus[plate] or defaultStatus
+        end
+		-- Select one plate to update and sync
+		GlobalState.VehicleStatusUpdate = { plate = plate, data = VehicleStatus[plate], }
+
+		-- Sync entity statebag for stancers
+        Entity(vehicle).state:set("entityVehicleStatus", {
+			plate = plate,
+			helper = keyGen()
+		}, true)
+    end
+end
+
+RegisterNetEvent(getScript()..":server:updateVehicleStatus", function(netId, part, level)
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
+    if vehicle and DoesEntityExist(vehicle) then
+        local plate = Helper.getTrimmedPlate(vehicle)
+        debugPrint("^5Debug^7: ^2Recieving update for ^3"..plate.."^7[^5"..netId.."^7]")
+
+
+		if not VehicleStatus[plate] then
+			debugPrint("Information not cached, creating new")
+			setupVehicleStatus(netId)
+		end
+		local partValue = level
+		if part == "oriWheelX" or string.find(part, "wheelCamber") or string.find(part, "wheelSpacer") or string.find(part, "wheelHeight") or string.find(part, "wheelWidth") or string.find(part, "wheelSize") then
+			VehicleStatus[plate][part] = level
+		else
+			if partValue < 0 then partValue = 0
+			elseif partValue > ((part == "engine" or part == "body") and 1000.0 or 100) then
+				partValue = ((part == "engine" or part == "body") and 1000.0 or 100)
+			end
+			if part == "carwax" then
+				if level ~= 0 then
+					partValue = os.time() + level
+				end
+			end
+		end
+
+		debugPrint("^5Debug^7: ^2Updating ^5VehicleStatus ^7", plate, part, partValue)
+
+		VehicleStatus[plate][part] = partValue
+
+		CreateThread(function()
+			Wait(1000)
+			-- Select one plate to update and sync
+			GlobalState.VehicleStatusUpdate = { plate = plate, data = VehicleStatus[plate] }
+
+			-- Sync entity statebag for stancers
+			Entity(vehicle).state:set("entityVehicleStatus", {
+				plate = plate,
+				helper = keyGen()
+			}, true)
+		end)
+
+	end
+end)
+
+RegisterNetEvent(getScript()..":server:fixAllPart", function(netId)
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
+    if vehicle and DoesEntityExist(vehicle) then
+        local plate = Helper.getTrimmedPlate(vehicle)
+        if VehicleStatus[plate] then
+            VehicleStatus[plate]["oil"] = 100
+            VehicleStatus[plate]["axle"] = 100
+            VehicleStatus[plate]["battery"] = 100
+            VehicleStatus[plate]["fuel"] = 100
+            VehicleStatus[plate]["spark"] = 100
+        end
+
+		-- Sync entity statebag for stancers
+        Entity(vehicle).state:set("entityVehicleStatus", {
+			plate = plate,
+			helper = keyGen()
+		}, true)
+
+		-- Select one plate to update and sync
+		GlobalState.VehicleStatusUpdate = { plate = plate, data = VehicleStatus[plate] }
+
+    end
+end)
+
+createCallback(getScript()..":callback:getStatusList", function(source)
+    debugPrint("^5Debug^7: ^2PlayerId ^7"..source.." ^2requested VehicleStatus^7")
+    return VehicleStatus
+end)
+
+createCallback(getScript()..":server:GetStatus", function(source, netId)
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
+    if vehicle and vehicle ~= 0 and DoesEntityExist(vehicle) then
+		local plate = Helper.getTrimmedPlate(vehicle)
+		if VehicleStatus[plate] and VehicleStatus[plate].oillevel then
+			return VehicleStatus[plate]
+		else
+			setupVehicleStatus(netId)
+			while not VehicleStatus[plate] do Wait(10) end
+			return VehicleStatus[plate]
+		end
+	else
+		return {}
+	end
+end)
+
+RegisterNetEvent(getScript()..":server:checkWax", function(netId)
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
+    if vehicle == 0 or not DoesEntityExist(vehicle) then return end
+    local plate = Helper.getTrimmedPlate(vehicle)
+	debugPrint("^5Debug^7: ^2Checking ^3Carwax ^2for ^7"..plate)
+	if VehicleStatus and plate then
+		if VehicleStatus[plate] then
+			VehicleStatus[plate]["carwax"] = VehicleStatus[plate]["carwax"] or 0
+			if VehicleStatus[plate]["carwax"] < os.time() and VehicleStatus[plate]["carwax"] ~= 0 then
+				debugPrint("^5Debug^7: ^3Carwax ^1expired ^2for ^7"..plate..", ^2removing status^7")
+				TriggerEvent(getScript()..":server:updateVehicleStatus", netId, "carwax", 0)
+			end
+		end
+	end
+end)
