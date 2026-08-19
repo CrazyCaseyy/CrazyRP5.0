@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>crazy-multichar</title>
+  <link rel="stylesheet" href="style.css?v=3" />
+</head>
+<body>
+  <div id="app" class="hidden">
+    <div class="topbar">
+      <div class="brand"><span class="brand-mark">◆</span> CRAZY RP</div>
+      <div class="slot-count"><span id="slot-count-current">0</span> / <span id="slot-count-max">0</span> SLOTS</div>
+    </div>
+
+    <!-- Character dossier — appears below the previewed character when an
+         existing (non-empty) slot is selected. -->
+    <div class="info-panel hidden" id="info-panel">
+      <div class="info-title" id="info-name">—</div>
+      <div class="info-grid" id="info-grid"></div>
+    </div>
+
+    <div class="toast hidden" id="toast"></div>
+
+    <div class="slot-row" id="slot-row"></div>
+
+    <div class="dock hidden" id="dock">
+      <button class="dock-btn ghost" id="btn-delete">DELETE</button>
+      <button class="dock-btn primary" id="btn-select">ENTER CITY</button>
+    </div>
+
+    <!-- New character identity form -->
+    <div class="modal hidden" id="modal-identity">
+      <div class="modal-panel">
+        <div class="modal-step" id="step-identity">
+          <div class="modal-title">NEW IDENTITY // STEP 1 OF 2</div>
+
+          <label class="field-label">First name</label>
+          <input class="field-input" id="input-first-name" maxlength="24" autocomplete="off" />
+
+          <label class="field-label">Last name</label>
+          <input class="field-input" id="input-last-name" maxlength="24" autocomplete="off" />
+
+          <label class="field-label">Date of birth</label>
+          <input class="field-input" id="input-birthdate" type="date" />
+
+          <label class="field-label">Nationality</label>
+          <input class="field-input" id="input-nationality" maxlength="32" autocomplete="off" />
+
+          <label class="field-label">Gender</label>
+          <div class="gender-row">
+            <button class="gender-btn active" id="btn-gender-male" data-gender="0">MALE</button>
+            <button class="gender-btn" id="btn-gender-female" data-gender="1">FEMALE</button>
+          </div>
+
+          <div class="modal-actions">
+            <button class="dock-btn ghost" id="btn-identity-cancel">CANCEL</button>
+            <button class="dock-btn primary" id="btn-identity-next">NEXT</button>
+          </div>
+        </div>
+
+        <div class="modal-step hidden" id="step-apartment">
+          <div class="modal-title">STARTING LOCATION // STEP 2 OF 2</div>
+
+          <div class="apartment-list" id="apartment-list"></div>
+
+          <div class="modal-actions">
+            <button class="dock-btn ghost" id="btn-apartment-back">BACK</button>
+            <button class="dock-btn primary" id="btn-apartment-confirm" disabled>MOVE IN</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete confirmation -->
+    <div class="modal hidden" id="modal-delete">
+      <div class="modal-panel modal-panel-small">
+        <div class="modal-title danger">DELETE CHARACTER</div>
+        <p class="confirm-text">
+          Permanently delete <span id="delete-char-name"></span>? This cannot be undone.
+        </p>
+        <div class="modal-actions">
+          <button class="dock-btn ghost" id="btn-delete-cancel">CANCEL</button>
+          <button class="dock-btn danger" id="btn-delete-confirm">DELETE</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js?v=3"></script>
+</body>
+</html>
