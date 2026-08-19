@@ -1003,4 +1003,9 @@ return {
     label = "Advanced Repairkit", weight = 0, stack = true, close = true, description = "A nice toolbox with stuff to repair your vehicle",
    client = { image = "advancedkit.png", event = "jim-mechanic:vehFailure:RepairVehicle", item = "advancedrepairkit", full = true },
 },
+
+["cash_rolls"] = {
+    label = "Cash Rolls", weight = 250, stack = true, close = true, description = "Rolled-up bills taken from a store register",
+    client = { image = "cash_rolls.png" },
+},
 }

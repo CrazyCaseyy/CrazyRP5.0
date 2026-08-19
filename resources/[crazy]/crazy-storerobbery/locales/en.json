@@ -1,0 +1,9 @@
+{
+    "text": {
+        "robbing": "Robbing Store..."
+    },
+    "notify": {
+        "cooldown": "This store was robbed recently, try again later",
+        "success": "You got away with some cash rolls"
+    }
+}
