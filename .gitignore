@@ -231,3 +231,5 @@ txData/default/data/playersDB.backup.json
 txData/default/data/playersDB.json
 txData/default/data/stats_playerDrop.json
 txData/default/data/stats_svRuntime.json
+/db
+/cache
