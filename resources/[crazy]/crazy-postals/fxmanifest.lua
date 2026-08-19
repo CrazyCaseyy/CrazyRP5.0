@@ -1,15 +1,3 @@
-shared_script "@ReaperV4/imports/bypass.js"
-shared_script "@ReaperV4/imports/bypass.lua"
-shared_script "@ReaperV4/imports/bypass_s.lua"
-shared_script "@ReaperV4/imports/bypass_c.lua"
-lua54 "yes" -- needed for Reaper
-
-
-shared_scripts { '@FiniAC/fini_events.js', '@FiniAC/fini_events.lua' }
-
-
-
-
 
 -- the postal map to read from
 -- change it to whatever model you want that is in this directory

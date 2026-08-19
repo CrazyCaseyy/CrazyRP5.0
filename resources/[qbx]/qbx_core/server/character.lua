@@ -102,16 +102,24 @@ end
 ---@param data unknown
 ---@return table? newData
 lib.callback.register('qbx_core:server:createCharacter', function(source, data)
-    if type(data) ~= 'table' then return end
+    if type(data) ~= 'table' then
+        lib.print.warn(('createCharacter rejected for %s: payload was not a table (got %s)'):format(GetPlayerName(source), type(data)))
+        return
+    end
 
     local license2, license = GetPlayerIdentifierByType(source, 'license2'), GetPlayerIdentifierByType(source, 'license')
     local existingCharacters = storage.fetchAllPlayerEntities(license2, license)
-    if #existingCharacters >= getAllowedAmountOfCharacters(license2, license) then
+    local allowed = getAllowedAmountOfCharacters(license2, license)
+    if #existingCharacters >= allowed then
+        lib.print.warn(('createCharacter rejected for %s: at character limit (%d/%d)'):format(GetPlayerName(source), #existingCharacters, allowed))
         return
     end
 
     local charinfo = sanitizeNewCharInfo(data)
-    if not charinfo then return end
+    if not charinfo then
+        lib.print.warn(('createCharacter rejected for %s: sanitizeNewCharInfo failed. raw payload: %s'):format(GetPlayerName(source), json.encode(data)))
+        return
+    end
 
     -- The client sends a cid (its local slot index), but that value is never
     -- trustworthy: sanitizeNewCharInfo() intentionally drops it, so it must be
@@ -123,11 +131,14 @@ lib.callback.register('qbx_core:server:createCharacter', function(source, data)
     newData.charinfo = charinfo
 
     local success = Login(source, nil, newData)
-    if not success then return end
+    if not success then
+        lib.print.warn(('createCharacter rejected for %s: Login() returned false'):format(GetPlayerName(source)))
+        return
+    end
 
     giveStarterItems(source)
 
-    lib.print.info(('%s has created a character'):format(GetPlayerName(source)))
+    lib.print.info(('%s has created a character (citizenid %s)'):format(GetPlayerName(source), newData.citizenid or '?'))
     return newData
 end)
 

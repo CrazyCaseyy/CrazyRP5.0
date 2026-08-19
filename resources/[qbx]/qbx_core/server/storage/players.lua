@@ -24,6 +24,38 @@ local function createUsersTable()
     MySQL.query('CREATE INDEX IF NOT EXISTS `idx_users_discord` ON `users` (`discord`)')
 end
 
+-- Unlike `users` above, the `players` table historically only ever got an
+-- ALTER TABLE migration on resource start (see events.lua), which assumes
+-- the table already exists - if it's ever dropped (not just emptied), qbx_core
+-- has no way to recreate it and every character-related query starts failing.
+-- Schema copied verbatim from qbx_core.sql so this stays the single source of truth.
+local function createPlayersTable()
+    MySQL.query([[
+        CREATE TABLE IF NOT EXISTS `players` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `userId` int UNSIGNED DEFAULT NULL,
+            `citizenid` varchar(50) NOT NULL,
+            `cid` int(11) DEFAULT NULL,
+            `license` varchar(255) NOT NULL,
+            `name` varchar(255) NOT NULL,
+            `money` text NOT NULL,
+            `charinfo` text DEFAULT NULL,
+            `job` text NOT NULL,
+            `gang` text DEFAULT NULL,
+            `position` text NOT NULL,
+            `metadata` text NOT NULL,
+            `inventory` longtext DEFAULT NULL,
+            `phone_number` VARCHAR(20) DEFAULT NULL,
+            `last_updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+            `last_logged_out` timestamp NULL DEFAULT NULL,
+            PRIMARY KEY (`citizenid`),
+            KEY `id` (`id`),
+            KEY `last_updated` (`last_updated`),
+            KEY `license` (`license`)
+        ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    ]])
+end
+
 ---@param identifiers table<PlayerIdentifier, string>
 ---@return number?
 local function createUser(identifiers)
@@ -465,6 +497,7 @@ end)
 
 return {
     createUsersTable = createUsersTable,
+    createPlayersTable = createPlayersTable,
     createUser = createUser,
     fetchUserByIdentifier = fetchUserByIdentifier,
     insertBan = insertBan,

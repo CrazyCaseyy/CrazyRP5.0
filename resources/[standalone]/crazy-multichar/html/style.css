@@ -384,3 +384,48 @@ html, body {
   font-size: 12px;
   color: var(--ox-text-dim);
 }
+
+.spawn-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 4px;
+  padding-right: 2px;
+}
+
+.spawn-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  background: var(--ox-panel);
+  border: 1px solid var(--ox-border);
+  border-radius: var(--ox-radius-sm);
+  cursor: pointer;
+  transition: background-color 200ms, border-color 200ms;
+}
+
+.spawn-card:hover {
+  background: rgba(21, 115, 237, 0.2);
+  border-color: var(--ox-blue);
+}
+
+.spawn-card.selected {
+  background: rgba(21, 115, 237, 0.25);
+  border-color: var(--ox-blue);
+  box-shadow: var(--ox-glow);
+}
+
+.spawn-card .spawn-label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--ox-text);
+}
+
+.spawn-card .spawn-blurb {
+  font-size: 12px;
+  color: var(--ox-text-dim);
+}

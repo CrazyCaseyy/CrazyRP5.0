@@ -100,6 +100,13 @@ local function FindApartment(apartmentId)
     return nil
 end
 
+local function FindSpawnLocation(locationId)
+    for _, loc in ipairs(Config.SpawnLocations) do
+        if loc.id == locationId then return loc end
+    end
+    return nil
+end
+
 -- ===================================================================
 -- Live preview ped
 -- Shows the player's own (frozen, invulnerable) ped in front of the
@@ -156,19 +163,31 @@ local function FireLoadedEvents()
     TriggerEvent('QBCore:Client:OnPlayerLoaded')
 end
 
+-- Set while an existing character is between "selected" and "actually
+-- placed in the world" — waiting on the player to pick a spawn location in
+-- the modal_spawn NUI. Holds the character record so the 'apartment'
+-- (useSavedPosition) option has somewhere to read the saved position from.
+local pendingExistingCharacter = nil
+
+local function SendSpawnLocationList()
+    local list = {}
+    for _, loc in ipairs(Config.SpawnLocations) do
+        list[#list + 1] = { id = loc.id, label = loc.label, blurb = loc.blurb }
+    end
+    SendNUIMessage({ action = 'spawnLocations', locations = list })
+end
+
 local function SpawnSelectedCharacter(charRecord, isNewCharacter)
     local charinfo = charRecord.charinfo or charRecord
     local gender = tonumber(charinfo.gender) or 0
     local model = (gender == 1) and `mp_f_freemode_01` or `mp_m_freemode_01`
 
-    -- Existing characters, when qbx_spawn is running, hand off to it
-    -- entirely — the exact same thing qbx_core's own built-in
-    -- multicharacter screen does (see client/character.lua's onSelect
-    -- handler: it triggers 'qb-spawn:client:setupSpawns' the same way).
-    -- qbx_spawn owns the freeze/fade/teleport from here and fires the
-    -- QBCore player-loaded events itself once the player confirms a
-    -- location.
-    if not isNewCharacter and GetResourceState('qbx_spawn') == 'started' then
+    -- Existing characters pick where to spawn from Config.SpawnLocations
+    -- (apartment / Legion Square / MRPD / ...) via our own modal, replacing
+    -- qbx_spawn's own scaleform selector entirely — running both back to
+    -- back after crazy-multichar's own apartment step was the double-picker
+    -- players were seeing.
+    if not isNewCharacter then
         DoScreenFadeOut(Config.FadeTime)
         while not IsScreenFadedOut() do Wait(0) end
 
@@ -177,11 +196,12 @@ local function SpawnSelectedCharacter(charRecord, isNewCharacter)
         SetModelAsNoLongerNeeded(model)
 
         EndOurSelectionState()
-        -- Deliberately not calling UnlockPlayer()/DoScreenFadeIn — qbx_spawn
-        -- expects to take over from a still-frozen, still-faded-out state.
-        Debug('handing off existing character spawn to qbx_spawn')
-        TriggerEvent('qb-spawn:client:setupSpawns', charRecord.citizenid)
-        TriggerEvent('qb-spawn:client:openUI', true)
+        -- Deliberately not calling UnlockPlayer()/DoScreenFadeIn yet — stays
+        -- frozen/faded-out until selectSpawnLocation below actually places
+        -- the player and finishes the reveal.
+        pendingExistingCharacter = charRecord
+        SetNuiFocus(true, true)
+        SendSpawnLocationList()
         return
     end
 
@@ -341,6 +361,38 @@ end)
 RegisterNUICallback('selectCharacter', function(data, cb)
     lib.callback.await('qbx_core:server:loadCharacter', false, data.citizenid)
     SpawnSelectedCharacter(data, false)
+    cb('ok')
+end)
+
+RegisterNUICallback('selectSpawnLocation', function(data, cb)
+    local location = FindSpawnLocation(data.id)
+    local pos = location and (location.useSavedPosition and pendingExistingCharacter and pendingExistingCharacter.position or location.coords)
+
+    local ped = PlayerPedId()
+    if pos and pos.x then
+        SetEntityCoords(ped, pos.x, pos.y, pos.z, false, false, false, true)
+        SetEntityHeading(ped, pos.w or 0.0)
+    else
+        -- Shouldn't happen (every configured location resolves to
+        -- something), but don't strand the player faded out if it does.
+        local sp = Config.SpawnPoint
+        SetEntityCoords(ped, sp.x, sp.y, sp.z, false, false, false, true)
+        SetEntityHeading(ped, sp.w)
+    end
+
+    SetNuiFocus(false, false)
+    SendNUIMessage({ action = 'close' })
+
+    UnlockPlayer()
+
+    if NetworkIsInTutorialSession() then
+        NetworkEndTutorialSession()
+    end
+
+    DoScreenFadeIn(Config.FadeTime)
+    FireLoadedEvents()
+
+    pendingExistingCharacter = nil
     cb('ok')
 end)
 

@@ -5,9 +5,9 @@ return {
     pauseMapText = 'CRAZY RP', -- Text shown above the map when ESC is pressed. If left empty 'FiveM' will appear
 
     characters = {
-        useExternalCharacters = false, -- Whether you have an external character management resource. (If true, disables the character management inside the core)
+        useExternalCharacters = true, -- Whether you have an external character management resource. (If true, disables the character management inside the core) -- crazy-multichar handles this now
         enableDeleteButton = true, -- Whether players should be able to delete characters themselves.
-        startingApartment = true, -- If set to false, skips apartment choice in the beginning (requires qbx_spawn if true)
+        startingApartment = false, -- If set to false, skips apartment choice in the beginning (requires qbx_spawn if true) -- crazy-multichar's own Alta Apartments picker replaces this; qbx_properties' own apartment board was firing a second time on top of it
 
         dateFormat = 'YYYY-MM-DD',
         dateMin = '1900-01-01', -- Has to be in the same format as the dateFormat config

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>crazy-multichar</title>
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="style.css?v=4" />
 </head>
 <body>
   <div id="app" class="hidden">
@@ -86,6 +86,24 @@
     </div>
   </div>
 
-  <script src="script.js?v=3"></script>
+  <!-- Spawn location picker (existing characters) - a sibling of #app, not a
+       child: it needs to stay visible after client.lua closes #app and tears
+       down the character-select scene, right before the player actually
+       spawns in. -->
+  <div class="modal hidden" id="modal-spawn">
+    <div class="modal-panel">
+      <div class="modal-step">
+        <div class="modal-title">WHERE TO?</div>
+
+        <div class="spawn-list" id="spawn-list"></div>
+
+        <div class="modal-actions">
+          <button class="dock-btn primary" id="btn-spawn-confirm" disabled>SPAWN IN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js?v=6"></script>
 </body>
 </html>

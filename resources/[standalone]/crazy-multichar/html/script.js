@@ -18,6 +18,8 @@ const state = {
   selectedCitizenId: null,
   selectedGender: 0,
   selectedApartmentId: null,
+  spawnLocations: [],
+  selectedSpawnId: null,
   busy: false,
 };
 
@@ -56,6 +58,10 @@ const modalDelete = el('modal-delete');
 const deleteCharName = el('delete-char-name');
 const btnDeleteCancel = el('btn-delete-cancel');
 const btnDeleteConfirm = el('btn-delete-confirm');
+
+const modalSpawn = el('modal-spawn');
+const spawnList = el('spawn-list');
+const btnSpawnConfirm = el('btn-spawn-confirm');
 
 function resourceName() {
   return window.GetParentResourceName ? GetParentResourceName() : 'crazy-multichar';
@@ -113,7 +119,10 @@ function renderSlots() {
   // qbx_core numbers character slots starting at 1, not 0 — the first
   // character ever created gets cid 1 (see getNextCid() in
   // qbx_core/server/character.lua: `(lastCharacter.charinfo.cid or 0) + 1`).
-  const byCid = new Map(state.characters.map((c) => [c.cid, c]));
+  // getCharacters' SQL SELECT never returns a top-level `cid` column - it only
+  // exists nested inside the JSON-decoded `charinfo` - so this has to read
+  // c.charinfo.cid, not c.cid (which was always undefined).
+  const byCid = new Map(state.characters.map((c) => [c.charinfo?.cid, c]));
 
   for (let i = 1; i <= state.maxSlots; i++) {
     const charRecord = byCid.get(i);
@@ -271,7 +280,10 @@ btnApartmentBack.addEventListener('click', () => {
 });
 
 btnApartmentConfirm.addEventListener('click', async () => {
-  if (!state.selectedApartmentId) return;
+  if (!state.selectedApartmentId) {
+    showToast('error', 'Pick a starting apartment first.');
+    return;
+  }
 
   setBusy(true);
   const result = await nuiPost('createCharacter', {
@@ -315,10 +327,47 @@ btnSelect.addEventListener('click', async () => {
   await nuiPost('selectCharacter', charRecord);
 });
 
+function renderSpawnLocations() {
+  spawnList.innerHTML = '';
+  state.spawnLocations.forEach((loc) => {
+    const card = document.createElement('div');
+    card.className = 'spawn-card';
+    card.innerHTML = `
+      <div class="spawn-label">${escapeHtml(loc.label)}</div>
+      <div class="spawn-blurb">${escapeHtml(loc.blurb || '')}</div>
+    `;
+    card.addEventListener('click', () => {
+      spawnList.querySelectorAll('.spawn-card').forEach((c) => c.classList.remove('selected'));
+      card.classList.add('selected');
+      state.selectedSpawnId = loc.id;
+      btnSpawnConfirm.disabled = false;
+    });
+    spawnList.appendChild(card);
+
+    if (state.spawnLocations.length === 1) card.click();
+  });
+}
+
+function openSpawnModal(locations) {
+  state.spawnLocations = locations || [];
+  state.selectedSpawnId = null;
+  btnSpawnConfirm.disabled = true;
+  renderSpawnLocations();
+  modalSpawn.classList.remove('hidden');
+}
+
+btnSpawnConfirm.addEventListener('click', async () => {
+  if (!state.selectedSpawnId) return;
+  btnSpawnConfirm.disabled = true;
+  await nuiPost('selectSpawnLocation', { id: state.selectedSpawnId });
+  modalSpawn.classList.add('hidden');
+});
+
 function showApp() {
   app.classList.remove('hidden');
   closeIdentityModal();
   modalDelete.classList.add('hidden');
+  modalSpawn.classList.add('hidden');
   toast.classList.add('hidden');
   setBusy(false);
 }
@@ -350,6 +399,9 @@ window.addEventListener('message', ({ data }) => {
     }
     case 'apartments':
       state.apartments = data.apartments || [];
+      break;
+    case 'spawnLocations':
+      openSpawnModal(data.locations);
       break;
     case 'notify':
       showToast(data.kind, data.message);

@@ -177,6 +177,7 @@ AddEventHandler('onResourceStart', function(resource)
     if resource ~= cache.resource then return end
 
     storage.createUsersTable()
+    storage.createPlayersTable()
 
     MySQL.query([[
         ALTER TABLE `players`

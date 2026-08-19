@@ -59,3 +59,39 @@ Config.Apartments = {
         coords = vector4(-782.9, 316.5, 84.7, 340.0)
     }
 }
+
+-- ===================================================================
+-- Spawn location picker
+-- Shown to EXISTING characters after they're selected, replacing
+-- qbx_spawn's own scaleform selector entirely (two different pickers
+-- back to back was the point of confusion this replaced). Add more
+-- entries here later — the UI handles any number of them.
+--
+-- `useSavedPosition = true` means "wherever this character's row in the
+-- players table says they last were" (their apartment/last logout spot),
+-- not a fixed coordinate — there's nothing else to configure for it.
+--
+-- Legion Square and MRPD coords are the exact values already used
+-- elsewhere on this server (qbx_spawn/config/client.lua and
+-- qbx_police/config/shared.lua's Mission Row station), not new guesses.
+-- ===================================================================
+Config.SpawnLocations = {
+    {
+        id = 'apartment',
+        label = 'Your Apartment',
+        blurb = 'Wake up where you last logged out.',
+        useSavedPosition = true
+    },
+    {
+        id = 'legion',
+        label = 'Legion Square',
+        blurb = 'Downtown Los Santos, in the middle of everything.',
+        coords = vector4(195.17, -933.77, 29.7, 144.5)
+    },
+    {
+        id = 'mrpd',
+        label = 'MRPD',
+        blurb = 'Mission Row Police Station.',
+        coords = vector4(434.0, -983.0, 30.7, 90.0)
+    }
+}
