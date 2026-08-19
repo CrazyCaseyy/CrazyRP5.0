@@ -458,6 +458,8 @@ Loc["en"] = {
         exitRestriction        	= "You cannot exit the vehicle while your harness/seatbelt is engaged.",
         seatbeltOnMsg          	= "Seatbelt on",
         seatbeltOffMsg         	= "Seatbelt off",
+        harnessOnMsg           	= "Harness on",
+        harnessOffMsg          	= "Harness off",
         toggleSeatbelt         	= "Toggle seatbelt",
     },
 

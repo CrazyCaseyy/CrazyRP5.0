@@ -682,7 +682,14 @@ if Config.Harness.HarnessControl == true then
                             TriggerServerEvent(getScript()..":server:playSound", (seatbeltOn and "seatbelt" or "seatbeltoff"), VehToNet(veh), nil, 0.35)
                         end
                         if Config.Harness.seatbeltNotify then
-                            triggerNotify(nil, seatbeltOn and locale("extraOptions", "seatbeltOnMsg") or locale("extraOptions", "seatbeltOffMsg"), seatbeltOn and "success" or "error")
+                            local isHarness = VehicleStatus[plate].harness == 1
+                            local msg
+                            if isHarness then
+                                msg = seatbeltOn and locale("extraOptions", "harnessOnMsg") or locale("extraOptions", "harnessOffMsg")
+                            else
+                                msg = seatbeltOn and locale("extraOptions", "seatbeltOnMsg") or locale("extraOptions", "seatbeltOffMsg")
+                            end
+                            triggerNotify(nil, msg, seatbeltOn and "success" or "error")
                         end
                     end
 

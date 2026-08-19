@@ -49,5 +49,5 @@ RegisterNetEvent('hud:server:RelieveStress', function(amount)
     end
     player.Functions.SetMetaData('stress', newStress)
     TriggerClientEvent('hud:client:UpdateStress', src, newStress)
-    exports.qbx_core:Notify(src, locale('notify.stress_removed'), 'inform', 2500, nil, nil, {'#141517', '#ffffff'}, 'brain', '#0F52BA')
+    exports.qbx_core:Notify(src, locale('notify.stress_removed'), 'success', 2500, nil, nil, {'#141517', '#ffffff'}, 'brain', '#ffffff')
 end)
