@@ -37,9 +37,16 @@ function CloseMenu(isFullMenuClose, keyPressed, previousMenu)
     lib.showMenu(previousMenu, MenuIndexes[previousMenu])
 end
 
-RegisterNetEvent('qbx_admin:client:openMenu', function()
-    lib.showMenu('qbx_adminmenu_main_menu', MenuIndexes.qbx_adminmenu_main_menu)
-end)
+-- crazy-adminmenu owns this event now (its real NUI dashboard replaces
+-- this resource's plain ox_lib menu as the front-end) — see
+-- resources/[crazy]/crazy-adminmenu/client/client.lua. The /admin command,
+-- its permission check, and every menu action's server-side logic below are
+-- unchanged; only what opens in response to 'qbx_admin:client:openMenu' has
+-- moved. Left commented instead of deleted in case crazy-adminmenu is ever
+-- removed and this fallback is needed again.
+-- RegisterNetEvent('qbx_admin:client:openMenu', function()
+--     lib.showMenu('qbx_adminmenu_main_menu', MenuIndexes.qbx_adminmenu_main_menu)
+-- end)
 
 RegisterNetEvent('qbx_admin:client:setModel', function(skin)
     local model = joaat(skin)

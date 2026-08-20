@@ -337,9 +337,9 @@ RegisterNetEvent('qbx_properties:server:logoutProperty', function()
     local propertyId = enteredProperty[playerSource]
     if not propertyId then return end
 
-    local result = MySQL.single.await('SELECT owner, coords FROM properties WHERE id = ?', {propertyId})
+    local result = MySQL.single.await('SELECT coords FROM properties WHERE id = ?', {propertyId})
     local player = exports.qbx_core:GetPlayer(playerSource)
-    if player.PlayerData.citizenid ~= result.owner then return end
+    if not hasAccess(player.PlayerData.citizenid, propertyId) then return end
 
     TriggerClientEvent('qbx_properties:client:unloadProperty', playerSource)
     TriggerClientEvent('qbx_properties:client:revealPlayers', playerSource)

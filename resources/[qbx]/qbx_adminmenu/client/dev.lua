@@ -61,6 +61,15 @@ local options = {
     end,
 }
 
+-- Exported so other UIs (crazy-adminmenu) can trigger the same
+-- toggles this file already owns (showCoords/vehicleDev are local to
+-- this closure and have no other command/event wrapper).
+exports('ToggleCoordsDisplay', function() options[5]() end)
+exports('ToggleVehicleInfoDisplay', function() options[6]() end)
+exports('GetDevToggleState', function()
+    return { coords = showCoords, vehicleInfo = vehicleDev }
+end)
+
 lib.registerMenu({
     id = 'qbx_adminmenu_dev_menu',
     title = locale('title.dev_menu'),

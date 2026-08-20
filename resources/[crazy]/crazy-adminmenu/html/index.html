@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>crazy-adminmenu</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <div id="dashboard">
+    <aside id="sidebar">
+      <div class="brand">
+        <span class="brand-mark">&#9670;</span>
+        <span>CRAZY ADMIN<span class="brand-sub">Control Panel</span></span>
+      </div>
+      <ul class="nav-list">
+        <li class="nav-item active" data-tab="players"><span class="nav-icon">&#128101;</span>Players</li>
+        <li class="nav-item" data-tab="self"><span class="nav-icon">&#9889;</span>Self Tools</li>
+        <li class="nav-item" data-tab="vehicles"><span class="nav-icon">&#128663;</span>Vehicles</li>
+        <li class="nav-item" data-tab="server"><span class="nav-icon">&#127760;</span>Server</li>
+        <li class="nav-item" data-tab="dev"><span class="nav-icon">&#128295;</span>Dev Tools</li>
+        <li class="nav-item" data-tab="reports"><span class="nav-icon">&#128220;</span>Reports</li>
+        <li class="nav-item" data-tab="bans"><span class="nav-icon">&#128683;</span>Ban Logs</li>
+        <li class="nav-item" data-tab="characters"><span class="nav-icon">&#128269;</span>Characters</li>
+      </ul>
+      <div class="sidebar-footer">
+        <button class="close-btn" id="closeBtn">Close (ESC)</button>
+      </div>
+    </aside>
+
+    <main id="main">
+      <div id="topbar">
+        <h1 id="topbarTitle">Players</h1>
+        <span class="subtitle" id="topbarSubtitle">Manage the current online playerbase</span>
+      </div>
+      <div id="content">
+
+        <!-- ============================ PLAYERS ============================ -->
+        <section class="panel" data-panel="players">
+          <div class="players-layout">
+            <div class="players-list-col">
+              <input type="text" id="playerSearch" placeholder="Search by name or ID...">
+              <div class="players-list" id="playersList">
+                <div class="empty-state">Loading players...</div>
+              </div>
+            </div>
+            <div class="players-detail-col card" id="playerDetail">
+              <div class="empty-state">Select a player to view details and actions.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================ SELF TOOLS ============================ -->
+        <section class="panel hidden" data-panel="self">
+          <div>
+            <div class="section-title">Toggles</div>
+            <div class="toggle-grid" id="selfToggleGrid"></div>
+          </div>
+
+          <div class="card">
+            <div class="section-title" style="margin-bottom:12px">Ped Model</div>
+            <div class="field-row">
+              <div class="field">
+                <label>Model Name</label>
+                <input type="text" id="pedModelInput" placeholder="a_m_m_soucent_04">
+              </div>
+              <button class="btn primary" id="applyPedModelBtn">Apply</button>
+              <button class="btn" id="resetPedModelBtn">Reset</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-title" style="margin-bottom:12px">Give Yourself Weapons</div>
+            <div class="btn-row" id="selfWeaponRow"></div>
+          </div>
+        </section>
+
+        <!-- ============================ VEHICLES ============================ -->
+        <section class="panel hidden" data-panel="vehicles">
+          <div class="vehicle-toolbar">
+            <button class="btn" id="fixVehicleBtn">Fix Vehicle</button>
+            <button class="btn" id="deleteVehicleBtn">Delete Nearest</button>
+            <button class="btn" id="adminCarBtn">Take Ownership</button>
+            <div class="field">
+              <label>Custom Plate</label>
+              <input type="text" id="plateInput" maxlength="8" placeholder="CRAZY01">
+            </div>
+            <button class="btn primary" id="setPlateBtn">Set Plate</button>
+          </div>
+
+          <input type="text" class="vehicle-search" id="vehicleSearch" placeholder="Search vehicles by name or model...">
+          <div class="vehicle-categories" id="vehicleCategories">
+            <div class="empty-state">Loading vehicles...</div>
+          </div>
+        </section>
+
+        <!-- ============================ SERVER ============================ -->
+        <section class="panel hidden" data-panel="server">
+          <div class="card">
+            <div class="section-title" style="margin-bottom:12px">Weather</div>
+            <div class="weather-grid" id="weatherGrid"></div>
+          </div>
+
+          <div class="card">
+            <div class="section-title" style="margin-bottom:12px">Time</div>
+            <div class="time-grid" id="timeGrid"></div>
+          </div>
+
+          <div class="card">
+            <div class="section-title" style="margin-bottom:12px">Radio Lookup</div>
+            <div class="field-row">
+              <div class="field">
+                <label>Frequency</label>
+                <input type="number" id="radioFreqInput" placeholder="100" min="0" max="1000">
+              </div>
+              <button class="btn primary" id="radioLookupBtn">Lookup</button>
+            </div>
+            <div class="radio-results" id="radioResults"></div>
+          </div>
+
+          <div class="card">
+            <div class="section-title" style="margin-bottom:12px">Pull Stash</div>
+            <div class="field-row">
+              <div class="field">
+                <label>Stash Name</label>
+                <input type="text" id="stashInput" placeholder="qbx_properties_...">
+              </div>
+              <button class="btn primary" id="pullStashBtn">Open</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================ DEV TOOLS ============================ -->
+        <section class="panel hidden" data-panel="dev">
+          <div>
+            <div class="section-title">Overlays</div>
+            <div class="toggle-grid" id="devToggleGrid"></div>
+          </div>
+
+          <div class="card">
+            <div class="section-title" style="margin-bottom:12px">Copy to Clipboard</div>
+            <div class="btn-row">
+              <button class="btn" data-copy="coords2">vec2</button>
+              <button class="btn" data-copy="coords3">vec3</button>
+              <button class="btn" data-copy="coords4">vec4</button>
+              <button class="btn" data-copy="heading">Heading</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================ REPORTS ============================ -->
+        <section class="panel hidden" data-panel="reports">
+          <div class="btn-row">
+            <button class="btn primary small" id="refreshReportsBtn">Refresh</button>
+          </div>
+          <div id="reportsList" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </section>
+
+        <!-- ============================ BAN LOGS ============================ -->
+        <section class="panel hidden" data-panel="bans">
+          <div class="btn-row">
+            <button class="btn primary small" id="refreshBansBtn">Refresh</button>
+          </div>
+          <div id="bansList" style="display:flex;flex-direction:column;gap:8px;"></div>
+        </section>
+
+        <!-- ============================ CHARACTERS ============================ -->
+        <section class="panel hidden" data-panel="characters">
+          <div class="players-layout">
+            <div class="players-list-col">
+              <input type="text" id="characterSearch" placeholder="Search by name or citizen ID...">
+              <div class="btn-row"><button class="btn small primary" id="characterSearchBtn">Search</button></div>
+              <div class="players-list" id="charactersList">
+                <div class="empty-state">Search for a character above.</div>
+              </div>
+            </div>
+            <div class="players-detail-col card" id="characterDetail">
+              <div class="empty-state">Select a character to view their record.</div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <div id="toasts"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

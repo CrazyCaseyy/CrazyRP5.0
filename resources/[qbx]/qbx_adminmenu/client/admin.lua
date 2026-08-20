@@ -184,6 +184,10 @@ local function toggleNoClipMode(forceMode)
     end
 end
 
+local function applyPedModel(model)
+    ExecuteCommand('setmodel ' .. model)
+end
+
 local options = {
     function() toggleNoClipMode() end,
     function() TriggerEvent('qbx_medical:client:playerRevived') end,
@@ -222,7 +226,7 @@ local options = {
         if switch == 1 then
             local input = lib.inputDialog(locale('admin_options.value8_1'), {locale('admin_options.input8label')})
             if not input then return end
-            ExecuteCommand('setmodel ' .. input)
+            applyPedModel(input[1])
         else
             ExecuteCommand('refreshskin')
         end
@@ -245,6 +249,23 @@ local options = {
     function(weaponType) TriggerServerEvent('qbx_admin:server:giveAllWeapons', weaponType) end,
     function() TriggerEvent('police:client:GetCuffed', cache.serverId, true) end,
 }
+
+-- Exported so other UIs (crazy-adminmenu) can trigger the exact same
+-- toggles this file already owns, without duplicating the local state
+-- (optionInvisible/godmode/vehicleGodmode/infiniteAmmo/noclipEnabled)
+-- these closures read and mutate. Indices match the `options` table above.
+exports('ToggleNoclip', function() options[1]() end)
+exports('ToggleRevive', function() options[2]() end)
+exports('ToggleInvisible', function() options[3]() end)
+exports('ToggleGodmode', function() options[4]() end)
+exports('ToggleNames', function() options[5]() end)
+exports('ToggleBlips', function() options[6]() end)
+exports('ToggleVehicleGodmode', function() options[7]() end)
+exports('ApplyPedModel', applyPedModel)
+exports('RefreshPedModel', function() options[8](2) end)
+exports('ToggleInfiniteAmmo', function() options[9]() end)
+exports('GiveWeaponType', function(weaponType) options[10](weaponType) end)
+exports('ToggleCuff', function() options[11]() end)
 
 lib.registerMenu({
     id = 'qbx_adminmenu_admin_menu',
@@ -525,4 +546,16 @@ CreateThread(function()
             TriggerEvent('qbx_admin:client:Show')
         end
     end
+end)
+
+exports('GetAdminToggleState', function()
+    return {
+        noclip = noclipEnabled,
+        invisible = optionInvisible,
+        godmode = godmode,
+        vehicleGodmode = vehicleGodmode,
+        infiniteAmmo = infiniteAmmo,
+        names = showNames,
+        blips = showBlips,
+    }
 end)

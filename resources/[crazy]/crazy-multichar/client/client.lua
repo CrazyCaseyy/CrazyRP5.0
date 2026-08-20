@@ -205,6 +205,36 @@ local function SpawnSelectedCharacter(charRecord, isNewCharacter)
         return
     end
 
+    -- New characters whose chosen apartment maps to a real qbx_properties
+    -- interior (Config.Apartments[n].interiorIndex) get an actually-owned
+    -- starter apartment instead of just a cosmetic spawn point.
+    -- qbx_properties:server:apartmentSelect does the DB insert (owner =
+    -- the new citizenid), creates the stash, and teleports the player
+    -- inside the interior shell itself — and it fires
+    -- qb-clothes:client:CreateFirstCharacter on its own once that's done,
+    -- so we deliberately do NOT also fire it below (see config.lua) or
+    -- illenium-appearance's creator would open twice.
+    if isNewCharacter and charRecord.interiorIndex then
+        DoScreenFadeOut(Config.FadeTime)
+        while not IsScreenFadedOut() do Wait(0) end
+
+        lib.requestModel(model)
+        SetPlayerModel(PlayerId(), model)
+        SetModelAsNoLongerNeeded(model)
+
+        EndOurSelectionState()
+        TriggerServerEvent('qbx_properties:server:apartmentSelect', charRecord.interiorIndex)
+
+        UnlockPlayer()
+        if NetworkIsInTutorialSession() then
+            NetworkEndTutorialSession()
+        end
+
+        DoScreenFadeIn(Config.FadeTime)
+        FireLoadedEvents()
+        return
+    end
+
     DoScreenFadeOut(Config.FadeTime)
     while not IsScreenFadedOut() do Wait(0) end
 
@@ -236,6 +266,15 @@ local function SpawnSelectedCharacter(charRecord, isNewCharacter)
 
     DoScreenFadeIn(Config.FadeTime)
     FireLoadedEvents()
+
+    if isNewCharacter then
+        -- Opens illenium-appearance's character creator (its qb bridge
+        -- listens for this exact event — see
+        -- illenium-appearance/client/framework/qb/main.lua). Without this,
+        -- brand new characters spawn with the default look and never get a
+        -- chance to customize their appearance.
+        TriggerEvent('qb-clothes:client:CreateFirstCharacter')
+    end
 end
 
 -- ===================================================================
@@ -349,12 +388,13 @@ RegisterNUICallback('createCharacter', function(data, cb)
     end
 
     local apartment = FindApartment(data.apartmentId)
-    local position = nil
+    local position, interiorIndex = nil, nil
     if apartment then
         position = { x = apartment.coords.x, y = apartment.coords.y, z = apartment.coords.z, w = apartment.coords.w }
+        interiorIndex = apartment.interiorIndex
     end
 
-    SpawnSelectedCharacter({ charinfo = payload, position = position }, true)
+    SpawnSelectedCharacter({ charinfo = payload, position = position, interiorIndex = interiorIndex }, true)
     cb('ok')
 end)
 

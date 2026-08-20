@@ -43,20 +43,67 @@ Config.NewCharacterSpawn = vector4(-540.58, -212.02, 37.65, 208.88)
 -- ===================================================================
 -- Starting apartment picker
 -- Shown as step 2 of new-character creation, right after the identity
--- form. This is a starting-location choice, not a housing/property
--- system — it doesn't grant ownership, rent, or an interior shell, and
--- nothing here persists it beyond the initial spawn. Currently just the
--- one option; add more entries here later if you want a real choice.
--- Coordinates are an approximate street-level spot outside the Alta St
--- apartment towers in Rockford Hills — nudge them with an in-game
--- coords/teleport tool if you want it standing exactly at a doorway.
+-- form. Unlike a plain spawn-point picker, every entry here has an
+-- `interiorIndex` — the matching 1-based position in qbx_properties'
+-- own Config.apartmentOptions list
+-- ([qbx]/qbx_properties/config/shared.lua). Picking one triggers
+-- qbx_properties:server:apartmentSelect, which actually INSERTs an
+-- owned row into the `properties` table (owner = the new citizenid),
+-- creates its stash, and teleports the player inside — a real starter
+-- apartment, not just a spawn coordinate. That server event also fires
+-- qb-clothes:client:CreateFirstCharacter itself once the property is
+-- set up, so SpawnSelectedCharacter must NOT also fire it for these
+-- entries (see client/client.lua) or illenium-appearance's creator
+-- opens twice.
+--
+-- `coords` here is only the door/"enter" position (matches
+-- qbx_properties' apartmentOptions[interiorIndex].enter) — kept for
+-- reference and as the fallback if interiorIndex ever fails to
+-- resolve; it is NOT where the player ends up (EnterProperty places
+-- them inside the interior shell).
 -- ===================================================================
 Config.Apartments = {
     {
-        id = 'alta',
-        label = 'Alta Apartments',
-        blurb = 'Rockford Hills. Quiet, upscale, close to everything.',
-        coords = vector4(-782.9, 316.5, 84.7, 340.0)
+        id = 'delperro4',
+        label = 'Del Perro Heights Apt 4',
+        blurb = 'Ocean views far away from tourists and bums on Del Perro Beach.',
+        coords = vector4(-1447.35, -537.84, 34.74, 235.0),
+        interiorIndex = 1
+    },
+    {
+        id = 'delperro7',
+        label = 'Del Perro Heights Apt 7',
+        blurb = 'Luxury complex overlooking the beach.',
+        coords = vector4(-1447.35, -537.84, 34.74, 235.0),
+        interiorIndex = 2
+    },
+    {
+        id = 'integrity28',
+        label = '4 Integrity Way Apt 28',
+        blurb = 'An up-and-coming Downtown neighborhood.',
+        coords = vector4(-59.4, -616.29, 37.36, 250.0),
+        interiorIndex = 3
+    },
+    {
+        id = 'integrity30',
+        label = '4 Integrity Way Apt 30',
+        blurb = 'An expansive high-rise unit Downtown.',
+        coords = vector4(-47.52, -585.86, 37.95, 250.0),
+        interiorIndex = 4
+    },
+    {
+        id = 'majestic',
+        label = 'Richard Majestic Apt',
+        blurb = 'A breathtaking luxury condo near AKAN Records.',
+        coords = vector4(-936.15, -378.91, 38.96, 115.0),
+        interiorIndex = 5
+    },
+    {
+        id = 'tinsel',
+        label = 'Tinsel Towers Apt',
+        blurb = 'High-rise living in Downtown Vinewood.',
+        coords = vector4(-614.58, 46.52, 43.59, 91.0),
+        interiorIndex = 6
     }
 }
 
