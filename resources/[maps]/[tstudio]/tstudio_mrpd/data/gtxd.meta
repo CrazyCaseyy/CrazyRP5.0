@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CMapParentTxds>
+  <txdRelationships>
+  
+    <Item>
+      <parent>tstudio_mrpd_parent_textures</parent>
+      <child>tstudio_mrpd_int_textures</child>
+    </Item>
+
+    <Item>
+      <parent>tstudio_mrpd_parent_textures</parent>
+      <child>tstudio_mrpd_ext_textures</child>
+    </Item>
+
+    <Item>
+      <parent>tstudio_mrpd_parent_textures</parent>
+      <child>tstudio_mrpd_wallart_textures</child>
+    </Item>
+
+    <Item>
+      <parent>tstudio_mrpd_parent_textures</parent>
+      <child>tstudio_mrpd_tex_flecca</child>
+    </Item>
+
+    <Item>
+      <parent>tstudio_mrpd_parent_textures</parent>
+      <child>tstudio_mrpd_tex_wallarts</child>
+    </Item>
+
+    <Item>
+      <parent>tstudio_mrpd_parent_textures</parent>
+      <child>tstudio_mrpd_tex_lights</child>
+    </Item>
+
+    <Item>
+      <parent>tstudio_mrpd_parent_textures</parent>
+      <child>tstudio_mrpd_tex_misc</child>
+    </Item>
+
+    <Item>
+      <parent>tstudio_mrpd_parent_textures</parent>
+      <child>tstudio_mrpd_tex_misc2</child>
+    </Item>
+
+    <Item>
+      <parent>tstudio_mrpd_parent_textures</parent>
+      <child>tstudio_mrpd_tex_seats</child>
+    </Item>
+
+    <Item>
+      <parent>tstudio_mrpd_parent_textures</parent>
+      <child>tstudio_mrpd_tex_doors</child>
+    </Item>
+
+    <Item>
+      <parent>tstudio_mrpd_parent_textures</parent>
+      <child>tstudio_mrpd_tex_screenoverlays</child>
+    </Item>
+    
+    <Item>
+      <parent>tstudio_mrpd_parent_textures</parent>
+      <child>tstudio_mrpd_tex_plants</child>
+    </Item>
+
+    <Item>
+      <parent>tstudio_mrpd_parent_textures</parent>
+      <child>tstudio_mrpd_tex_tables</child>
+    </Item>
+
+    <Item>
+      <parent>tstudio_mrpd_parent_textures</parent>
+      <child>tstudio_mrpd_tex_flecca</child>
+    </Item>
+
+  </txdRelationships>
+</CMapParentTxds>
