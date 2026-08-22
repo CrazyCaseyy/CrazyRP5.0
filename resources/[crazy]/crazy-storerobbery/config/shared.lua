@@ -35,28 +35,25 @@ return {
     -- it's started.
     cancelDistance = 15.0,
 
-    -- One entry per robbable 24/7 / Rob's Liquor. Coords are the cashier spot
-    -- inside each store, taken from the register positions already mapped out
-    -- in qbx_storerobbery's config - adjust headings/positions to taste in-game.
+    -- One entry per robbable 24/7 / LTD / Rob's Liquor. Coords are each store's
+    -- clerkPos (position + facing heading) - taken as-is from the server's own
+    -- full store-robbery config, so these land exactly behind the right counter.
     stores = {
-        { coords = vec4(25.7, -1347.3, 29.49, 0.0) },      -- Strawberry
-        { coords = vec4(-706.12, -914.46, 19.21, 0.0) },   -- Davis
-        { coords = vec4(-47.91, -1758.43, 29.56, 0.0) },
-        { coords = vec4(1164.88, -323.54, 69.2, 0.0) },
-        { coords = vec4(372.86, 327.52, 103.56, 0.0) },
-        { coords = vec4(-1819.54, 793.59, 138.08, 0.0) },
-        { coords = vec4(2556.05, 381.22, 108.62, 0.0) },
-        { coords = vec4(2677.05, 3279.96, 55.24, 0.0) },
-        { coords = vec4(1959.55, 3740.99, 32.34, 0.0) },
-        { coords = vec4(549.24, 2670.23, 42.15, 0.0) },
-        { coords = vec4(1728.36, 6416.2, 35.03, 0.0) },
-        { coords = vec4(1697.48, 4923.85, 42.06, 0.0) },
-        { coords = vec4(-3243.4, 1000.06, 12.83, 0.0) },
-        { coords = vec4(-3040.03, 584.19, 7.9, 0.0) },
-        { coords = vec4(-1222.03, -908.32, 12.32, 0.0) },
-        { coords = vec4(-1486.26, -378.0, 40.16, 0.0) },
-        { coords = vec4(1134.15, -982.53, 46.41, 0.0) },
-        { coords = vec4(1165.9, 2710.81, 38.15, 0.0) },
-        { coords = vec4(-2966.46, 390.89, 15.04, 0.0) },
+        { coords = vec4(-47.6, -1752.7, 28.43, 135.92) },      -- LTD Gasoline - Davis
+        { coords = vec4(378.79, 331.85, 102.57, 169.71) },     -- 247 - Clinton
+        { coords = vec4(29.52, -1340.25, 28.5, 179.75) },      -- 247 - Strawberry
+        { coords = vec4(2550.52, 385.98, 107.62, 266.44) },    -- 247 - Palomino Fwy
+        { coords = vec4(1703.32, 4924.2, 41.07, 53.61) },      -- LTD - Grapeseed
+        { coords = vec4(-1825.54, 794.09, 137.18, 225.62) },   -- LTD - Banham Canyon
+        { coords = vec4(-710.18, -910.05, 18.22, 180.36) },    -- LTD - Little Seoul
+        { coords = vec4(1165.23, 2710.97, 37.16, 188.73) },    -- Rob's Liquor - Harmony
+        { coords = vec4(1134.05, -983.33, 45.42, 282.59) },    -- Rob's Liquor - El Rancho
+        { coords = vec4(-1221.32, -908.13, 11.33, 37.3) },     -- Rob's Liquor - San Andreas
+        { coords = vec4(-1487.29, -376.92, 39.16, 153.55) },   -- Rob's Liquor - Prosperity St
+        { coords = vec4(-2966.3, 391.58, 14.04, 86.15) },      -- Rob's Liquor - Great Ocean
+        { coords = vec4(2674.33, 3286.89, 54.24, 236.61) },    -- 247 - Route 13
+        { coords = vec4(1734.94, 6419.33, 34.04, 152.51) },    -- 247 - Senora Fwy
+        { coords = vec4(1960.57, 3748.25, 31.34, 207.41) },    -- 247 - Sandy Shores
+        { coords = vec4(545.36, 2663.9, 41.16, 3.27) },        -- 247 - Route 68
     },
 }
