@@ -15,6 +15,7 @@ const state = {
   characters: [],
   maxSlots: 3,
   apartments: [],
+  focusedSlot: 1,
   selectedCitizenId: null,
   selectedGender: 0,
   selectedApartmentId: null,
@@ -26,7 +27,7 @@ const state = {
 const el = (id) => document.getElementById(id);
 
 const app = el('app');
-const slotRow = el('slot-row');
+const slotSwitcher = el('slot-switcher');
 const slotCountCurrent = el('slot-count-current');
 const slotCountMax = el('slot-count-max');
 const toast = el('toast');
@@ -34,6 +35,9 @@ const toast = el('toast');
 const infoPanel = el('info-panel');
 const infoName = el('info-name');
 const infoGrid = el('info-grid');
+
+const emptyPanel = el('empty-panel');
+const emptyTitle = el('empty-title');
 
 const dock = el('dock');
 const btnDelete = el('btn-delete');
@@ -90,8 +94,9 @@ function showToast(kind, message) {
 
 function setBusy(busy) {
   state.busy = busy;
+  const isCreateMode = btnSelect.dataset.mode === 'create';
   const hasSelection = state.selectedCitizenId !== null;
-  btnSelect.disabled = busy || !hasSelection;
+  btnSelect.disabled = busy || (!isCreateMode && !hasSelection);
   btnDelete.disabled = busy || !hasSelection;
   btnIdentityNext.disabled = busy;
   btnApartmentConfirm.disabled = busy || !state.selectedApartmentId;
@@ -113,45 +118,61 @@ function genderLabel(g) {
   return Number(g) === 1 ? 'Female' : 'Male';
 }
 
-function renderSlots() {
-  slotRow.innerHTML = '';
+// qbx_core numbers character slots starting at 1, not 0 — the first
+// character ever created gets cid 1 (see getNextCid() in
+// qbx_core/server/character.lua: `(lastCharacter.charinfo.cid or 0) + 1`).
+// getCharacters' SQL SELECT never returns a top-level `cid` column - it only
+// exists nested inside the JSON-decoded `charinfo` - so this has to read
+// c.charinfo.cid, not c.cid (which was always undefined).
+function byCidMap() {
+  return new Map(state.characters.map((c) => [c.charinfo?.cid, c]));
+}
 
-  // qbx_core numbers character slots starting at 1, not 0 — the first
-  // character ever created gets cid 1 (see getNextCid() in
-  // qbx_core/server/character.lua: `(lastCharacter.charinfo.cid or 0) + 1`).
-  // getCharacters' SQL SELECT never returns a top-level `cid` column - it only
-  // exists nested inside the JSON-decoded `charinfo` - so this has to read
-  // c.charinfo.cid, not c.cid (which was always undefined).
-  const byCid = new Map(state.characters.map((c) => [c.charinfo?.cid, c]));
-
+function renderSlotSwitcher() {
+  slotSwitcher.innerHTML = '';
   for (let i = 1; i <= state.maxSlots; i++) {
-    const charRecord = byCid.get(i);
-    const card = document.createElement('div');
-
-    if (charRecord) {
-      const { charinfo = {}, job } = charRecord;
-      card.className = 'slot-card';
-      card.innerHTML = `
-        <div class="slot-index">SLOT ${String(i).padStart(2, '0')}</div>
-        <div class="slot-name">${escapeHtml(charinfo.firstname || '')} ${escapeHtml(charinfo.lastname || '')}</div>
-        <div class="slot-meta">${escapeHtml(job?.label || 'Unemployed')}</div>
-      `;
-      card.addEventListener('click', () => selectCharacterCard(card, charRecord));
-    } else {
-      card.className = 'slot-card empty';
-      card.innerHTML = `
-        <div class="slot-index">SLOT ${String(i).padStart(2, '0')}</div>
-        <div class="slot-plus">+</div>
-        <div class="slot-name">NEW CHARACTER</div>
-      `;
-      card.addEventListener('click', () => openIdentityModal());
-    }
-
-    slotRow.appendChild(card);
+    const btn = document.createElement('button');
+    btn.className = 'slot-number' + (i === state.focusedSlot ? ' active' : '');
+    btn.textContent = String(i);
+    btn.addEventListener('click', () => focusSlot(i));
+    slotSwitcher.appendChild(btn);
   }
 
   slotCountCurrent.textContent = state.characters.length;
   slotCountMax.textContent = state.maxSlots;
+}
+
+// Focuses one slot at a time — previews that character (or the default
+// look, for an empty slot) and swaps the dock's primary action between
+// ENTER CITY and CREATE CHARACTER. Doesn't act on anything by itself.
+function focusSlot(i) {
+  state.focusedSlot = i;
+  renderSlotSwitcher();
+
+  const charRecord = byCidMap().get(i);
+  dock.classList.remove('hidden');
+
+  if (charRecord) {
+    state.selectedCitizenId = charRecord.citizenid;
+    infoPanel.classList.remove('hidden');
+    emptyPanel.classList.add('hidden');
+    btnDelete.classList.remove('hidden');
+    btnSelect.textContent = 'ENTER CITY';
+    btnSelect.dataset.mode = 'enter';
+    renderInfoPanel(charRecord);
+    nuiPost('previewCharacter', { citizenid: charRecord.citizenid, gender: charRecord.charinfo?.gender ?? 0 });
+  } else {
+    state.selectedCitizenId = null;
+    infoPanel.classList.add('hidden');
+    emptyPanel.classList.remove('hidden');
+    emptyTitle.textContent = `SLOT ${String(i).padStart(2, '0')}`;
+    btnDelete.classList.add('hidden');
+    btnSelect.textContent = 'CREATE CHARACTER';
+    btnSelect.dataset.mode = 'create';
+    nuiPost('previewGender', { gender: 0 });
+  }
+
+  setBusy(state.busy);
 }
 
 function renderInfoPanel(charRecord) {
@@ -183,24 +204,6 @@ function renderInfoPanel(charRecord) {
     .join('');
 
   infoPanel.classList.remove('hidden');
-}
-
-function selectCharacterCard(cardEl, charRecord) {
-  slotRow.querySelectorAll('.slot-card').forEach((c) => c.classList.remove('selected'));
-  cardEl.classList.add('selected');
-  state.selectedCitizenId = charRecord.citizenid;
-  dock.classList.remove('hidden');
-  renderInfoPanel(charRecord);
-  setBusy(state.busy);
-  nuiPost('previewCharacter', { citizenid: charRecord.citizenid, gender: charRecord.charinfo?.gender ?? 0 });
-}
-
-function clearSelection() {
-  slotRow.querySelectorAll('.slot-card').forEach((c) => c.classList.remove('selected'));
-  state.selectedCitizenId = null;
-  dock.classList.add('hidden');
-  infoPanel.classList.add('hidden');
-  setBusy(state.busy);
 }
 
 function setGender(gender) {
@@ -241,8 +244,6 @@ function closeIdentityModal() {
 }
 
 function openIdentityModal() {
-  clearSelection();
-
   inputFirstName.value = '';
   inputLastName.value = '';
   inputBirthdate.value = '';
@@ -259,8 +260,7 @@ btnGenderFemale.addEventListener('click', () => setGender(1));
 
 btnIdentityCancel.addEventListener('click', () => {
   closeIdentityModal();
-  const firstCard = slotRow.querySelector('.slot-card:not(.empty)');
-  if (firstCard && state.characters[0]) selectCharacterCard(firstCard, state.characters[0]);
+  focusSlot(state.focusedSlot);
 });
 
 btnIdentityNext.addEventListener('click', () => {
@@ -320,6 +320,10 @@ btnDeleteConfirm.addEventListener('click', async () => {
 });
 
 btnSelect.addEventListener('click', async () => {
+  if (btnSelect.dataset.mode === 'create') {
+    openIdentityModal();
+    return;
+  }
   if (!state.selectedCitizenId) return;
   const charRecord = state.characters.find((c) => c.citizenid === state.selectedCitizenId);
   if (!charRecord) return;
@@ -387,14 +391,10 @@ window.addEventListener('message', ({ data }) => {
     case 'characters': {
       state.characters = data.characters || [];
       state.maxSlots = data.maxSlots || 3;
-      renderSlots();
-
-      const firstCard = slotRow.querySelector('.slot-card:not(.empty)');
-      if (firstCard && state.characters[0]) {
-        selectCharacterCard(firstCard, state.characters[0]);
-      } else {
-        clearSelection();
-      }
+      // First load defaults to slot 1 (state.focusedSlot's initial value);
+      // a refresh after create/delete keeps whatever slot was already
+      // focused, clamped in case maxSlots ever shrank.
+      focusSlot(Math.min(Math.max(state.focusedSlot || 1, 1), state.maxSlots));
       break;
     }
     case 'apartments':

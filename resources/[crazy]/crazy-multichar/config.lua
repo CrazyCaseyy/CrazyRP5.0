@@ -10,13 +10,21 @@ Config.Debug = true
 -- qbx_spawn, see below) restores each existing character's own saved
 -- position after you pick one.
 Config.SpawnPoint = vector4(-1035.71, -2731.87, 12.86, 180.0)
-Config.CameraPoint = vector4(-1038.0, -2726.0, 15.5, 205.0)
+
+-- Positioned directly in front of the ped (2m along its facing direction
+-- for heading 180 — forward = (-sin(180), cos(180)) = (0, -1)) at roughly
+-- chest/eye height, so the camera looks straight at the character's face
+-- close-up instead of down at them from an angle. See client.lua's
+-- CreateSelectCamera — it aims this at Config.SpawnPoint's chest height,
+-- not literal ground level, to match.
+Config.CameraPoint = vector4(-1035.71, -2733.87, 14.41, 0.0)
 
 -- Slow orbiting showcase camera around the previewed character while the
--- select screen is open. Set enabled = false to use the fixed camera at
+-- select screen is open. Disabled — the constant spin made it hard to
+-- actually look at your character. Camera now just sits fixed at
 -- Config.CameraPoint instead.
 Config.PreviewOrbit = {
-    enabled = true,
+    enabled = false,
     radius = 2.4,  -- meters from the character
     height = 0.9,  -- camera height above the character's feet
     speed = 0.15   -- degrees per frame, roughly — higher is faster

@@ -9,7 +9,9 @@ version '1.0.0'
 
 dependencies {
     'qbx_core',
-    'ox_lib'
+    'ox_lib',
+    'oxmysql',
+    'illenium-appearance'
 }
 
 shared_scripts {
@@ -19,6 +21,11 @@ shared_scripts {
 
 client_scripts {
     'client/client.lua'
+}
+
+server_scripts {
+    '@oxmysql/lib/MySQL.lua',
+    'server/server.lua'
 }
 
 ui_page 'html/index.html'

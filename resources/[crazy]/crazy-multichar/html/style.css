@@ -1,9 +1,14 @@
 /* ===================================================================
-   Palette/typography lifted directly from ox_lib's own compiled NUI
-   theme (context menu / dialogs) — see resources/[ox]/ox_lib/web. Not
-   using ox_lib's actual React components, just matching the look:
-   near-black translucent panels, #1573ed accent blue, small radii,
-   Geom Graphic W03 display font, soft blue glow, no backdrop blur.
+   Palette/typography matching ox_lib's final NUI theme (context menu /
+   TextUI / crazy-hud's engine prompt — see resources/[ox]/ox_lib/web and
+   resources/[crazy]/crazy-hud/html/index.html). Not using ox_lib's actual
+   React components, just matching the look: near-black translucent
+   panels with a grey bordered "3D bevel" (thin grey border + inset
+   highlight ring + soft drop shadow, no blue glow at rest), Geom Graphic
+   W03 display font. Active/selected elements switch to the OTHER half of
+   that same theme — the small solid-blue "badge" look (blue fill, blue
+   outline, inset highlight ring, soft blue glow) used for the ox_lib "E"
+   key badge and the engine-start prompt's key badge.
    =================================================================== */
 
 @font-face {
@@ -19,9 +24,11 @@
   --ox-panel: rgba(15, 15, 18, 0.94);
   --ox-panel-strong: rgba(15, 15, 18, 0.96);
   --ox-panel-soft: rgba(20, 20, 23, 0.9);
-  --ox-border: rgba(21, 115, 237, 0.4);
-  --ox-border-strong: rgba(21, 115, 237, 0.5);
-  --ox-glow: 0 0 10px rgba(21, 115, 237, 0.25);
+  --ox-border: rgba(140, 140, 150, 0.4);
+  --ox-border-strong: rgba(140, 140, 150, 0.55);
+  --ox-glow: inset 0 0 0 2px rgba(255, 255, 255, 0.05), inset 0 0 10px rgba(0, 0, 0, 0.3), 0 2px 5px rgba(0, 0, 0, 0.35);
+  --ox-badge-border: rgba(90, 170, 255, 0.75);
+  --ox-badge-glow: inset 0 0 0 2px rgba(255, 255, 255, 0.12), 0 0 4px rgba(21, 115, 237, 0.3);
   --ox-text: #ffffff;
   --ox-text-dim: #c9c9c9;
   --ox-text-faint: #5c5f66;
@@ -133,73 +140,81 @@ html, body {
   overflow-wrap: break-word;
 }
 
-/* ---- slot row ---- */
-.slot-row {
+/* ---- empty-slot panel ---- */
+/* Same panel treatment as info-panel, shown instead of it when the
+   focused slot has no character yet. */
+.empty-panel {
+  position: absolute;
+  left: 50%;
+  bottom: 230px;
+  transform: translateX(-50%);
+  z-index: 2;
+  width: 420px;
+  max-width: calc(100vw - 48px);
+  padding: 20px;
+  text-align: center;
+  background: var(--ox-panel);
+  border: 1px solid var(--ox-border);
+  border-radius: var(--ox-radius);
+  box-shadow: var(--ox-glow);
+}
+
+.empty-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 0.06em;
+  color: var(--ox-text-dim);
+}
+
+.empty-sub {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--ox-text-dim);
+}
+
+/* ---- slot switcher ---- */
+/* Same small badge treatment as the ox_lib "E" key badge / crazy-hud's
+   engine-prompt key badge — grey-bordered when idle, solid blue with an
+   inset highlight ring and soft glow when the slot is focused. */
+.slot-switcher {
   position: absolute;
   left: 50%;
   bottom: 32px;
   transform: translateX(-50%);
   z-index: 2;
   display: flex;
-  gap: 12px;
+  gap: 10px;
 }
 
-.slot-card {
-  width: 150px;
-  padding: 12px 14px;
+.slot-number {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--ox-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
   background: var(--ox-panel);
   border: 1px solid var(--ox-border);
-  border-radius: var(--ox-radius-sm);
+  color: var(--ox-text-dim);
   cursor: pointer;
-  transition: background-color 200ms, border-color 200ms;
+  transition: background-color 150ms, border-color 150ms, box-shadow 150ms, color 150ms;
 }
 
-.slot-card:hover {
-  background: rgba(21, 115, 237, 0.2);
-  border-color: var(--ox-blue);
-}
-
-.slot-card.selected {
-  background: rgba(21, 115, 237, 0.25);
-  border-color: var(--ox-blue);
-  box-shadow: var(--ox-glow);
-}
-
-.slot-card .slot-index {
-  font-family: var(--font-display);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  color: var(--ox-blue);
-}
-
-.slot-card .slot-name {
-  margin-top: 6px;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 15px;
+.slot-number:hover {
+  border-color: var(--ox-badge-border);
   color: var(--ox-text);
-  overflow-wrap: break-word;
 }
 
-.slot-card .slot-meta {
-  margin-top: 3px;
-  font-size: 11px;
-  color: var(--ox-text-dim);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.slot-number.active {
+  background: var(--ox-blue);
+  border-color: var(--ox-badge-border);
+  box-shadow: var(--ox-badge-glow);
+  color: var(--ox-text);
 }
-
-.slot-card.empty {
-  text-align: center;
-  color: var(--ox-text-dim);
-}
-.slot-card.empty .slot-plus {
-  font-family: var(--font-display);
-  font-size: 22px;
-  color: var(--ox-blue);
-}
-.slot-card.empty .slot-name { margin-top: 4px; font-size: 12px; color: var(--ox-text-dim); }
 
 /* ---- dock ---- */
 .dock {
@@ -225,7 +240,12 @@ html, body {
   color: var(--ox-text);
 }
 
-.dock-btn.primary { background: var(--ox-blue); font-weight: 600; }
+.dock-btn.primary {
+  background: var(--ox-blue);
+  border-color: var(--ox-badge-border);
+  box-shadow: var(--ox-badge-glow);
+  font-weight: 600;
+}
 .dock-btn.primary:hover:not(:disabled) { background: var(--ox-blue-hover); }
 .dock-btn.ghost { background: var(--ox-panel); border-color: var(--ox-border); color: var(--ox-text-dim); }
 .dock-btn.ghost:hover:not(:disabled) { border-color: var(--ox-danger); color: var(--ox-danger); }
@@ -320,7 +340,7 @@ html, body {
   cursor: pointer;
   border-radius: var(--ox-radius-sm);
 }
-.gender-btn.active { border-color: var(--ox-blue); color: var(--ox-blue); background: rgba(21, 115, 237, 0.15); }
+.gender-btn.active { border-color: var(--ox-badge-border); color: var(--ox-blue); background: rgba(21, 115, 237, 0.15); box-shadow: var(--ox-badge-glow); }
 
 .modal-actions {
   display: flex;
@@ -369,8 +389,8 @@ html, body {
 
 .apartment-card.selected {
   background: rgba(21, 115, 237, 0.25);
-  border-color: var(--ox-blue);
-  box-shadow: var(--ox-glow);
+  border-color: var(--ox-badge-border);
+  box-shadow: var(--ox-badge-glow);
 }
 
 .apartment-card .apartment-label {
@@ -414,8 +434,8 @@ html, body {
 
 .spawn-card.selected {
   background: rgba(21, 115, 237, 0.25);
-  border-color: var(--ox-blue);
-  box-shadow: var(--ox-glow);
+  border-color: var(--ox-badge-border);
+  box-shadow: var(--ox-badge-glow);
 }
 
 .spawn-card .spawn-label {

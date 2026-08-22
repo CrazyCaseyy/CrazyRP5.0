@@ -622,3 +622,4 @@ txData/default/data/stats_svRuntime.json
 txData/default/logs/admin.log
 txData/default/logs/fxserver.log
 txData/default/logs/server.log
+txData/default/data/playersDB.json

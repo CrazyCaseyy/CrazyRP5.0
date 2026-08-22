@@ -28,6 +28,25 @@ CreateThread(function()
     end
 end)
 
+-- Hides the native aiming reticle while in a vehicle with its own mounted/fixed
+-- weapons (Oppressor Mk2, Deluxo, Toreador, technicals, etc. - DoesVehicleHaveWeapons
+-- covers all of these) - that crosshair reflects the player's own weapon aim, not
+-- the vehicle's, and is misleading clutter there.
+local vehicleHasWeapons = false
+
+lib.onCache('vehicle', function(vehicle)
+    vehicleHasWeapons = vehicle and DoesVehicleHaveWeapons(vehicle) or false
+end)
+
+CreateThread(function()
+    while true do
+        if vehicleHasWeapons then
+            HideHudComponentThisFrame(14) -- RETICLE
+        end
+        Wait(0)
+    end
+end)
+
 local function getSeatbeltStatus()
     return playerState.isSeatbeltOn
 end

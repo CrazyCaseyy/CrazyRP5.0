@@ -53,8 +53,26 @@
     // (a common way to render a soft glow), flood-color on <feFlood> SVG filter primitives.
     var PAINT_ATTRS = ['stroke', 'fill', 'stop-color', 'flood-color', 'lighting-color'];
 
+    // The low-fuel warning arc in the vehicle HUD gauge cluster uses the exact same
+    // brand red (#da1b32) as everything else scrubbed blue above, but it's a genuine
+    // danger indicator, not a candidate for recoloring - confirmed live (a local
+    // static server + intercepting setAttribute) that React sets it to #da1b32 and
+    // this script was immediately overwriting it to blue on every render.
+    //
+    // Can't exclude by container: this arc shares its parent with the RPM ring's arc,
+    // which IS meant to be blue. Identified instead by its fixed geometry - this
+    // gauge's arcs never change shape, only stroke-dashoffset represents the fill
+    // level, so the low-fuel arc's radius (136, vs the RPM ring's 118) is a stable
+    // fingerprint distinguishing the two.
+    function isFuelWarningArc(el) {
+        if (!el.tagName || el.tagName.toLowerCase() !== 'path') return false;
+        var d = el.getAttribute('d');
+        return !!d && d.indexOf('136 136') !== -1;
+    }
+
     function scrubElement(el) {
         if (!el || el.nodeType !== 1) return;
+        if (isFuelWarningArc(el)) return;
         if (el.style && el.style.cssText) {
             var cssText = el.style.cssText;
             var scrubbedCss = scrubColorString(cssText);

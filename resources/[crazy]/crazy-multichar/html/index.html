@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>crazy-multichar</title>
-  <link rel="stylesheet" href="style.css?v=4" />
+  <link rel="stylesheet" href="style.css?v=5" />
 </head>
 <body>
   <div id="app" class="hidden">
@@ -12,21 +12,30 @@
       <div class="slot-count"><span id="slot-count-current">0</span> / <span id="slot-count-max">0</span> SLOTS</div>
     </div>
 
-    <!-- Character dossier — appears below the previewed character when an
-         existing (non-empty) slot is selected. -->
+    <!-- Character dossier — shown for the currently-focused slot when it
+         holds an existing character. -->
     <div class="info-panel hidden" id="info-panel">
       <div class="info-title" id="info-name">—</div>
       <div class="info-grid" id="info-grid"></div>
     </div>
 
+    <!-- Shown instead of info-panel when the focused slot has no character
+         yet. -->
+    <div class="empty-panel hidden" id="empty-panel">
+      <div class="empty-title" id="empty-title">SLOT 01</div>
+      <div class="empty-sub">No character here yet.</div>
+    </div>
+
     <div class="toast hidden" id="toast"></div>
 
-    <div class="slot-row" id="slot-row"></div>
-
     <div class="dock hidden" id="dock">
-      <button class="dock-btn ghost" id="btn-delete">DELETE</button>
+      <button class="dock-btn ghost hidden" id="btn-delete">DELETE</button>
       <button class="dock-btn primary" id="btn-select">ENTER CITY</button>
     </div>
+
+    <!-- Focus switcher — one number per slot, always visible. Clicking a
+         number just focuses/previews that slot; it doesn't act on it. -->
+    <div class="slot-switcher" id="slot-switcher"></div>
 
     <!-- New character identity form -->
     <div class="modal hidden" id="modal-identity">
@@ -104,6 +113,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=6"></script>
+  <script src="script.js?v=7"></script>
 </body>
 </html>

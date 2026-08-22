@@ -12,6 +12,24 @@
     <video id="bg-video" autoplay muted loop playsinline src="./loading.mp4"></video>
     <div class="gradient-overlay"></div>
 
+    <!-- Drop the track in as html/music.mp3 (or update the src below) - the dial just toggles
+         play/pause on this element, no song is bundled yet. -->
+    <audio id="bg-music" src="./music.mp3" loop preload="none"></audio>
+
+    <div id="music-widget" class="music-widget">
+        <button id="music-toggle" class="music-dial" type="button" aria-label="Toggle music" title="Toggle music">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path class="music-note"
+                    d="M9 17V5.5a1 1 0 0 1 1.24-.97l7 1.75A1 1 0 0 1 18 7.25V16a3 3 0 1 1-1.5-2.6V8.03l-6-1.5V17a3 3 0 1 1-1.5-2.6Z" />
+                <path class="music-mute-slash" d="M4 4 L20 20" />
+            </svg>
+        </button>
+        <div class="volume-popover">
+            <input type="range" id="volume-slider" class="volume-slider" min="0" max="100" value="50"
+                aria-label="Volume" />
+        </div>
+    </div>
+
     <div class="loading-footer">
         <div class="loading-title">CRAZY RP</div>
         <div class="progress-track">
@@ -21,6 +39,13 @@
             <span id="progress-label">Loading assets...</span>
             <span id="progress-percent">0%</span>
         </div>
+    </div>
+
+    <div id="custom-cursor">
+        <svg width="26" height="26" viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 2 L4 21 L9 16.5 L12.5 24 L15.5 22.5 L12 15 L19 15 Z" fill="#ffffff" stroke="#1573ed"
+                stroke-width="1.5" stroke-linejoin="round" />
+        </svg>
     </div>
 
     <script src="./app.js"></script>
