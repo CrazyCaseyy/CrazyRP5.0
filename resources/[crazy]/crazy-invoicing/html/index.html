@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Invoice</title>
+  </head>
+  <body>
+    <div id="invoice" class="hidden">
+      <div class="invoice-card">
+        <div class="invoice-header">
+          <div class="invoice-header-title">
+            <svg viewBox="0 0 24 24" class="icon"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+            <span>Pay for Order</span>
+          </div>
+          <button id="close-btn" class="close-btn">&times;</button>
+        </div>
+
+        <div class="invoice-subheader">
+          <span id="order-id">Order #0</span>
+          <span id="business-label"></span>
+        </div>
+
+        <div class="invoice-body">
+          <div class="order-row">
+            <div class="order-icon">
+              <svg viewBox="0 0 24 24" class="icon"><path d="M19 14V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8H2v2a3 3 0 0 0 3 3h13a4 4 0 0 0 4-4v-1zM5 6h12v8H5zm14 10a2 2 0 0 1-2 2H6.83c.11-.32.17-.65.17-1v-1h11a1 1 0 0 0 1-1z"/></svg>
+            </div>
+            <div class="order-info">
+              <div class="order-label">Description</div>
+              <div id="order-description" class="order-description"></div>
+            </div>
+            <div class="order-price">
+              <div class="order-label">Price</div>
+              <div id="order-price" class="order-price-value">$0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="invoice-footer">
+          <div class="total-due">
+            <div class="order-label">Total Due</div>
+            <div id="total-due" class="total-due-value">$0</div>
+          </div>
+          <div class="pay-buttons">
+            <button id="cash-btn" class="pay-btn cash-btn">
+              <svg viewBox="0 0 24 24" class="icon"><path d="M4 6h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zm8 3a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM5 8v1h1V8zm13 0v1h1V8zM5 15v1h1v-1zm13 0v1h1v-1z"/></svg>
+              Cash
+            </button>
+            <button id="card-btn" class="pay-btn card-btn">
+              <svg viewBox="0 0 24 24" class="icon"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+              Card
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

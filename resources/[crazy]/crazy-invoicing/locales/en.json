@@ -1,0 +1,29 @@
+{
+    "target": {
+        "charge": "Charge customer"
+    },
+    "input": {
+        "title": "New Invoice",
+        "description_label": "What's this for?",
+        "description_placeholder": "e.g. S Class Full Repair",
+        "amount_label": "Amount",
+        "quantity_label": "Quantity"
+    },
+    "menu": {
+        "title": "Charge Customer",
+        "custom_title": "Custom Amount",
+        "custom_description": "Type in a description and price by hand"
+    },
+    "notify": {
+        "no_customer": "No customer standing at the reader",
+        "not_on_duty": "You need to be on duty to charge customers",
+        "invalid_amount": "Enter a valid amount",
+        "amount_too_high": "That's above the max invoice amount ($%s)",
+        "invoice_sent": "Invoice sent to the customer",
+        "invoice_received": "You've been sent a bill for %s",
+        "not_enough_cash": "You don't have enough cash",
+        "not_enough_bank": "You don't have enough in your bank",
+        "payment_received": "The customer paid $%s",
+        "payment_success": "Payment sent"
+    }
+}

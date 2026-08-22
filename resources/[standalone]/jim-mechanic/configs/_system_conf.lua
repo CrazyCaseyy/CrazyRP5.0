@@ -14,7 +14,7 @@ Config = {
 		Notify = "ox",				-- "qb", "ox", "gta", "esx", "lation"
 		drawText = "ox",			-- "qb", "ox", "gta", "lation"
 		ProgressBar = "ox", 		-- "qb", "ox", "gta", "esx", "lation"
-		Billing = "jim",			-- "jim", "okok"
+		Billing = "crazy",			-- "jim", "okok", "codem", "tgg", "crazy"
 
 		skillCheck = "ox",			-- "qb", "ox", "lation"
 

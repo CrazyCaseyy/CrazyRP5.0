@@ -1,0 +1,22 @@
+{
+    "target": {
+        "duty_on": "Clock in",
+        "duty_off": "Clock out",
+        "stock": "Order stock",
+        "register": "Serve a customer",
+        "management": "Manage employees"
+    },
+    "menu": {
+        "stock_title": "Order Stock",
+        "stock_description": "$%s from the business account for %sx %s",
+        "register_title": "Register",
+        "register_description": "Sell 1x %s for $%s"
+    },
+    "notify": {
+        "not_on_duty": "You need to be clocked in",
+        "not_enough_stock_funds": "The business account doesn't have enough money",
+        "stock_bought": "Restocked %sx %s",
+        "no_item_to_sell": "You don't have that item to sell",
+        "item_sold": "Sold 1x %s for $%s ($%s tip)"
+    }
+}

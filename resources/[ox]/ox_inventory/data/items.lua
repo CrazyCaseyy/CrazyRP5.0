@@ -1029,4 +1029,80 @@ return {
     label = "Cash Rolls", weight = 250, stack = true, close = true, description = "Rolled-up bills taken from a store register",
     client = { image = "cash_rolls.png" },
 },
+
+-- Burger Shot: raw stock, bought by employees from the business account at the supply point
+["bs_bun"] = {
+    label = "Burger Bun", weight = 40, stack = true, close = true, rarity = "common",
+    client = { image = "burgerbun.png" },
+},
+["bs_patty"] = {
+    label = "Patty", weight = 90, stack = true, close = true, rarity = "common",
+    client = { image = "burgerpatty.png" },
+},
+["bs_lettuce"] = {
+    label = "Lettuce", weight = 20, stack = true, close = true, rarity = "common",
+    client = { image = "lettuce.png" },
+},
+["bs_tomato"] = {
+    label = "Tomato", weight = 20, stack = true, close = true, rarity = "common",
+    client = { image = "tomato_raw.png" },
+},
+["bs_onion"] = {
+    label = "Onion", weight = 20, stack = true, close = true, rarity = "common",
+    client = { image = "burger-onion.png" },
+},
+["bs_potato"] = {
+    label = "Potato", weight = 50, stack = true, close = true, rarity = "common",
+    client = { image = "burger-slicedpotato.png" },
+},
+["bs_cup"] = {
+    label = "Cup", weight = 15, stack = true, close = true, rarity = "common",
+    client = { image = "cup.png" },
+},
+
+-- Burger Shot: finished menu items, crafted from the above and sold at the register
+["bs_bleeder"] = {
+    label = "The Bleeder", weight = 260, stack = true, close = true, rarity = "uncommon",
+    client = { image = "burger-bleeder.png", status = { hunger = 150000 }, anim = "eating", prop = "burger", usetime = 2500, notification = "You ate a Bleeder" },
+},
+["bs_heartstopper"] = {
+    label = "Heart Stopper", weight = 320, stack = true, close = true, rarity = "uncommon",
+    client = { image = "burger-heartstopper.png", status = { hunger = 220000 }, anim = "eating", prop = "burger", usetime = 2500, notification = "You ate a Heart Stopper" },
+},
+["bs_meatfree"] = {
+    label = "Meat Free", weight = 240, stack = true, close = true, rarity = "common",
+    client = { image = "burger-meatfree.png", status = { hunger = 130000 }, anim = "eating", prop = "burger", usetime = 2500, notification = "You ate a Meat Free" },
+},
+["bs_torpedo"] = {
+    label = "Torpedo", weight = 280, stack = true, close = true, rarity = "rare",
+    client = { image = "burger-torpedo.png", status = { hunger = 180000 }, anim = "eating", prop = "burger", usetime = 2500, notification = "You ate a Torpedo" },
+},
+["bs_moneyshot"] = {
+    label = "Money Shot", weight = 300, stack = true, close = true, rarity = "epic",
+    client = { image = "burger-moneyshot.png", status = { hunger = 200000 }, anim = "eating", prop = "burger", usetime = 2500, notification = "You ate a Money Shot" },
+},
+["bs_fries"] = {
+    label = "Shot Fries", weight = 150, stack = true, close = true, rarity = "common",
+    client = { image = "burger-fries.png", status = { hunger = 80000 }, anim = "eating", prop = "burger", usetime = 2000, notification = "You ate some fries" },
+},
+["bs_onionrings"] = {
+    label = "Shot Rings", weight = 150, stack = true, close = true, rarity = "common",
+    client = { image = "burger-shotrings.png", status = { hunger = 80000 }, anim = "eating", prop = "burger", usetime = 2000, notification = "You ate some onion rings" },
+},
+["bs_nuggets"] = {
+    label = "Shot Nuggets", weight = 170, stack = true, close = true, rarity = "uncommon",
+    client = { image = "burger-shotnuggets.png", status = { hunger = 90000 }, anim = "eating", prop = "burger", usetime = 2000, notification = "You ate some nuggets" },
+},
+["bs_sprunk"] = {
+    label = "Sprunk", weight = 350, stack = true, close = true, rarity = "common",
+    client = { image = "sprunk.png", status = { thirst = 180000 }, anim = { dict = "mp_player_intdrink", clip = "loop_bottle" }, prop = { model = `prop_ld_can_01`, pos = vec3(0.01, 0.01, 0.06), rot = vec3(5.0, 5.0, -180.5) }, usetime = 2500, notification = "You drank a Sprunk" },
+},
+["bs_ecola"] = {
+    label = "eCola", weight = 350, stack = true, close = true, rarity = "common",
+    client = { image = "cola.png", status = { thirst = 180000 }, anim = { dict = "mp_player_intdrink", clip = "loop_bottle" }, prop = { model = `prop_ld_can_01`, pos = vec3(0.01, 0.01, 0.06), rot = vec3(5.0, 5.0, -180.5) }, usetime = 2500, notification = "You drank an eCola" },
+},
+["bs_milkshake"] = {
+    label = "Milkshake", weight = 380, stack = true, close = true, rarity = "rare",
+    client = { image = "burger-milkshake.png", status = { thirst = 220000, hunger = 40000 }, anim = { dict = "mp_player_intdrink", clip = "loop_bottle" }, prop = { model = `prop_ld_can_01`, pos = vec3(0.01, 0.01, 0.06), rot = vec3(5.0, 5.0, -180.5) }, usetime = 2500, notification = "You drank a Milkshake" },
+},
 }

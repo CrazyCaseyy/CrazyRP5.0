@@ -225,6 +225,17 @@ local billPlayerFunc = {
         function(data)
             exports["tgg-billing"]:OpenBillingMenu()
         end,
+    crazy =
+        function(data)
+            if GetResourceState("crazy-invoicing") ~= "started" then
+                debugPrint("^1Error^7: ^1crazy-invoicing is not running")
+                return
+            end
+
+            -- Config.InvoiceMenu is optional (configs/invoicing_conf.lua) - resources
+            -- without one just get the free-form description/amount prompt.
+            exports["crazy-invoicing"]:ChargeNearestCustomer(data.coords.xyz, Config.InvoiceMenu)
+        end,
 }
 
 --- BillPlayer
