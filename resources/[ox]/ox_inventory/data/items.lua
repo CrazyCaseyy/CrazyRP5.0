@@ -119,6 +119,7 @@ return {
     ['lockpick'] = {
         label = 'Lockpick',
         weight = 160,
+        rarity = 'uncommon',
     },
 
     ['phone'] = {
@@ -183,26 +184,32 @@ return {
 
     ['money'] = {
         label = 'Money',
+        rarity = 'common',
     },
 
     ['black_money'] = {
         label = 'Dirty Money',
+        rarity = 'uncommon',
     },
 
     ['id_card'] = {
         label = 'Identification Card',
+        rarity = 'common',
     },
 
     ['driver_license'] = {
         label = 'Drivers License',
+        rarity = 'common',
     },
 
     ['weaponlicense'] = {
         label = 'Weapon License',
+        rarity = 'common',
     },
 
     ['lawyerpass'] = {
         label = 'Lawyer Pass',
+        rarity = 'common',
     },
 
     ['radio'] = {
@@ -210,6 +217,7 @@ return {
         weight = 1000,
         allowArmed = true,
         consume = 0,
+        rarity = 'common',
         client = {
             event = 'mm_radio:client:use'
         }
@@ -237,37 +245,44 @@ return {
     ['advancedlockpick'] = {
         label = 'Advanced Lockpick',
         weight = 500,
+        rarity = 'uncommon',
     },
 
     ['screwdriverset'] = {
         label = 'Screwdriver Set',
         weight = 500,
+        rarity = 'uncommon',
     },
 
     ['electronickit'] = {
         label = 'Electronic Kit',
         weight = 500,
+        rarity = 'uncommon',
     },
 
 
     ['diamond_ring'] = {
         label = 'Diamond',
         weight = 1500,
+        rarity = 'rare',
     },
 
     ['rolex'] = {
         label = 'Golden Watch',
         weight = 1500,
+        rarity = 'rare',
     },
 
     ['goldbar'] = {
         label = 'Gold Bar',
         weight = 1500,
+        rarity = 'epic',
     },
 
     ['goldchain'] = {
         label = 'Golden Chain',
         weight = 1500,
+        rarity = 'rare',
     },
 
     ['crack_baggy'] = {
@@ -468,11 +483,13 @@ return {
     ['gatecrack'] = {
         label = 'Gatecrack',
         weight = 1000,
+        rarity = 'legendary',
     },
 
     ['cryptostick'] = {
         label = 'Crypto Stick',
         weight = 100,
+        rarity = 'legendary',
     },
 
     ['trojan_usb'] = {
@@ -493,21 +510,25 @@ return {
     ['security_card_01'] = {
         label = 'Security Card A',
         weight = 100,
+        rarity = 'rare',
     },
 
     ['security_card_02'] = {
         label = 'Security Card B',
         weight = 100,
+        rarity = 'rare',
     },
 
     ['drill'] = {
         label = 'Drill',
         weight = 5000,
+        rarity = 'epic',
     },
 
     ['thermite'] = {
         label = 'Thermite',
         weight = 1000,
+        rarity = 'epic',
     },
 
     ['diving_gear'] = {

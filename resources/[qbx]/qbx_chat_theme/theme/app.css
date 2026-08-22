@@ -1,3 +1,29 @@
+/* Bundled from ox_lib's own web build - matches the Roboto/Mantine look used
+   across ox_lib menus, notifications, and progress bars. */
+@font-face {
+    font-family: 'Roboto';
+    font-weight: 400;
+    src: url('fonts/Roboto-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Roboto';
+    font-weight: 500;
+    src: url('fonts/Roboto-Medium.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Roboto';
+    font-weight: 700;
+    src: url('fonts/Roboto-Bold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Roboto Mono';
+    font-weight: 400;
+    src: url('fonts/RobotoMono-Regular.ttf') format('truetype');
+}
+
 * {
     font-family: var(--font-family) !important;
     margin: 0;
