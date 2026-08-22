@@ -35,7 +35,7 @@
         if (loaded >= 100) {
             countEl.textContent = 'Initializing';
         } else {
-            countEl.textContent = loaded + ' / 100';
+            countEl.textContent = loaded + '%';
         }
 
         fill.style.width = loaded + '%';
@@ -58,4 +58,70 @@
     });
 
     render(0);
+
+    // Music dial - the icon's playing/muted look is driven purely by volume level (0% = muted,
+    // anything above = playing), not by audio.paused, so dragging the slider to 0 always reads
+    // as muted even though the element keeps running silently underneath. Starts playing at
+    // 50% as soon as the page loads.
+    var musicBtn = document.getElementById('music-toggle');
+    var music = document.getElementById('bg-music');
+    var volumeSlider = document.getElementById('volume-slider');
+    var lastVolume = 50;
+
+    function setDialState(vol) {
+        if (musicBtn) musicBtn.classList.toggle('playing', vol > 0);
+    }
+
+    function ensurePlaying() {
+        if (music.paused) music.play().catch(function () {});
+    }
+
+    if (volumeSlider && music) {
+        volumeSlider.value = 50;
+        music.volume = 0.5;
+        setDialState(50);
+        ensurePlaying();
+
+        volumeSlider.addEventListener('input', function () {
+            var vol = Number(volumeSlider.value);
+            music.volume = vol / 100;
+            if (vol > 0) lastVolume = vol;
+            setDialState(vol);
+            ensurePlaying();
+        });
+    }
+
+    if (musicBtn && music && volumeSlider) {
+        musicBtn.addEventListener('click', function () {
+            var vol = Number(volumeSlider.value);
+            if (vol > 0) {
+                lastVolume = vol;
+                volumeSlider.value = 0;
+                music.volume = 0;
+                setDialState(0);
+            } else {
+                volumeSlider.value = lastVolume > 0 ? lastVolume : 50;
+                music.volume = volumeSlider.value / 100;
+                setDialState(Number(volumeSlider.value));
+                ensurePlaying();
+            }
+        });
+    }
+
+    // FiveM's loading screen doesn't render the OS cursor over the video background, so draw
+    // our own and track raw mouse input directly - this still lets players click any real
+    // clickable elements added to the page later, since pointer-events on the cursor itself
+    // are disabled and it's purely a visual follower.
+    var cursorEl = document.getElementById('custom-cursor');
+    if (cursorEl) {
+        window.addEventListener('mousemove', function (e) {
+            cursorEl.style.transform = 'translate(' + (e.clientX - 2) + 'px, ' + (e.clientY - 2) + 'px)';
+        });
+        window.addEventListener('mousedown', function () {
+            cursorEl.classList.add('clicking');
+        });
+        window.addEventListener('mouseup', function () {
+            cursorEl.classList.remove('clicking');
+        });
+    }
 })();

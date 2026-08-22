@@ -37,11 +37,18 @@ end
 
 local orbitActive = false
 
+-- How far above the ped's feet (Config.SpawnPoint.z) the camera aims —
+-- roughly chest/eye height on a standing adult ped. Pointing at literal
+-- ground level was tilting the camera down at the character instead of
+-- looking straight at them.
+local PREVIEW_LOOK_HEIGHT = 1.5
+
 local function CreateSelectCamera()
     local c = Config.CameraPoint
+    local sp = Config.SpawnPoint
     cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
     SetCamCoord(cam, c.x, c.y, c.z)
-    PointCamAtCoord(cam, Config.SpawnPoint.x, Config.SpawnPoint.y, Config.SpawnPoint.z)
+    PointCamAtCoord(cam, sp.x, sp.y, sp.z + PREVIEW_LOOK_HEIGHT)
     SetCamActive(cam, true)
     RenderScriptCams(true, true, Config.FadeTime, true, true)
 
@@ -110,35 +117,42 @@ end
 -- ===================================================================
 -- Live preview ped
 -- Shows the player's own (frozen, invulnerable) ped in front of the
--- camera during selection, updating its model whenever a different
--- character card is highlighted. Uses qbx_core's own
--- 'qbx_core:server:getPreviewPedData' callback for a specific model hash
--- when one's on file; this is a best-effort enhancement (correct base
--- model, not a full outfit/face preview), same as qbx_core's own built-in
--- screen — it doesn't attempt to render saved clothing either.
+-- camera during selection, updating it whenever a different slot is
+-- focused. For an existing character this renders their REAL saved look
+-- (clothes, face, hair, tattoos — everything illenium-appearance stores),
+-- not just their base gender model — fetched via
+-- 'crazy-multichar:server:getAppearance' (server/server.lua) and applied
+-- with illenium-appearance's own exported setPlayerAppearance, the same
+-- function it uses internally to restore your look on login. New/empty
+-- slots fall back to a plain default-gender model since there's no saved
+-- appearance yet to show.
 -- ===================================================================
 
-local currentPreviewModel = nil
+local currentPreviewKey = nil
 
 local function UpdatePreviewPed(citizenId, gender)
     gender = tonumber(gender) or 0
-    local model = (gender == 1) and `mp_f_freemode_01` or `mp_m_freemode_01`
+    local fallbackModel = (gender == 1) and `mp_f_freemode_01` or `mp_m_freemode_01`
 
+    local appearance = nil
     if citizenId then
-        local ok, _skin, previewModel = pcall(function()
-            return lib.callback.await('qbx_core:server:getPreviewPedData', false, citizenId)
+        local ok, result = pcall(function()
+            return lib.callback.await('crazy-multichar:server:getAppearance', false, citizenId)
         end)
-        if ok and previewModel then
-            model = previewModel
-        end
+        if ok then appearance = result end
     end
 
-    if currentPreviewModel == model then return end
-    currentPreviewModel = model
+    local previewKey = appearance and ('char:' .. citizenId) or ('gender:' .. gender)
+    if currentPreviewKey == previewKey then return end
+    currentPreviewKey = previewKey
 
-    lib.requestModel(model)
-    SetPlayerModel(PlayerId(), model)
-    SetModelAsNoLongerNeeded(model)
+    if appearance and appearance.model then
+        exports['illenium-appearance']:setPlayerAppearance(appearance)
+    else
+        lib.requestModel(fallbackModel)
+        SetPlayerModel(PlayerId(), fallbackModel)
+        SetModelAsNoLongerNeeded(fallbackModel)
+    end
 
     local ped = PlayerPedId()
     local sp = Config.SpawnPoint

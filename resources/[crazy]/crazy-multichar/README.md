@@ -7,10 +7,21 @@ scratch, not using ox_lib's actual menu components. It talks to the exact
 same server callbacks/events qbx_core's own built-in screen uses, so it's
 a drop-in visual replacement, not a different character system.
 
-- Your own ped is visible and previewed live during selection.
-- A character "dossier" panel appears below the ped showing everything
-  about the selected character: name, gender, birthdate, nationality,
-  account number, bank, cash, job + grade, gang + grade, phone number.
+- Focuses on one character slot at a time, rather than showing all slots
+  side by side. Slot 1 is focused automatically on load; number buttons
+  (`1`/`2`/`3`, bottom of screen) switch which slot is previewed.
+- The previewed ped shows the character's REAL saved look (clothes, face,
+  hair, tattoos — everything illenium-appearance stores), fetched via
+  `crazy-multichar:server:getAppearance` and applied with
+  illenium-appearance's own `setPlayerAppearance` export — not just a
+  bare gender model. Empty slots fall back to a plain default model.
+- Camera is fixed (no orbit) so you can actually look at the character
+  you're previewing — see `Config.PreviewOrbit.enabled` if you want the
+  slow spin back.
+- A character "dossier" panel appears for the focused slot's character:
+  name, gender, birthdate, nationality, account number, bank, cash,
+  job + grade, gang + grade, phone number. Empty slots show a simple
+  "no character here yet" panel with a CREATE CHARACTER action instead.
 - Three slots, sourced from qbx_core's own
   `config.characters.defaultNumberOfCharacters` (already `3` on this
   server) — not hardcoded here, same single source of truth qbx_core's
@@ -22,6 +33,10 @@ a drop-in visual replacement, not a different character system.
 
 - [`qbx_core`](https://github.com/Qbox-project/qbx_core)
 - [`ox_lib`](https://github.com/overextended/ox_lib)
+- `oxmysql` — the appearance preview reads illenium-appearance's
+  `playerskins` table directly (see `server/server.lua`).
+- `illenium-appearance` — its `setPlayerAppearance` client export renders
+  the real saved look onto the preview ped.
 - `qbx_spawn` (optional but installed on this server) — existing
   characters are handed off to it for spawn-location choice, exactly
   like qbx_core's own built-in screen does.
@@ -45,7 +60,7 @@ Same contract qbx_core's own built-in screen uses (see
 | Action | Call |
 |---|---|
 | Fetch characters + slot count | `lib.callback.await('qbx_core:server:getCharacters', false)` |
-| Preview ped model for a citizen | `lib.callback.await('qbx_core:server:getPreviewPedData', false, citizenid)` |
+| Fetch a citizen's saved appearance for preview | `lib.callback.await('crazy-multichar:server:getAppearance', false, citizenid)` (this resource's own `server/server.lua`, reads illenium-appearance's `playerskins` table directly — not a qbx_core call) |
 | Create a character | `lib.callback.await('qbx_core:server:createCharacter', false, { firstname, lastname, nationality, gender, birthdate })` |
 | Load an existing character | `lib.callback.await('qbx_core:server:loadCharacter', false, citizenid)` |
 | Delete a character | `TriggerServerEvent('qbx_core:server:deleteCharacter', citizenid)` (documented backward-compatible net event) |
@@ -84,6 +99,8 @@ if `Config.Apartments` is ever emptied out, new characters fall back to
   `config.characters.defaultNumberOfCharacters` /
   `playersNumberOfCharacters`, not here.
 - **Info panel fields** — `html/script.js`, `renderInfoPanel()`.
+- **Preview camera** — `config.lua`, `Config.PreviewOrbit.enabled` (off
+  by default — set `true` for the old slow-spin showcase camera).
 - **Apartments** — `config.lua`, `Config.Apartments`. Add more entries to
   turn the single-option "MOVE IN" step into a real picker; the UI
   already handles any number of them.
