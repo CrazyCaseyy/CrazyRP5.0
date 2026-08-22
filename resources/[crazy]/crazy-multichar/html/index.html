@@ -3,19 +3,21 @@
 <head>
   <meta charset="utf-8" />
   <title>crazy-multichar</title>
-  <link rel="stylesheet" href="style.css?v=5" />
+  <link rel="stylesheet" href="style.css?v=22" />
 </head>
 <body>
   <div id="app" class="hidden">
-    <div class="topbar">
-      <div class="brand"><span class="brand-mark">◆</span> CRAZY RP</div>
-      <div class="slot-count"><span id="slot-count-current">0</span> / <span id="slot-count-max">0</span> SLOTS</div>
-    </div>
-
     <!-- Character dossier — shown for the currently-focused slot when it
-         holds an existing character. -->
+         holds an existing character. Doubles as the top-left title now
+         that there's no separate topbar. -->
     <div class="info-panel hidden" id="info-panel">
-      <div class="info-title" id="info-name">—</div>
+      <div class="info-header">
+        <div class="info-title-row">
+          <div class="info-title" id="info-name">—</div>
+          <div class="info-gender-icon" id="info-gender-icon"></div>
+        </div>
+        <div class="info-subtitle" id="info-subtitle">CHARACTER 1 / 3</div>
+      </div>
       <div class="info-grid" id="info-grid"></div>
     </div>
 
@@ -29,8 +31,8 @@
     <div class="toast hidden" id="toast"></div>
 
     <div class="dock hidden" id="dock">
-      <button class="dock-btn ghost hidden" id="btn-delete">DELETE</button>
       <button class="dock-btn primary" id="btn-select">ENTER CITY</button>
+      <button class="dock-btn danger hidden" id="btn-delete">DELETE</button>
     </div>
 
     <!-- Focus switcher — one number per slot, always visible. Clicking a
@@ -87,9 +89,11 @@
         <p class="confirm-text">
           Permanently delete <span id="delete-char-name"></span>? This cannot be undone.
         </p>
+        <label class="field-label">Type CONFIRM to continue</label>
+        <input class="field-input" id="input-delete-confirm" autocomplete="off" />
         <div class="modal-actions">
           <button class="dock-btn ghost" id="btn-delete-cancel">CANCEL</button>
-          <button class="dock-btn danger" id="btn-delete-confirm">DELETE</button>
+          <button class="dock-btn danger" id="btn-delete-confirm" disabled>DELETE</button>
         </div>
       </div>
     </div>
@@ -98,21 +102,19 @@
   <!-- Spawn location picker (existing characters) - a sibling of #app, not a
        child: it needs to stay visible after client.lua closes #app and tears
        down the character-select scene, right before the player actually
-       spawns in. -->
-  <div class="modal hidden" id="modal-spawn">
-    <div class="modal-panel">
-      <div class="modal-step">
-        <div class="modal-title">WHERE TO?</div>
+       spawns in. Deliberately NOT using .modal's full-screen dark scrim
+       here - client.lua fades back in on a real hovering camera over the
+       chosen location, and darkening the whole screen would hide it. -->
+  <div class="spawn-screen hidden" id="modal-spawn">
+    <div class="spawn-title"><span class="brand-mark">◆</span> WHERE TO?</div>
 
-        <div class="spawn-list" id="spawn-list"></div>
+    <div class="spawn-panel">
+      <div class="spawn-list" id="spawn-list"></div>
 
-        <div class="modal-actions">
-          <button class="dock-btn primary" id="btn-spawn-confirm" disabled>SPAWN IN</button>
-        </div>
-      </div>
+      <button class="dock-btn primary spawn-confirm" id="btn-spawn-confirm" disabled>SPAWN IN</button>
     </div>
   </div>
 
-  <script src="script.js?v=7"></script>
+  <script src="script.js?v=12"></script>
 </body>
 </html>

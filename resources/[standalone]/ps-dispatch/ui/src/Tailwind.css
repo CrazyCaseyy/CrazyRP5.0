@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+    font-family: 'Geom Graphic W03';
+    src: url('fonts/GeomGraphic.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -27,8 +35,10 @@ html, body {
     width: 100vw;
     font-size: 1.6rem;
     overflow: hidden;
-    /* Same stack as ps-mdt (variables.css) so both UIs render identically. */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    /* Was the same system-font stack as ps-mdt; now leads with Geom Graphic
+       W03 to match the rest of the server's redesigned UI (ox_lib,
+       crazy-hud, crazy-multichar, ox_target) instead. */
+    font-family: 'Geom Graphic W03', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: rgba(255, 255, 255, 0.87);
 }
 
@@ -39,15 +49,16 @@ html, body {
    PIXEL type sizes (9-14px) instead of vh. 
    ════════════════════════════════════════════════════════════════════════ */
 
-/* Floating panel (ImpoundForm .modal) */
+/* Floating panel (ImpoundForm .modal) - grey-bevel border + inset highlight
+   ring, same treatment as every other redesigned panel on the server. */
 .pd-panel {
     background: rgba(26, 28, 33, 0.97);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(140, 140, 150, 0.35);
     border-radius: 6px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.65);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 24px 70px rgba(0, 0, 0, 0.65);
 }
 .pd-panel--priority { border-color: rgba(239, 68, 68, 0.35); box-shadow: inset 3px 0 0 rgba(239, 68, 68, 0.7), 0 24px 70px rgba(0, 0, 0, 0.65); }
 
@@ -70,9 +81,9 @@ html, body {
     border-radius: 4px;
     font-size: 11px;
     flex-shrink: 0;
-    background: rgba(59, 130, 246, 0.12);
-    color: #93c5fd;
-    border: 1px solid rgba(59, 130, 246, 0.25);
+    background: rgba(21, 115, 237, 0.12);
+    color: #5aaaff;
+    border: 1px solid rgba(21, 115, 237, 0.25);
 }
 .pd-icon--priority { background: rgba(239, 68, 68, 0.12); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
 .pd-icon--green { background: rgba(34, 197, 94, 0.12); color: #4ade80; border-color: rgba(34, 197, 94, 0.25); }
@@ -88,10 +99,10 @@ html, body {
     color: rgba(255, 255, 255, 0.45);
     white-space: nowrap;
 }
-.pd-badge--cyan  { background: rgba(59, 130, 246, 0.12); color: #93c5fd; } /* police blue (MDT accent) */
+.pd-badge--cyan  { background: rgba(21, 115, 237, 0.12); color: #5aaaff; } /* police blue (MDT accent) */
 .pd-badge--red   { background: rgba(239, 68, 68, 0.14);  color: #f87171; }
 .pd-badge--green { background: rgba(34, 197, 94, 0.12);  color: #4ade80; }
-.pd-badge--blue  { background: rgba(59, 130, 246, 0.12); color: #93c5fd; }
+.pd-badge--blue  { background: rgba(21, 115, 237, 0.12); color: #5aaaff; }
 
 /* Key/value rows (11px, muted labels) */
 .pd-kv { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 3px 0; }
@@ -103,18 +114,21 @@ html, body {
 /* Muted header timestamp */
 .pd-time { margin-left: auto; font-size: 10px; color: rgba(255, 255, 255, 0.4); white-space: nowrap; }
 
-/* Keyboard hint */
+/* Keyboard hint - same blue-badge treatment as the ox_lib "E" key badge /
+   crazy-hud's engine-prompt key badge (solid blue, blue outline, inset
+   highlight ring, soft glow) instead of a plain white keycap. */
 .pd-kbd {
     display: inline-block;
-    padding: 0 5px;
+    padding: 1px 6px;
     border-radius: 3px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-bottom-width: 2px;
-    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(90, 170, 255, 0.75);
+    background: #1573ed;
     font-family: 'Courier New', monospace;
     font-size: 10px;
+    font-weight: 700;
     line-height: 15px;
-    color: rgba(255, 255, 255, 0.7);
+    color: #fff;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12), 0 0 4px rgba(21, 115, 237, 0.4);
 }
 
 /* Buttons (MDT btn-primary / secondary) */
@@ -203,16 +217,16 @@ html, body {
     width: 300px;
     padding: 7px 10px 9px 13px;
     background: rgba(26, 28, 33, 0.97);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(140, 140, 150, 0.35);
     border-radius: 6px;
     overflow: hidden;
-    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.55);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 12px 34px rgba(0, 0, 0, 0.55);
 }
 .pd-toast-rail {
     position: absolute;
     left: 0; top: 0; bottom: 0;
     width: 3px;
-    background: rgba(59, 130, 246, 0.75);
+    background: rgba(21, 115, 237, 0.75);
 }
 .pd-toast--priority { border-color: rgba(239, 68, 68, 0.35); }
 .pd-toast--priority .pd-toast-rail { background: rgba(239, 68, 68, 0.85); }
@@ -226,7 +240,7 @@ html, body {
     position: absolute;
     left: 0; bottom: 0;
     height: 2px;
-    background: rgba(59, 130, 246, 0.55);
+    background: rgba(21, 115, 237, 0.55);
     animation: pdToastTimer linear forwards;
     animation-duration: var(--dur, 5000ms);
 }
@@ -333,7 +347,6 @@ html, body {
     font-size: 11px;
     font-weight: 600;
 }
-.pd-respond .pd-kbd { border-color: rgba(255, 255, 255, 0.4); background: rgba(0, 0, 0, 0.2); color: #fff; }
 
 /* Dispatcher assignment: attached and routed already, so this is a
    confirmation rather than a call to action. */
@@ -347,9 +360,9 @@ html, body {
     border-radius: 4px;
     font-size: 11px;
     font-weight: 600;
-    background: rgba(59, 130, 246, 0.12);
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    color: #93c5fd;
+    background: rgba(21, 115, 237, 0.12);
+    border: 1px solid rgba(21, 115, 237, 0.3);
+    color: #5aaaff;
 }
 /* Same strip, but for a result that carries bad news. */
 .pd-assigned--alert {
@@ -408,9 +421,9 @@ html, body {
     height: 10px;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    background: #60a5fa;
+    background: #1573ed;
     border: 2px solid rgba(10, 12, 14, 0.9);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25), 0 0 8px rgba(59, 130, 246, 0.6);
+    box-shadow: 0 0 0 3px rgba(21, 115, 237, 0.25), 0 0 8px rgba(21, 115, 237, 0.6);
 }
 .pd-thumb-marker--red {
     background: #f87171;
@@ -422,9 +435,9 @@ html, body {
 .pd-thumb-radius {
     position: absolute;
     border-radius: 50%;
-    background: rgba(59, 130, 246, 0.14);
-    border: 1.5px solid rgba(59, 130, 246, 0.55);
-    box-shadow: inset 0 0 14px rgba(59, 130, 246, 0.2);
+    background: rgba(21, 115, 237, 0.14);
+    border: 1.5px solid rgba(21, 115, 237, 0.55);
+    box-shadow: inset 0 0 14px rgba(21, 115, 237, 0.2);
     transform: translate(-50%, -50%);
 }
 .pd-thumb-radius--red {
@@ -448,9 +461,9 @@ html, body {
 .pd-modal {
     width: 330px;
     background: rgba(26, 28, 33, 0.97);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(140, 140, 150, 0.35);
     border-radius: 6px;
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.65);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 24px 70px rgba(0, 0, 0, 0.65);
     overflow: hidden;
 }
 .pd-modal-head {
@@ -548,14 +561,14 @@ html, body {
 
 /* The timer bar leads with a brief glow so the countdown registers as
    deliberate rather than as a stray line at the bottom of the card. */
-.pd-alert .pd-toast-timer { box-shadow: 0 0 6px rgba(59, 130, 246, 0.55); }
+.pd-alert .pd-toast-timer { box-shadow: 0 0 6px rgba(21, 115, 237, 0.55); }
 .pd-alert.pd-panel--priority .pd-toast-timer { box-shadow: 0 0 6px rgba(239, 68, 68, 0.6); }
 
 /* Dispatcher note: same quoted style as the caller information, but tagged
    and tinted so units can tell "what the caller said" from "what dispatch
    told us". */
 .pd-note--dispatch {
-    border-left-color: rgba(59, 130, 246, 0.55);
+    border-left-color: rgba(21, 115, 237, 0.55);
     color: rgba(255, 255, 255, 0.8);
     font-style: normal;
 }
@@ -566,7 +579,7 @@ html, body {
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #93c5fd;
+    color: #5aaaff;
 }
 
 .pd-note-editor { display: flex; gap: 5px; margin-top: 7px; }
@@ -583,7 +596,7 @@ html, body {
     outline: none;
     transition: border-color 0.15s;
 }
-.pd-input:focus { border-color: rgba(59, 130, 246, 0.45); }
+.pd-input:focus { border-color: rgba(21, 115, 237, 0.45); }
 .pd-input::placeholder { color: rgba(255, 255, 255, 0.3); }
 
 /* Alert-type mute list inside the settings modal */
@@ -647,9 +660,9 @@ html, body {
 .pd-map-modal {
     width: min(860px, 88vw);
     background: rgba(26, 28, 33, 0.97);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(140, 140, 150, 0.35);
     border-radius: 6px;
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.65);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 24px 70px rgba(0, 0, 0, 0.65);
     overflow: hidden;
 }
 .pd-map-stage { position: relative; padding: 10px; }
@@ -739,8 +752,8 @@ html, body {
 }
 .pd-tab:hover { color: rgba(255, 255, 255, 0.6); }
 .pd-tab--active {
-    color: rgba(125, 211, 252, 0.9);
-    border-bottom-color: rgba(56, 189, 248, 0.55);
+    color: rgba(90, 170, 255, 0.9);
+    border-bottom-color: rgba(21, 115, 237, 0.55);
 }
 .pd-tab-count {
     display: inline-grid;
@@ -755,8 +768,8 @@ html, body {
     font-weight: 700;
 }
 .pd-tab--active .pd-tab-count {
-    background: rgba(56, 189, 248, 0.2);
-    color: rgba(125, 211, 252, 0.95);
+    background: rgba(21, 115, 237, 0.2);
+    color: rgba(90, 170, 255, 0.95);
 }
 /* A flagged plate is worth noticing from the other tab. */
 .pd-tab-count--alert {
@@ -969,7 +982,7 @@ html, body {
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: rgba(125, 211, 252, 0.95);
+    background: rgba(90, 170, 255, 0.95);
     cursor: pointer;
 }
 
@@ -989,7 +1002,7 @@ html, body {
 }
 .pd-scale-btn:hover { color: rgba(255, 255, 255, 0.8); }
 .pd-scale-btn--active {
-    background: rgba(56, 189, 248, 0.16);
-    border-color: rgba(56, 189, 248, 0.3);
-    color: rgba(125, 211, 252, 0.95);
+    background: rgba(21, 115, 237, 0.16);
+    border-color: rgba(21, 115, 237, 0.3);
+    color: rgba(90, 170, 255, 0.95);
 }

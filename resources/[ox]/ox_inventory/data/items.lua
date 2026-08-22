@@ -1105,4 +1105,13 @@ return {
     label = "Milkshake", weight = 380, stack = true, close = true, rarity = "rare",
     client = { image = "burger-milkshake.png", status = { thirst = 220000, hunger = 40000 }, anim = { dict = "mp_player_intdrink", clip = "loop_bottle" }, prop = { model = `prop_ld_can_01`, pos = vec3(0.01, 0.01, 0.06), rot = vec3(5.0, 5.0, -180.5) }, usetime = 2500, notification = "You drank a Milkshake" },
 },
+
+-- crazy-reputation: opens the civilian reputation tablet UI.
+["tablet"] = {
+    label = "Tablet",
+    weight = 500,
+    stack = false,
+    close = true,
+    client = { image = "tablet.png" },
+},
 }

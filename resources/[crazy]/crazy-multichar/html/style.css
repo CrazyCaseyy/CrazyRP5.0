@@ -65,79 +65,146 @@ html, body {
 
 #app > * { pointer-events: auto; }
 
-.topbar {
+.brand-mark { color: var(--ox-blue); }
+
+/* ---- character dossier ---- */
+/* No panel box anymore - floats directly over the previewed character,
+   same treatment as the spawn-location title/list. Text gets a dark
+   drop-shadow instead so it stays legible against whatever's behind it.
+   Doubles as the top-left title now that there's no separate topbar. */
+.info-panel {
   position: absolute;
   top: 24px;
   left: 24px;
   z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 8px 14px;
-  background: var(--ox-panel-strong);
-  border: 1px solid var(--ox-border-strong);
-  border-radius: var(--ox-radius);
-  box-shadow: var(--ox-glow);
-  font-family: var(--font-display);
-  font-size: 13px;
-  letter-spacing: 0.08em;
+  width: 340px;
+  max-width: calc(100vw - 48px);
 }
 
-.brand { display: flex; align-items: center; gap: 8px; font-weight: 600; }
-.brand-mark { color: var(--ox-blue); }
-.slot-count { color: var(--ox-text-dim); font-size: 11px; }
-.slot-count span { color: var(--ox-text); }
+.info-header {
+  margin-bottom: 16px;
+}
 
-/* ---- character dossier ---- */
-.info-panel {
-  position: absolute;
-  left: 50%;
-  bottom: 230px;
-  transform: translateX(-50%);
-  z-index: 2;
-  width: 420px;
-  max-width: calc(100vw - 48px);
-  padding: 16px 20px;
-  background: var(--ox-panel);
-  border: 1px solid var(--ox-border);
-  border-radius: var(--ox-radius);
-  box-shadow: var(--ox-glow);
+.info-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .info-title {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 20px;
-  text-align: center;
-  margin-bottom: 12px;
+  font-size: 36px;
+  line-height: 1.15;
   color: var(--ox-text);
+  text-transform: uppercase;
+  overflow-wrap: break-word;
+  text-shadow: 0 0 12px rgba(21, 115, 237, 0.55), 0 2px 6px rgba(0, 0, 0, 0.85);
+}
+
+.info-gender-icon {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  color: var(--ox-text);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.85));
+}
+
+.info-gender-icon svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.info-subtitle {
+  margin-top: 4px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--ox-blue);
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.85);
 }
 
 .info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px 18px;
+  gap: 20px 14px;
 }
 
 .info-field {
   display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* Hexagonal badge to match crazy-hud's own icon rings (its health/hunger/
+   thirst/mic badges use a hex progress path, not a plain circle - see
+   crazy-hud/html/index.html's #hexProgressPath).
+
+   A plain CSS `border` only shows up where the clip-path boundary happens
+   to run along the element's actual rectangular edge - the hexagon's four
+   diagonal edges aren't part of that rectangle, so they got no border at
+   all (the partial/broken outline in the screenshot). Faked properly
+   instead with two stacked, independently-clipped layers: the outer one
+   is solid blue and IS the "border" color, the inner one (inset by the
+   border width) is the real background sitting on top of it, leaving a
+   clean hex-shaped ring visible all the way around. */
+.info-icon {
+  position: relative;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ox-badge-border);
+  filter: drop-shadow(0 0 4px rgba(21, 115, 237, 0.6));
+  color: var(--ox-blue);
+}
+
+.info-icon::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: var(--ox-panel-strong);
+}
+
+.info-icon svg {
+  position: relative;
+  z-index: 1;
+  width: 25px;
+  height: 25px;
+  overflow: visible;
+}
+
+.info-text {
+  display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
+  min-width: 0;
 }
 
 .info-field .label {
   font-family: var(--font-display);
-  font-size: 10px;
+  font-size: 9px;
+  font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--ox-text-dim);
   text-transform: uppercase;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
 .info-field .value {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--ox-text);
-  font-weight: 500;
+  font-weight: 700;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
   overflow-wrap: break-word;
+  word-break: break-all;
 }
 
 /* ---- empty-slot panel ---- */
@@ -145,32 +212,27 @@ html, body {
    focused slot has no character yet. */
 .empty-panel {
   position: absolute;
-  left: 50%;
-  bottom: 230px;
-  transform: translateX(-50%);
+  top: 24px;
+  left: 24px;
   z-index: 2;
-  width: 420px;
+  width: 340px;
   max-width: calc(100vw - 48px);
-  padding: 20px;
-  text-align: center;
-  background: var(--ox-panel);
-  border: 1px solid var(--ox-border);
-  border-radius: var(--ox-radius);
-  box-shadow: var(--ox-glow);
 }
 
 .empty-title {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 20px;
+  font-size: 28px;
   letter-spacing: 0.06em;
   color: var(--ox-text-dim);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.85);
 }
 
 .empty-sub {
   margin-top: 8px;
   font-size: 13px;
   color: var(--ox-text-dim);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
 /* ---- slot switcher ---- */
@@ -179,9 +241,8 @@ html, body {
    inset highlight ring and soft glow when the slot is focused. */
 .slot-switcher {
   position: absolute;
-  left: 50%;
+  left: 24px;
   bottom: 32px;
-  transform: translateX(-50%);
   z-index: 2;
   display: flex;
   gap: 10px;
@@ -219,12 +280,19 @@ html, body {
 /* ---- dock ---- */
 .dock {
   position: absolute;
-  left: 50%;
-  bottom: 156px;
-  transform: translateX(-50%);
+  left: 24px;
+  bottom: 92px;
   z-index: 2;
   display: flex;
-  gap: 10px;
+  gap: 12px;
+}
+
+/* Bigger than the shared .dock-btn base (which the modal buttons — CANCEL/
+   NEXT/MOVE IN/etc — also use and shouldn't grow) — scoped to just the
+   two main-screen action buttons. */
+.dock .dock-btn {
+  font-size: 15px;
+  padding: 15px 34px;
 }
 
 .dock-btn {
@@ -409,10 +477,7 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  max-height: 300px;
-  overflow-y: auto;
   margin-top: 4px;
-  padding-right: 2px;
 }
 
 .spawn-card {
@@ -421,19 +486,19 @@ html, body {
   gap: 4px;
   padding: 12px 14px;
   background: var(--ox-panel);
-  border: 1px solid var(--ox-border);
+  border: 2px solid var(--ox-border);
   border-radius: var(--ox-radius-sm);
   cursor: pointer;
   transition: background-color 200ms, border-color 200ms;
 }
 
 .spawn-card:hover {
-  background: rgba(21, 115, 237, 0.2);
-  border-color: var(--ox-blue);
+  background: var(--ox-blue);
+  border-color: var(--ox-badge-border);
 }
 
 .spawn-card.selected {
-  background: rgba(21, 115, 237, 0.25);
+  background: var(--ox-blue);
   border-color: var(--ox-badge-border);
   box-shadow: var(--ox-badge-glow);
 }
@@ -448,4 +513,52 @@ html, body {
 .spawn-card .spawn-blurb {
   font-size: 12px;
   color: var(--ox-text-dim);
+}
+
+/* ---- spawn-location preview screen ---- */
+/* Wrapper is just a positioning layer (no dark scrim like .modal) so the
+   hovering preview camera behind it stays fully visible - only the panel
+   itself is opaque. */
+.spawn-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  pointer-events: none;
+}
+
+.spawn-screen > * {
+  pointer-events: auto;
+}
+
+/* No background box anymore - just the text floating over the preview,
+   with a soft blue glow standing in for the panel that used to sit
+   behind it (plus a dark drop-shadow so it stays readable against a
+   bright sky/city background). */
+.spawn-title {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--ox-text);
+  text-shadow: 0 0 12px rgba(21, 115, 237, 0.7), 0 2px 6px rgba(0, 0, 0, 0.85);
+}
+
+.spawn-panel {
+  position: absolute;
+  top: 64px;
+  left: 24px;
+  width: 320px;
+  max-width: calc(100vw - 48px);
+}
+
+.spawn-confirm {
+  width: 100%;
+  margin-top: 16px;
 }

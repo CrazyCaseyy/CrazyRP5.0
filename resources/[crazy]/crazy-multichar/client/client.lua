@@ -38,10 +38,15 @@ end
 local orbitActive = false
 
 -- How far above the ped's feet (Config.SpawnPoint.z) the camera aims —
--- roughly chest/eye height on a standing adult ped. Pointing at literal
--- ground level was tilting the camera down at the character instead of
--- looking straight at them.
-local PREVIEW_LOOK_HEIGHT = 1.5
+-- shin height (0.6) cropped their head off; raised to waist height. At
+-- the current 1.9m distance / 57° FOV, this centers the frame so the
+-- whole character (head to shoes) fits without needing to zoom out.
+local PREVIEW_LOOK_HEIGHT = 0.9
+
+-- Slightly wider than DEFAULT_SCRIPTED_CAMERA's own default FOV (~50) so
+-- the frame has enough vertical room for the whole character, head to
+-- shoes, without needing to back the camera further away.
+local PREVIEW_FOV = 57.0
 
 local function CreateSelectCamera()
     local c = Config.CameraPoint
@@ -49,6 +54,7 @@ local function CreateSelectCamera()
     cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
     SetCamCoord(cam, c.x, c.y, c.z)
     PointCamAtCoord(cam, sp.x, sp.y, sp.z + PREVIEW_LOOK_HEIGHT)
+    SetCamFov(cam, PREVIEW_FOV)
     SetCamActive(cam, true)
     RenderScriptCams(true, true, Config.FadeTime, true, true)
 
@@ -115,6 +121,121 @@ local function FindSpawnLocation(locationId)
 end
 
 -- ===================================================================
+-- Spawn-location preview
+-- A scripted camera hovers directly over whichever spawn location is
+-- currently picked, so the player can actually see where they're about
+-- to end up instead of choosing blind. The player is moved into their
+-- own solo routing bucket for this (see server/server.lua) so the real
+-- map geometry is visible but no other real players/peds/vehicles are -
+-- a floating camera near real spawn points would otherwise double as a
+-- way to scout other players before ever loading in.
+-- ===================================================================
+
+-- Set while an existing character is between "selected" and "actually
+-- placed in the world" — waiting on the player to pick a spawn location in
+-- the modal_spawn NUI. Holds the character record so the 'apartment'
+-- (useSavedPosition) option has somewhere to read the saved position from.
+local pendingExistingCharacter = nil
+
+local function ResolveSpawnLocationPos(locationId)
+    local location = FindSpawnLocation(locationId)
+    if not location then return nil end
+    if location.useSavedPosition then
+        return pendingExistingCharacter and pendingExistingCharacter.position or nil
+    end
+    return location.coords
+end
+
+local spawnPreviewCam = nil
+
+-- Height above the location and downward pitch for the hovering preview
+-- shot - high up and pitched almost straight down for a true top-down
+-- "hovering over the city" view (not quite -90 to sidestep any pitch
+-- gimbal weirdness exactly at straight down).
+local SPAWN_PREVIEW_HEIGHT = 220.0
+local SPAWN_PREVIEW_PITCH = -89.0
+
+-- How long a switch between two spawn-location previews takes to glide
+-- from one to the other, instead of just cutting.
+local SPAWN_PREVIEW_TRANSITION_MS = 900
+
+-- A scripted camera hovering 220m up is far outside the game's normal
+-- "load detail around the player" radius, so without help the world under
+-- it renders in low-LOD/pop-in for a moment. SetFocusArea tells the
+-- streaming system to also prioritize high-detail loading around THIS
+-- point (the same mechanism cutscene/spectator cameras rely on), and
+-- RequestCollisionAtCoord gets the ground/roads themselves streamed in
+-- too - both cleared via ClearFocus/RemoveCollisionRequests once the
+-- preview ends so streaming goes back to centering on the player.
+local function FocusStreamingAt(pos)
+    if not pos then return end
+    SetFocusArea(pos.x, pos.y, pos.z, 0.0, 0.0, 0.0)
+    RequestCollisionAtCoord(pos.x, pos.y, pos.z)
+end
+
+local function MakeSpawnPreviewCam(pos)
+    local newCam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
+    SetCamCoord(newCam, pos.x, pos.y, pos.z + SPAWN_PREVIEW_HEIGHT)
+    SetCamRot(newCam, SPAWN_PREVIEW_PITCH, 0.0, pos.w or 0.0, 2)
+    return newCam
+end
+
+-- First call (no camera up yet) just activates the cam directly and fades
+-- the screen onto it. Every call after that swaps to a freshly-positioned
+-- second camera with SetCamActiveWithInterp, so switching between
+-- locations glides smoothly instead of teleporting - the old camera is
+-- destroyed once the blend finishes.
+local function SetSpawnPreviewCamPos(pos)
+    if not pos then return end
+
+    FocusStreamingAt(pos)
+    local newCam = MakeSpawnPreviewCam(pos)
+
+    if spawnPreviewCam then
+        local oldCam = spawnPreviewCam
+        SetCamActiveWithInterp(newCam, oldCam, SPAWN_PREVIEW_TRANSITION_MS, 1, 1)
+        spawnPreviewCam = newCam
+
+        CreateThread(function()
+            Wait(SPAWN_PREVIEW_TRANSITION_MS + 100)
+            DestroyCam(oldCam, false)
+        end)
+    else
+        SetCamActive(newCam, true)
+        spawnPreviewCam = newCam
+
+        -- Give the streaming system a moment's head start on the focus
+        -- area above before the fade-in actually reveals it.
+        Wait(300)
+
+        RenderScriptCams(true, true, Config.FadeTime, true, true)
+    end
+end
+
+local function CreateSpawnPreviewCamera(pos)
+    SetSpawnPreviewCamPos(pos)
+end
+
+local function DestroySpawnPreviewCamera()
+    if spawnPreviewCam then
+        RenderScriptCams(false, true, Config.FadeTime, true, true)
+        DestroyCam(spawnPreviewCam, false)
+        spawnPreviewCam = nil
+        ClearFocus()
+    end
+end
+
+-- Player's own server id doubles as a guaranteed-unique bucket number;
+-- bucket 0 is the shared world everyone else is in.
+local function EnterSoloBucket()
+    pcall(function() lib.callback.await('crazy-multichar:server:enterSoloBucket', false) end)
+end
+
+local function LeaveSoloBucket()
+    pcall(function() lib.callback.await('crazy-multichar:server:leaveSoloBucket', false) end)
+end
+
+-- ===================================================================
 -- Live preview ped
 -- Shows the player's own (frozen, invulnerable) ped in front of the
 -- camera during selection, updating it whenever a different slot is
@@ -159,6 +280,14 @@ local function UpdatePreviewPed(citizenId, gender)
     SetEntityCoords(ped, sp.x, sp.y, sp.z, false, false, false, true)
     SetEntityHeading(ped, sp.w)
     SetEntityVisible(ped, true, false)
+
+    -- Same scenario scully_emotemenu's own /e flex command plays
+    -- (shared/data/scenarios.lua) - a bit of personality while looking at
+    -- your character instead of just standing there. Scenarios loop on
+    -- their own once started, so this only needs (re)triggering here,
+    -- right after the ped potentially got swapped out by a model/
+    -- appearance change above.
+    TaskStartScenarioInPlace(ped, 'WORLD_HUMAN_MUSCLE_FLEX', 0, true)
 end
 
 -- ===================================================================
@@ -173,15 +302,16 @@ local function EndOurSelectionState()
 end
 
 local function FireLoadedEvents()
+    -- Bring crazy-hud back now that the player has actually spawned in —
+    -- see the matching hide call in OpenSelectUI(). This is the one choke
+    -- point every finalized spawn path (new character w/ apartment, new
+    -- character plain, existing character via selectSpawnLocation) runs
+    -- through, so it only needs wiring here, not at each call site.
+    TriggerEvent('core-hud:client:hidehud', true)
+
     TriggerServerEvent('QBCore:Server:OnPlayerLoaded')
     TriggerEvent('QBCore:Client:OnPlayerLoaded')
 end
-
--- Set while an existing character is between "selected" and "actually
--- placed in the world" — waiting on the player to pick a spawn location in
--- the modal_spawn NUI. Holds the character record so the 'apartment'
--- (useSavedPosition) option has somewhere to read the saved position from.
-local pendingExistingCharacter = nil
 
 local function SendSpawnLocationList()
     local list = {}
@@ -210,10 +340,25 @@ local function SpawnSelectedCharacter(charRecord, isNewCharacter)
         SetModelAsNoLongerNeeded(model)
 
         EndOurSelectionState()
-        -- Deliberately not calling UnlockPlayer()/DoScreenFadeIn yet — stays
-        -- frozen/faded-out until selectSpawnLocation below actually places
-        -- the player and finishes the reveal.
+
+        -- Ped isn't part of this scene at all (the camera hovers over the
+        -- city, not the character) - hide it so it can't end up visible in
+        -- some odd frame, and keep it out of the shared world while a
+        -- floating camera is up.
+        local ped = PlayerPedId()
+        SetEntityVisible(ped, false, false)
         pendingExistingCharacter = charRecord
+        EnterSoloBucket()
+
+        local firstLocation = Config.SpawnLocations[1]
+        local firstPos = (firstLocation and ResolveSpawnLocationPos(firstLocation.id)) or Config.SpawnPoint
+        CreateSpawnPreviewCamera(firstPos)
+
+        -- Unlike the rest of this function, we fade back IN here - the
+        -- whole point is to actually show the player the hovering preview
+        -- while they pick, not stay on a black screen until they confirm.
+        DoScreenFadeIn(Config.FadeTime)
+
         SetNuiFocus(true, true)
         SendSpawnLocationList()
         return
@@ -300,6 +445,12 @@ local function OpenSelectUI()
     inSelect = true
 
     Debug('OpenSelectUI() started')
+
+    -- crazy-hud can already be showing here — e.g. reopening this screen
+    -- via /crazy_multichar_open while already loaded in, or a leftover
+    -- state from a previous session. Hidden now, restored in
+    -- FireLoadedEvents() once the player actually spawns back in.
+    TriggerEvent('core-hud:client:hidehud', false)
 
     if Config.UseSoloSession then
         Debug('starting solo tutorial session...')
@@ -418,21 +569,27 @@ RegisterNUICallback('selectCharacter', function(data, cb)
     cb('ok')
 end)
 
+-- Fired on every card click in the spawn-location list (not just the
+-- final confirm) - moves the hovering preview camera to that location so
+-- the player can see it before committing.
+RegisterNUICallback('previewSpawnLocation', function(data, cb)
+    local pos = ResolveSpawnLocationPos(data.id) or Config.SpawnPoint
+    SetSpawnPreviewCamPos(pos)
+    cb('ok')
+end)
+
 RegisterNUICallback('selectSpawnLocation', function(data, cb)
-    local location = FindSpawnLocation(data.id)
-    local pos = location and (location.useSavedPosition and pendingExistingCharacter and pendingExistingCharacter.position or location.coords)
+    local pos = ResolveSpawnLocationPos(data.id) or Config.SpawnPoint
+
+    DoScreenFadeOut(Config.FadeTime)
+    while not IsScreenFadedOut() do Wait(0) end
 
     local ped = PlayerPedId()
-    if pos and pos.x then
-        SetEntityCoords(ped, pos.x, pos.y, pos.z, false, false, false, true)
-        SetEntityHeading(ped, pos.w or 0.0)
-    else
-        -- Shouldn't happen (every configured location resolves to
-        -- something), but don't strand the player faded out if it does.
-        local sp = Config.SpawnPoint
-        SetEntityCoords(ped, sp.x, sp.y, sp.z, false, false, false, true)
-        SetEntityHeading(ped, sp.w)
-    end
+    SetEntityCoords(ped, pos.x, pos.y, pos.z, false, false, false, true)
+    SetEntityHeading(ped, pos.w or 0.0)
+
+    DestroySpawnPreviewCamera()
+    LeaveSoloBucket()
 
     SetNuiFocus(false, false)
     SendNUIMessage({ action = 'close' })
@@ -466,7 +623,16 @@ RegisterNUICallback('refreshCharacters', function(_, cb)
 end)
 
 AddEventHandler('onResourceStop', function(resource)
-    if resource == GetCurrentResourceName() and inSelect then
+    if resource ~= GetCurrentResourceName() then return end
+
+    -- inSelect is already false by the time the spawn-location preview is
+    -- up (EndOurSelectionState() clears it before that phase even starts),
+    -- so this cleanup can't be gated on it - always safe to call, both are
+    -- no-ops if neither was actually active.
+    DestroySpawnPreviewCamera()
+    LeaveSoloBucket()
+
+    if inSelect then
         UnlockPlayer()
         DestroySelectCamera()
         SetNuiFocus(false, false)

@@ -1,0 +1,374 @@
+/* Same design language as the rest of the server (ox_lib, crazy-hud,
+   crazy-multichar, ps-dispatch, ps-mdt): near-black translucent panels,
+   grey 3D-bevel borders (thin border + inset highlight ring + soft
+   shadow), #1573ed accent blue, Geom Graphic W03 display font. Framed in
+   an actual tablet bezel here since this is a standalone "device" UI, not
+   a HUD overlay. */
+
+@font-face {
+  font-family: 'Geom Graphic W03';
+  src: url('fonts/GeomGraphic.woff2') format('woff2');
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+:root {
+  --ox-blue: #1573ed;
+  --ox-badge-border: rgba(90, 170, 255, 0.75);
+  --ox-badge-glow: inset 0 0 0 2px rgba(255, 255, 255, 0.12), 0 0 4px rgba(21, 115, 237, 0.3);
+  --ox-panel: rgba(15, 15, 18, 0.94);
+  --ox-panel-strong: rgba(15, 15, 18, 0.96);
+  --ox-border: rgba(140, 140, 150, 0.4);
+  --ox-border-strong: rgba(140, 140, 150, 0.55);
+  --ox-glow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 2px 6px rgba(0, 0, 0, 0.35);
+  --ox-text: #ffffff;
+  --ox-text-dim: #c9c9c9;
+
+  --font-display: 'Geom Graphic W03', 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+  font-family: var(--font-display);
+  color: var(--ox-text);
+}
+
+.hidden { display: none !important; }
+
+#app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tablet {
+  width: 1080px;
+  height: 740px;
+  max-width: 94vw;
+  max-height: 92vh;
+}
+
+.tablet-bezel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 26px 20px 20px;
+  background: #0a0a0c;
+  border-radius: 32px;
+  border: 2px solid var(--ox-border-strong);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 24px 70px rgba(0, 0, 0, 0.65),
+    0 0 60px rgba(21, 115, 237, 0.12);
+  display: flex;
+  flex-direction: column;
+}
+
+.tablet-camera {
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #1a1a1e;
+  box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(140, 140, 150, 0.25);
+}
+
+.tablet-screen {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: var(--ox-panel);
+  border: 1px solid var(--ox-border);
+  border-radius: 16px;
+  box-shadow: var(--ox-glow);
+  padding: 28px 32px 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.tablet-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ox-panel-strong);
+  border: 1px solid var(--ox-border);
+  border-radius: 6px;
+  color: var(--ox-text-dim);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 150ms, color 150ms, box-shadow 150ms;
+}
+.tablet-close:hover {
+  border-color: var(--ox-badge-border);
+  color: var(--ox-text);
+  box-shadow: var(--ox-badge-glow);
+}
+
+.tablet-header {
+  flex-shrink: 0;
+  margin-bottom: 20px;
+  padding-right: 40px;
+}
+
+.tablet-title {
+  font-size: 32px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ox-text);
+  text-shadow: 0 0 14px rgba(21, 115, 237, 0.5);
+}
+
+.tablet-subtitle {
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ox-blue);
+}
+
+.job-grid {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 6px;
+}
+
+.job-grid::-webkit-scrollbar { width: 6px; }
+.job-grid::-webkit-scrollbar-track { background: transparent; }
+.job-grid::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 3px; }
+.job-grid::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+
+.job-card {
+  flex-shrink: 0;
+  padding: 12px 14px;
+  background: var(--ox-panel-strong);
+  border: 1px solid var(--ox-border);
+  border-radius: 8px;
+  box-shadow: var(--ox-glow);
+  min-width: 0;
+}
+
+.job-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Same hex badge shape as crazy-multichar's dossier icons, matching
+   crazy-hud's own hex-ring badges. */
+.job-icon {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ox-blue);
+  filter: drop-shadow(0 0 4px rgba(21, 115, 237, 0.5));
+  color: #fff;
+}
+
+.job-icon::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: var(--ox-panel-strong);
+}
+
+.job-icon svg {
+  position: relative;
+  z-index: 1;
+  width: 19px;
+  height: 19px;
+  overflow: visible;
+}
+
+.job-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.job-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ox-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.job-rep-value {
+  margin-top: 4px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--ox-text-dim);
+}
+
+.job-chevron {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: var(--ox-text-dim);
+  transition: transform 150ms;
+}
+.job-chevron svg { width: 100%; height: 100%; }
+
+.job-card.expanded .job-chevron {
+  transform: rotate(180deg);
+  color: var(--ox-blue);
+}
+
+.job-levels {
+  max-height: 0;
+  overflow: hidden;
+  margin-top: 0;
+  transition: max-height 220ms ease, margin-top 220ms ease;
+}
+
+.job-card.expanded .job-levels {
+  max-height: 140px;
+  margin-top: 16px;
+}
+
+.job-level-track {
+  position: relative;
+  height: 28px;
+  padding: 0 4px;
+  margin-bottom: 30px;
+}
+
+.job-level-line {
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  right: 4px;
+  height: 3px;
+  transform: translateY(-50%);
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.job-level-line-fill {
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  height: 3px;
+  transform: translateY(-50%);
+  border-radius: 2px;
+  background: var(--ox-blue);
+  box-shadow: 0 0 6px rgba(21, 115, 237, 0.6);
+  transition: width 200ms ease;
+}
+
+.job-level-dots {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.job-level-dot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.job-level-dot-inner {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--ox-panel-strong);
+  border: 2px solid var(--ox-border);
+}
+
+.job-level-dot.is-done .job-level-dot-inner,
+.job-level-dot.is-current .job-level-dot-inner {
+  background: var(--ox-blue);
+  border-color: var(--ox-badge-border);
+  box-shadow: var(--ox-badge-glow);
+}
+
+.job-level-dot.is-current .job-level-dot-inner {
+  width: 15px;
+  height: 15px;
+}
+
+.job-level-dot-label {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 6px;
+  width: 64px;
+  text-align: center;
+  white-space: normal;
+  line-height: 1.2;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--ox-text-dim);
+  letter-spacing: 0.02em;
+}
+
+.job-level-dot.is-current .job-level-dot-label {
+  color: var(--ox-blue);
+}
+
+/* First/last dot labels are edge-anchored instead of centered, since a
+   centered label there would overflow past .job-levels' clipped bounds
+   and get cut off. */
+.job-level-dot:first-child .job-level-dot-label {
+  left: 0;
+  transform: none;
+  text-align: left;
+}
+
+.job-level-dot:last-child .job-level-dot-label {
+  left: auto;
+  right: 0;
+  transform: none;
+  text-align: right;
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px 0;
+  color: var(--ox-text-dim);
+  font-size: 13px;
+}

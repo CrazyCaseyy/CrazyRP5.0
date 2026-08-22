@@ -11,8 +11,12 @@ end
 forceConvarValue('chat_showJoins', 'false', 'qbx_chat:joinMessage')
 forceConvarValue('chat_showQuits', 'false', 'qbx_chat:quitMessage')
 
+-- Join/quit chat announcements disabled by default (empty string short-
+-- circuits both handlers below) - set the qbx_chat:joinMessage /
+-- qbx_chat:quitMessage convars in server.cfg to a real format string to
+-- turn them back on.
 AddEventHandler('playerJoining', function()
-    local joinMessage = GetConvar('qbx_chat:joinMessage', '^2%s joined the server')
+    local joinMessage = GetConvar('qbx_chat:joinMessage', '')
     if joinMessage == '' then
         return
     end
@@ -24,7 +28,7 @@ AddEventHandler('playerJoining', function()
 end)
 
 AddEventHandler('playerDropped', function(reason)
-    local quitMessage = GetConvar('qbx_chat:quitMessage', '^1%s left the server (%s)')
+    local quitMessage = GetConvar('qbx_chat:quitMessage', '')
     if quitMessage == '' then
         return
     end

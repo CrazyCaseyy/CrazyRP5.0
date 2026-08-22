@@ -28,13 +28,32 @@ const el = (id) => document.getElementById(id);
 
 const app = el('app');
 const slotSwitcher = el('slot-switcher');
-const slotCountCurrent = el('slot-count-current');
-const slotCountMax = el('slot-count-max');
 const toast = el('toast');
 
 const infoPanel = el('info-panel');
 const infoName = el('info-name');
+const infoSubtitle = el('info-subtitle');
+const infoGenderIcon = el('info-gender-icon');
 const infoGrid = el('info-grid');
+
+// Small monochrome (currentColor) glyphs for each dossier field, sat inside
+// a circular badge (see .info-icon in style.css) — hand-rolled generic
+// shapes rather than an icon font/library, since this NUI page has no
+// external asset pipeline to pull one in through.
+const ICONS = {
+  male: '<svg viewBox="0 0 24 24"><circle cx="10" cy="14" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M14 10 20 4M15 4h5v5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  female: '<svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 14v7M8.5 18h7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  birthdate: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3 10h18M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  nationality: '<svg viewBox="0 0 24 24"><path d="M5 3v18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M5 4h13l-3 4 3 4H5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
+  account: '<svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M2 10h20" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
+  bank: '<svg viewBox="0 0 24 24"><path d="M3 10 12 4l9 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M4 10h16v9H4Z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 13v4M12 13v4M16 13v4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  cash: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><text x="12" y="16.5" font-size="11" text-anchor="middle" fill="currentColor" font-weight="700">$</text></svg>',
+  job: '<svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 8V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3 13h18" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
+  jobGrade: '<svg viewBox="0 0 24 24"><path d="m12 2 2.47 5.6 6.03.57-4.55 4.06 1.33 5.94L12 15.1l-5.28 3.07 1.33-5.94-4.55-4.06 6.03-.57Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
+  gang: '<svg viewBox="0 0 24 24"><path d="M12 3 20 6.5V11c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6.5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
+  gangGrade: '<svg viewBox="0 0 24 24"><path d="M5 10.5 12 5l7 5.5M5 15.5 12 10l7 5.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  phone: '<svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 18h2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+};
 
 const emptyPanel = el('empty-panel');
 const emptyTitle = el('empty-title');
@@ -60,8 +79,11 @@ const btnApartmentConfirm = el('btn-apartment-confirm');
 
 const modalDelete = el('modal-delete');
 const deleteCharName = el('delete-char-name');
+const inputDeleteConfirm = el('input-delete-confirm');
 const btnDeleteCancel = el('btn-delete-cancel');
 const btnDeleteConfirm = el('btn-delete-confirm');
+
+const DELETE_CONFIRM_WORD = 'confirm';
 
 const modalSpawn = el('modal-spawn');
 const spawnList = el('spawn-list');
@@ -100,7 +122,7 @@ function setBusy(busy) {
   btnDelete.disabled = busy || !hasSelection;
   btnIdentityNext.disabled = busy;
   btnApartmentConfirm.disabled = busy || !state.selectedApartmentId;
-  btnDeleteConfirm.disabled = busy;
+  btnDeleteConfirm.disabled = busy || inputDeleteConfirm.value.trim().toLowerCase() !== DELETE_CONFIRM_WORD;
 }
 
 function escapeHtml(str) {
@@ -137,9 +159,6 @@ function renderSlotSwitcher() {
     btn.addEventListener('click', () => focusSlot(i));
     slotSwitcher.appendChild(btn);
   }
-
-  slotCountCurrent.textContent = state.characters.length;
-  slotCountMax.textContent = state.maxSlots;
 }
 
 // Focuses one slot at a time — previews that character (or the default
@@ -179,26 +198,30 @@ function renderInfoPanel(charRecord) {
   const { charinfo = {}, money = {}, job, gang } = charRecord;
 
   infoName.textContent = `${charinfo.firstname || ''} ${charinfo.lastname || ''}`.trim() || '—';
+  infoSubtitle.textContent = `CHARACTER ${state.focusedSlot} / ${state.maxSlots}`;
+  infoGenderIcon.innerHTML = Number(charinfo.gender) === 1 ? ICONS.female : ICONS.male;
 
   const fields = [
-    ['Gender', genderLabel(charinfo.gender)],
-    ['Birthdate', charinfo.birthdate || '—'],
-    ['Nationality', charinfo.nationality || '—'],
-    ['Account Number', charinfo.account || '—'],
-    ['Bank', `$${groupDigits(money.bank)}`],
-    ['Cash', `$${groupDigits(money.cash)}`],
-    ['Job', job?.label || 'Unemployed'],
-    ['Job Grade', job?.grade?.name || '—'],
-    ['Gang', gang?.label || 'None'],
-    ['Gang Grade', gang?.grade?.name || '—'],
-    ['Phone Number', charinfo.phone || '—'],
+    [ICONS.birthdate, 'Birthdate', charinfo.birthdate || '—'],
+    [ICONS.nationality, 'Nationality', charinfo.nationality || '—'],
+    [ICONS.account, 'Account Number', charinfo.account || '—'],
+    [ICONS.bank, 'Bank', `$${groupDigits(money.bank)}`],
+    [ICONS.cash, 'Cash', `$${groupDigits(money.cash)}`],
+    [ICONS.job, 'Job', job?.label || 'Unemployed'],
+    [ICONS.jobGrade, 'Job Grade', job?.grade?.name || '—'],
+    [ICONS.gang, 'Gang', gang?.label || 'None'],
+    [ICONS.gangGrade, 'Gang Grade', gang?.grade?.name || '—'],
+    [ICONS.phone, 'Phone Number', charinfo.phone || '—'],
   ];
 
   infoGrid.innerHTML = fields
-    .map(([label, value]) => `
+    .map(([icon, label, value]) => `
       <div class="info-field">
-        <div class="label">${escapeHtml(label)}</div>
-        <div class="value">${escapeHtml(String(value))}</div>
+        <div class="info-icon">${icon}</div>
+        <div class="info-text">
+          <div class="label">${escapeHtml(label)}</div>
+          <div class="value">${escapeHtml(String(value))}</div>
+        </div>
       </div>
     `)
     .join('');
@@ -307,8 +330,12 @@ btnDelete.addEventListener('click', () => {
   const charRecord = state.characters.find((c) => c.citizenid === state.selectedCitizenId);
   const name = charRecord ? `${charRecord.charinfo?.firstname || ''} ${charRecord.charinfo?.lastname || ''}`.trim() : 'this character';
   deleteCharName.textContent = name;
+  inputDeleteConfirm.value = '';
+  setBusy(state.busy);
   modalDelete.classList.remove('hidden');
 });
+
+inputDeleteConfirm.addEventListener('input', () => setBusy(state.busy));
 
 btnDeleteCancel.addEventListener('click', () => modalDelete.classList.add('hidden'));
 
@@ -345,11 +372,19 @@ function renderSpawnLocations() {
       card.classList.add('selected');
       state.selectedSpawnId = loc.id;
       btnSpawnConfirm.disabled = false;
+      // Swaps the hovering preview camera to this location - client.lua
+      // just moves it in place, no fade, since this is meant to respond
+      // instantly to picking a different option.
+      nuiPost('previewSpawnLocation', { id: loc.id });
     });
     spawnList.appendChild(card);
-
-    if (state.spawnLocations.length === 1) card.click();
   });
+
+  // First option is focused by default so the preview camera has
+  // something to show as soon as the screen appears, not an empty
+  // unselected list.
+  const firstCard = spawnList.querySelector('.spawn-card');
+  if (firstCard) firstCard.click();
 }
 
 function openSpawnModal(locations) {

@@ -11,13 +11,13 @@ Config.Debug = true
 -- position after you pick one.
 Config.SpawnPoint = vector4(-1035.71, -2731.87, 12.86, 180.0)
 
--- Positioned directly in front of the ped (2m along its facing direction
--- for heading 180 — forward = (-sin(180), cos(180)) = (0, -1)) at roughly
--- chest/eye height, so the camera looks straight at the character's face
--- close-up instead of down at them from an angle. See client.lua's
--- CreateSelectCamera — it aims this at Config.SpawnPoint's chest height,
--- not literal ground level, to match.
-Config.CameraPoint = vector4(-1035.71, -2733.87, 14.41, 0.0)
+-- Positioned directly in front of the ped (still 1.9m along its facing
+-- direction for heading 180 — forward = (-sin(180), cos(180)) = (0, -1),
+-- unchanged). Camera height (z) is now ABOVE the look-at target (which
+-- stays at waist height — see client.lua's PREVIEW_LOOK_HEIGHT) so
+-- PointCamAtCoord naturally tilts the shot down at the character from
+-- slightly above, instead of a flat level shot.
+Config.CameraPoint = vector4(-1035.71, -2733.77, 14.16, 0.0)
 
 -- Slow orbiting showcase camera around the previewed character while the
 -- select screen is open. Disabled — the constant spin made it hard to
@@ -126,14 +126,14 @@ Config.Apartments = {
 -- players table says they last were" (their apartment/last logout spot),
 -- not a fixed coordinate — there's nothing else to configure for it.
 --
--- Legion Square and MRPD coords are the exact values already used
--- elsewhere on this server (qbx_spawn/config/client.lua and
--- qbx_police/config/shared.lua's Mission Row station), not new guesses.
+-- Legion Square coords are the exact values already used elsewhere on
+-- this server (qbx_spawn/config/client.lua). MRPD/City Hall/Apartments/
+-- Hospital coords were supplied directly.
 -- ===================================================================
 Config.SpawnLocations = {
     {
         id = 'apartment',
-        label = 'Your Apartment',
+        label = 'Last Location',
         blurb = 'Wake up where you last logged out.',
         useSavedPosition = true
     },
@@ -147,6 +147,24 @@ Config.SpawnLocations = {
         id = 'mrpd',
         label = 'MRPD',
         blurb = 'Mission Row Police Station.',
-        coords = vector4(434.0, -983.0, 30.7, 90.0)
+        coords = vector4(435.51, -970.26, 29.72, 178.21)
+    },
+    {
+        id = 'cityhall',
+        label = 'City Hall',
+        blurb = 'Los Santos City Hall, in the heart of downtown.',
+        coords = vector4(-574.45, -633.31, 30.17, 87.17)
+    },
+    {
+        id = 'apartments',
+        label = 'Apartments',
+        blurb = 'A quiet apartment complex away from downtown.',
+        coords = vector4(-268.82, -956.04, 30.22, 203.66)
+    },
+    {
+        id = 'hospital',
+        label = 'Hospital',
+        blurb = 'Pillbox Hill Medical Center.',
+        coords = vector4(-0.41, -410.33, 38.27, 253.36)
     }
 }
