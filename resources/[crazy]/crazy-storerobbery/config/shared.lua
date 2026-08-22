@@ -35,10 +35,28 @@ return {
     -- it's started.
     cancelDistance = 15.0,
 
-    -- Add more entries here for more robbable stores - starting with just one.
+    -- One entry per robbable 24/7 / Rob's Liquor. Coords are the cashier spot
+    -- inside each store, taken from the register positions already mapped out
+    -- in qbx_storerobbery's config - adjust headings/positions to taste in-game.
     stores = {
-        {
-            coords = vec4(25.7, -1347.3, 29.49, 0.0), -- Rob's Liquor, Strawberry - adjust to taste in-game
-        },
+        { coords = vec4(25.7, -1347.3, 29.49, 0.0) },      -- Strawberry
+        { coords = vec4(-706.12, -914.46, 19.21, 0.0) },   -- Davis
+        { coords = vec4(-47.91, -1758.43, 29.56, 0.0) },
+        { coords = vec4(1164.88, -323.54, 69.2, 0.0) },
+        { coords = vec4(372.86, 327.52, 103.56, 0.0) },
+        { coords = vec4(-1819.54, 793.59, 138.08, 0.0) },
+        { coords = vec4(2556.05, 381.22, 108.62, 0.0) },
+        { coords = vec4(2677.05, 3279.96, 55.24, 0.0) },
+        { coords = vec4(1959.55, 3740.99, 32.34, 0.0) },
+        { coords = vec4(549.24, 2670.23, 42.15, 0.0) },
+        { coords = vec4(1728.36, 6416.2, 35.03, 0.0) },
+        { coords = vec4(1697.48, 4923.85, 42.06, 0.0) },
+        { coords = vec4(-3243.4, 1000.06, 12.83, 0.0) },
+        { coords = vec4(-3040.03, 584.19, 7.9, 0.0) },
+        { coords = vec4(-1222.03, -908.32, 12.32, 0.0) },
+        { coords = vec4(-1486.26, -378.0, 40.16, 0.0) },
+        { coords = vec4(1134.15, -982.53, 46.41, 0.0) },
+        { coords = vec4(1165.9, 2710.81, 38.15, 0.0) },
+        { coords = vec4(-2966.46, 390.89, 15.04, 0.0) },
     },
 }
