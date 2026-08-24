@@ -396,8 +396,108 @@ local function startRobbery(storeId, ped)
     robbingStoreId = nil
 end
 
+local activeSafes = {}
+local safeAvailableAt = {}
+local crackingSafe = false
+
+---Cancels the in-progress robbery once the player is config.vault.cancelDistance
+---from the safe - mirrors watchCancelDistance for the register robbery above.
+---@param safeCoords vector3
+local function watchVaultCancelDistance(safeCoords)
+    CreateThread(function()
+        while lib.progressActive() do
+            if #(GetEntityCoords(cache.ped) - safeCoords) > config.vault.cancelDistance then
+                lib.cancelProgress()
+                return
+            end
+
+            Wait(250)
+        end
+    end)
+end
+
+---@param storeId number
+---@param safeCoords vector3
+local function crackSafe(storeId, safeCoords)
+    if crackingSafe or robbing then return end
+
+    local canRob, reason = lib.callback.await('crazy-storerobbery:server:canRobVault', false, storeId)
+    if not canRob then
+        exports.qbx_core:Notify(locale(reason == 'locked' and 'notify.vault_locked' or 'notify.cooldown'), 'error')
+        return
+    end
+
+    crackingSafe = true
+
+    -- Fired at the start, same as the register - a heist that's already over
+    -- by the time police get the alert isn't one they can respond to.
+    exports['ps-dispatch']:CustomAlert({
+        dispatchCode = 'storerobbery',
+        message = 'Safe Cracking in Progress',
+        code = '10-90',
+        icon = 'fas fa-vault',
+        coords = safeCoords,
+        jobs = { 'leo' },
+    })
+
+    watchVaultCancelDistance(safeCoords)
+
+    local success = lib.progressBar({
+        duration = config.vault.duration,
+        label = locale('text.cracking'),
+        position = 'bottom',
+        canCancel = false,
+        disable = {
+            move = true,
+            car = true,
+        },
+        anim = config.vault.anim,
+    })
+
+    if success then
+        TriggerServerEvent('crazy-storerobbery:server:finishVault', storeId)
+        safeAvailableAt[storeId] = GetGameTimer() + config.vault.cooldown
+    else
+        TriggerServerEvent('crazy-storerobbery:server:failVault', storeId)
+        exports.qbx_core:Notify(locale('notify.vault_failed'), 'error')
+    end
+
+    crackingSafe = false
+end
+
+---@param store table
+---@param storeId number
+local function setupSafeZone(store, storeId)
+    if not store.safe or activeSafes[storeId] then return end
+
+    activeSafes[storeId] = true
+
+    -- No prop spawned - this sits on the cabinet the store's own map model
+    -- already has at this spot, not something crazy-storerobbery adds.
+    exports.ox_target:addBoxZone({
+        coords = store.safe,
+        size = vec3(1.0, 1.0, 1.5),
+        options = {
+            {
+                name = ('crazy-storerobbery:vault:%s'):format(storeId),
+                label = locale('target.crack_safe'),
+                icon = 'fa-solid fa-vault',
+                distance = 1.5,
+                canInteract = function()
+                    if crackingSafe or robbing then return false end
+                    local availableAt = safeAvailableAt[storeId]
+                    return not (availableAt and GetGameTimer() < availableAt)
+                end,
+                onSelect = function() crackSafe(storeId, store.safe) end,
+            },
+        },
+    })
+end
+
 local function setupStores()
     for i, store in ipairs(config.stores) do
+        setupSafeZone(store, i)
+
         local point = lib.points.new({
             coords = store.coords.xyz,
             distance = 25,

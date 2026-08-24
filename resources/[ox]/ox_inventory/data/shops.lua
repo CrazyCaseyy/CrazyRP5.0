@@ -165,5 +165,56 @@ return {
 		model = {
 			`prop_vend_soda_02`, `prop_vend_fridge01`, `prop_vend_water_01`, `prop_vend_soda_01`
 		}
+	},
+
+	-- Every robbable 24/7 / LTD / Rob's Liquor from crazy-storerobbery, with the
+	-- till placed right at the same clerkPos that resource spawns its cashier
+	-- at, so the legit shop counter and the robbery target are the same spot.
+	Store247 = {
+		name = '24/7',
+		blip = {
+			id = 59, colour = 69, scale = 0.8
+		}, inventory = {
+			{ name = 'water', price = 10 },
+			{ name = 'sprunk', price = 10 },
+			{ name = 'burger', price = 15 },
+			{ name = 'mustard', price = 5 },
+			{ name = 'lighter', price = 50 },
+			{ name = 'phone', price = 500 },
+		}, locations = {
+			vec3(-47.6, -1752.7, 28.43),   -- LTD Gasoline - Davis
+			vec3(378.79, 331.85, 102.57),  -- 247 - Clinton
+			vec3(29.52, -1340.25, 28.5),   -- 247 - Strawberry
+			vec3(2550.52, 385.98, 107.62), -- 247 - Palomino Fwy
+			vec3(1703.32, 4924.2, 41.07),  -- LTD - Grapeseed
+			vec3(-1825.54, 794.09, 137.18), -- LTD - Banham Canyon
+			vec3(-710.18, -910.05, 18.22), -- LTD - Little Seoul
+			vec3(1165.23, 2710.97, 37.16), -- Rob's Liquor - Harmony
+			vec3(1134.05, -983.33, 45.42), -- Rob's Liquor - El Rancho
+			vec3(-1221.32, -908.13, 11.33), -- Rob's Liquor - San Andreas
+			vec3(-1487.29, -376.92, 39.16), -- Rob's Liquor - Prosperity St
+			vec3(-2966.3, 391.58, 14.04),  -- Rob's Liquor - Great Ocean
+			vec3(2674.33, 3286.89, 54.24), -- 247 - Route 13
+			vec3(1734.94, 6419.33, 34.04), -- 247 - Senora Fwy
+			vec3(1960.57, 3748.25, 31.34), -- 247 - Sandy Shores
+			vec3(545.36, 2663.9, 41.16),   -- 247 - Route 68
+		}, targets = {
+			{ loc = vec3(-47.6, -1752.7, 28.43), length = 0.6, width = 0.5, heading = 135.92, minZ = 29.03, maxZ = 29.43, distance = 1.5 },
+			{ loc = vec3(378.79, 331.85, 102.57), length = 0.6, width = 0.5, heading = 169.71, minZ = 103.17, maxZ = 103.57, distance = 1.5 },
+			{ loc = vec3(29.52, -1340.25, 28.5), length = 0.6, width = 0.5, heading = 179.75, minZ = 29.1, maxZ = 29.5, distance = 1.5 },
+			{ loc = vec3(2550.52, 385.98, 107.62), length = 0.6, width = 0.5, heading = 266.44, minZ = 108.22, maxZ = 108.62, distance = 1.5 },
+			{ loc = vec3(1703.32, 4924.2, 41.07), length = 0.6, width = 0.5, heading = 53.61, minZ = 41.67, maxZ = 42.07, distance = 1.5 },
+			{ loc = vec3(-1825.54, 794.09, 137.18), length = 0.6, width = 0.5, heading = 225.62, minZ = 137.78, maxZ = 138.18, distance = 1.5 },
+			{ loc = vec3(-710.18, -910.05, 18.22), length = 0.6, width = 0.5, heading = 180.36, minZ = 18.82, maxZ = 19.22, distance = 1.5 },
+			{ loc = vec3(1165.23, 2710.97, 37.16), length = 0.6, width = 0.5, heading = 188.73, minZ = 37.76, maxZ = 38.16, distance = 1.5 },
+			{ loc = vec3(1134.05, -983.33, 45.42), length = 0.6, width = 0.5, heading = 282.59, minZ = 46.02, maxZ = 46.42, distance = 1.5 },
+			{ loc = vec3(-1221.32, -908.13, 11.33), length = 0.6, width = 0.5, heading = 37.3, minZ = 11.93, maxZ = 12.33, distance = 1.5 },
+			{ loc = vec3(-1487.29, -376.92, 39.16), length = 0.6, width = 0.5, heading = 153.55, minZ = 39.76, maxZ = 40.16, distance = 1.5 },
+			{ loc = vec3(-2966.3, 391.58, 14.04), length = 0.6, width = 0.5, heading = 86.15, minZ = 14.64, maxZ = 15.04, distance = 1.5 },
+			{ loc = vec3(2674.33, 3286.89, 54.24), length = 0.6, width = 0.5, heading = 236.61, minZ = 54.84, maxZ = 55.24, distance = 1.5 },
+			{ loc = vec3(1734.94, 6419.33, 34.04), length = 0.6, width = 0.5, heading = 152.51, minZ = 34.64, maxZ = 35.04, distance = 1.5 },
+			{ loc = vec3(1960.57, 3748.25, 31.34), length = 0.6, width = 0.5, heading = 207.41, minZ = 31.94, maxZ = 32.34, distance = 1.5 },
+			{ loc = vec3(545.36, 2663.9, 41.16), length = 0.6, width = 0.5, heading = 3.27, minZ = 41.76, maxZ = 42.16, distance = 1.5 },
+		}
 	}
 }

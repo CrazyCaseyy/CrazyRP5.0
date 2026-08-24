@@ -1,9 +1,16 @@
 {
     "text": {
-        "robbing": "Robbing Store..."
+        "robbing": "Robbing Store...",
+        "cracking": "Cracking Safe..."
+    },
+    "target": {
+        "crack_safe": "Crack Safe"
     },
     "notify": {
         "cooldown": "This store was robbed recently, try again later",
-        "success": "You got away with some cash rolls"
+        "success": "You got away with some cash rolls",
+        "vault_locked": "Rob the register first",
+        "vault_success": "You cracked the safe and grabbed a cash band",
+        "vault_failed": "You backed off - the safe locks down for a bit"
     }
 }

@@ -1030,6 +1030,11 @@ return {
     client = { image = "cash_rolls.png" },
 },
 
+["cash_band"] = {
+    label = "Cash Band", weight = 400, stack = true, close = true, rarity = "rare", description = "A bundled stack of bills cracked out of a store safe",
+    client = { image = "cashband.png" },
+},
+
 -- Burger Shot: raw stock, bought by employees from the business account at the supply point
 ["bs_bun"] = {
     label = "Burger Bun", weight = 40, stack = true, close = true, rarity = "common",

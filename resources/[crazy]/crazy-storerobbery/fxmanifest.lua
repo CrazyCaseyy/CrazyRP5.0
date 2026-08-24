@@ -3,11 +3,14 @@ game 'gta5'
 
 name 'crazy-storerobbery'
 author 'Crazy RP'
-description 'Store robbery - threaten the cashier with a weapon to rob the register'
+description 'Store robbery - threaten the cashier with a weapon to rob the register, or crack the back-room safe'
 
 ox_lib 'locale'
 
-dependency 'ps-dispatch'
+dependencies {
+    'ps-dispatch',
+    'ox_target',
+}
 
 shared_scripts {
     '@ox_lib/init.lua',
