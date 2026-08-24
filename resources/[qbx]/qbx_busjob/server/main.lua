@@ -37,5 +37,10 @@ RegisterNetEvent('qbx_busjob:server:NpcPay', function()
     if math.random(1, 100) < config.bonusChance then
         payment = payment + math.random(10, 20)
     end
+
+    local multiplier = exports['crazy-reputation']:GetPayoutMultiplier(src, 'bus')
+    payment = math.floor(payment * multiplier)
+
     player.Functions.AddMoney('cash', payment)
+    exports['crazy-reputation']:AddReputation(src, 'bus', 1)
 end)

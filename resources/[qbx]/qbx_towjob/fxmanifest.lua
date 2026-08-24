@@ -28,3 +28,4 @@ files {
 provide 'qb-towjob'
 lua54 'yes'
 use_experimental_fxv2_oal 'yes'
+dependency 'crazy-reputation'

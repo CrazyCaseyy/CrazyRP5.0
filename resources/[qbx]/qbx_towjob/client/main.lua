@@ -214,48 +214,43 @@ RegisterNetEvent('qb-tow:client:SpawnVehicle', function()
     end
 end)
 
+-- No longer requires the tow job - elements are created once for everyone
+-- and don't need recreating on a job change any more.
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    if PlayerJob.name == "tow" then
-        CreateElements()
-    end
+    CreateElements()
 end)
 
 RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
     PlayerJob = JobInfo
-
-    if PlayerJob.name == "tow" then
-        CreateElements()
-    end
 end)
 
+-- No longer requires the tow job - anyone can toggle a tow spot.
 RegisterNetEvent('jobs:client:ToggleNpc', function()
-    if QBX.PlayerData.job.name == "tow" then
-        if CurrentTow then
-            exports.qbx_core:Notify(locale("error.finish_work"), "error")
-            return
-        end
-        NpcOn = not NpcOn
-        if NpcOn then
-            local randomLocation = getRandomVehicleLocation()
-            CurrentLocation.x = sharedConfig.locations["towspots"][randomLocation].coords.x
-            CurrentLocation.y = sharedConfig.locations["towspots"][randomLocation].coords.y
-            CurrentLocation.z = sharedConfig.locations["towspots"][randomLocation].coords.z
-            CurrentLocation.model = sharedConfig.locations["towspots"][randomLocation].model
-            CurrentLocation.id = randomLocation
-            CreateZone("towspots", randomLocation)
+    if CurrentTow then
+        exports.qbx_core:Notify(locale("error.finish_work"), "error")
+        return
+    end
+    NpcOn = not NpcOn
+    if NpcOn then
+        local randomLocation = getRandomVehicleLocation()
+        CurrentLocation.x = sharedConfig.locations["towspots"][randomLocation].coords.x
+        CurrentLocation.y = sharedConfig.locations["towspots"][randomLocation].coords.y
+        CurrentLocation.z = sharedConfig.locations["towspots"][randomLocation].coords.z
+        CurrentLocation.model = sharedConfig.locations["towspots"][randomLocation].model
+        CurrentLocation.id = randomLocation
+        CreateZone("towspots", randomLocation)
 
-            CurrentBlip = AddBlipForCoord(CurrentLocation.x, CurrentLocation.y, CurrentLocation.z)
-            SetBlipColour(CurrentBlip, 3)
-            SetBlipRoute(CurrentBlip, true)
-            SetBlipRouteColour(CurrentBlip, 3)
-        else
-            if DoesBlipExist(CurrentBlip) then
-                RemoveBlip(CurrentBlip)
-                CurrentLocation = {}
-                CurrentBlip = nil
-            end
-            VehicleSpawned = false
+        CurrentBlip = AddBlipForCoord(CurrentLocation.x, CurrentLocation.y, CurrentLocation.z)
+        SetBlipColour(CurrentBlip, 3)
+        SetBlipRoute(CurrentBlip, true)
+        SetBlipRouteColour(CurrentBlip, 3)
+    else
+        if DoesBlipExist(CurrentBlip) then
+            RemoveBlip(CurrentBlip)
+            CurrentLocation = {}
+            CurrentBlip = nil
         end
+        VehicleSpawned = false
     end
 end)
 

@@ -1,14 +1,24 @@
--- Reputation UI - job list source, no reputation tracking yet (this is the
--- UI-only pass; real per-player rep values are a separate follow-up build).
+-- Reputation UI - job list source, with each job's real level/XP progress
+-- attached from the reputation store (server/reputation.lua).
 
----@return { name: string, label: string }[]
-local function GetCivilianJobs()
+---@param source number
+---@return { name: string, label: string, level: number, xp: number, xpIntoLevel: number, xpForNextLevel: number, maxLevel: number }[]
+local function GetCivilianJobs(source)
     local jobs = exports.qbx_core:GetJobs()
     local list = {}
 
     for name, job in pairs(jobs) do
         if Config.IncludedJobs[name] then
-            list[#list + 1] = { name = name, label = job.label or name }
+            local state = Reputation.GetState(source, name)
+            list[#list + 1] = {
+                name = name,
+                label = job.label or name,
+                level = state.level,
+                xp = state.xp,
+                xpIntoLevel = state.xpIntoLevel,
+                xpForNextLevel = state.xpForNextLevel,
+                maxLevel = state.maxLevel,
+            }
         end
     end
 
@@ -16,8 +26,8 @@ local function GetCivilianJobs()
     return list
 end
 
-lib.callback.register('crazy-reputation:server:getCivilianJobs', function(_)
-    return GetCivilianJobs()
+lib.callback.register('crazy-reputation:server:getCivilianJobs', function(source)
+    return GetCivilianJobs(source)
 end)
 
 -- Same pattern qbx_idcard uses for its item (bridge/framework/qbox.lua):

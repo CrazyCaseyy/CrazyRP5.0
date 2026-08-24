@@ -136,8 +136,12 @@ RegisterNetEvent('garbagejob:server:payShift', function(continue)
             payoutDeposit = ''
         end
 
+        local multiplier = exports['crazy-reputation']:GetPayoutMultiplier(src, 'garbage')
+        totalToPay = math.floor(totalToPay * multiplier)
+
         player.Functions.AddMoney('bank', totalToPay , 'garbage-payslip')
         exports.qbx_core:Notify(src, locale('success.pay_slip', totalToPay, payoutDeposit), 'success')
+        exports['crazy-reputation']:AddReputation(src, 'garbage', 1)
         routes[citizenId] = nil
     else
         exports.qbx_core:Notify(source, locale('error.never_clocked_on'), 'error')

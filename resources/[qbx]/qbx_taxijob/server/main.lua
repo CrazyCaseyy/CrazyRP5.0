@@ -6,13 +6,9 @@ local ITEMS = exports.ox_inventory:Items()
 
 local lastPayTime = {}
 
+-- No longer requires the taxi job - anyone can drive a cab.
 local function getPlayerWithTaxiJob(src)
-    local player = exports.qbx_core:GetPlayer(src)
-    if not player then return nil end
-    if player.PlayerData.job.name ~= 'taxi' then
-        return nil
-    end
-    return player
+    return exports.qbx_core:GetPlayer(src)
 end
 
 local function nearDeliverLocation(src)
@@ -137,7 +133,11 @@ RegisterNetEvent('qb-taxi:server:NpcPay', function(payment)
     end
     paymentAmount = math.min(paymentAmount, config.maxFare + 20)
 
+    local multiplier = exports['crazy-reputation']:GetPayoutMultiplier(src, 'taxi')
+    paymentAmount = math.floor(paymentAmount * multiplier)
+
     player.Functions.AddMoney('cash', paymentAmount)
+    exports['crazy-reputation']:AddReputation(src, 'taxi', 1)
     lastPayTime[src] = now
     if config.chanceItemEnabled and config.chanceItem and config.chancePercent and config.chancePercent > 0 then
         local chance = math.random(1, 100)

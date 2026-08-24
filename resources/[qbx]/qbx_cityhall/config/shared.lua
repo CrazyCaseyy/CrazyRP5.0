@@ -1,7 +1,7 @@
 return {
     cityhalls = {
         {
-            coords = vec3(-265.0, -963.6, 31.2),
+            coords = vec3(-545.32, -611.26, 34.65),
             showBlip = true,
             blip = {
                 label = 'City Services',
@@ -25,14 +25,14 @@ return {
                 ['weapon'] = {
                     item = 'weaponlicense',
                     label = 'Weapon License',
-                    cost = 50,
+                    cost = 10000,
                 },
             },
         },
     },
 
     employment = {
-        enabled = true, -- Set to false to disable the employment menu
+        enabled = false, -- Job selection removed - jobs are now open to everyone without needing to apply
         jobs = {
             unemployed = 'Unemployed',
             trucker = 'Trucker',

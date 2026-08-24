@@ -1,11 +1,12 @@
 // NUI contract with client/main.lua:
-//   inbound (SendNUIMessage):  { action: 'open', jobs: [{ name, label }] } | { action: 'close' }
+//   inbound (SendNUIMessage):  { action: 'open', jobs: [{ name, label, level,
+//     xp, xpIntoLevel, xpForNextLevel, maxLevel }] } | { action: 'close' }
 //   outbound (RegisterNUICallback): 'close'
 //
-// UI-only pass - no real reputation data exists yet (that's a later,
-// separate build). Each job expands into a 10-level list with level 1
-// shown as current and the rest locked, as a placeholder wired up so real
-// per-player progress can drive it once the reputation system exists.
+// Real per-player, per-job reputation data comes from server/reputation.lua
+// via the getCivilianJobs callback - each job expands into its actual
+// level track (current level highlighted, lower levels marked done, higher
+// ones locked) with real XP progress toward the next level.
 
 const el = (id) => document.getElementById(id);
 
@@ -40,26 +41,24 @@ const CHEVRON_ICON = '<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none
 
 const LEVEL_COUNT = 10;
 
-// UI-only placeholder: every job starts at level 1 with the rest locked
-// until the real reputation system exists to drive progress for real.
-const CURRENT_LEVEL = 1;
-
-// Placeholder tier names - purely cosmetic until the real reputation
-// system defines what each level actually represents per job.
+// Cosmetic tier names shown under each dot - purely a label, the actual
+// level/progress values always come from the server.
 const LEVEL_NAMES = [
   'Newcomer', 'Novice', 'Apprentice', 'Regular', 'Skilled',
   'Experienced', 'Veteran', 'Expert', 'Elite', 'Master',
 ];
 
-function renderLevelTrack() {
-  const fillPct = ((CURRENT_LEVEL - 1) / (LEVEL_COUNT - 1)) * 100;
+function renderLevelTrack(job) {
+  const maxLevel = job.maxLevel || LEVEL_COUNT;
+  const currentLevel = job.level || 1;
+  const fillPct = ((currentLevel - 1) / (maxLevel - 1)) * 100;
 
   let dots = '';
-  for (let level = 1; level <= LEVEL_COUNT; level++) {
-    const isCurrent = level === CURRENT_LEVEL;
-    const isDone = level < CURRENT_LEVEL;
+  for (let level = 1; level <= maxLevel; level++) {
+    const isCurrent = level === currentLevel;
+    const isDone = level < currentLevel;
     const state = isCurrent ? 'is-current' : isDone ? 'is-done' : 'is-locked';
-    const name = LEVEL_NAMES[level - 1];
+    const name = LEVEL_NAMES[level - 1] || `Level ${level}`;
     dots += `
       <div class="job-level-dot ${state}" title="Level ${level}: ${name}">
         <span class="job-level-dot-inner"></span>
@@ -73,6 +72,14 @@ function renderLevelTrack() {
       <div class="job-level-line-fill" style="width:${fillPct}%"></div>
       <div class="job-level-dots">${dots}</div>
     </div>`;
+}
+
+function repValueText(job) {
+  const level = job.level || 1;
+  if (!job.xpForNextLevel || job.xpForNextLevel <= 0) {
+    return `Level ${level} — Max Level`;
+  }
+  return `Level ${level} — ${job.xpIntoLevel ?? 0} / ${job.xpForNextLevel} XP`;
 }
 
 function renderJobs(jobs) {
@@ -89,12 +96,12 @@ function renderJobs(jobs) {
             <div class="job-icon">${BRIEFCASE_ICON}</div>
             <div class="job-info">
               <div class="job-label">${escapeHtml(job.label)}</div>
-              <div class="job-rep-value">Not tracked yet</div>
+              <div class="job-rep-value">${repValueText(job)}</div>
             </div>
             <div class="job-chevron">${CHEVRON_ICON}</div>
           </button>
           <div class="job-levels">
-            ${renderLevelTrack()}
+            ${renderLevelTrack(job)}
           </div>
         </div>
       `
@@ -133,49 +140,16 @@ window.addEventListener('message', ({ data }) => {
 
 // Standalone browser preview: outside the game there's no NUI postMessage
 // to open the tablet, so if we're not running inside CEF, show it
-// immediately with the same civilian job list qbx_core actually has
-// (mirrored from qbx_core/shared/jobs.lua, minus leo/ems/unemployed), so
-// the preview matches what's shown in-game.
+// immediately with the same 5 jobs Config.IncludedJobs actually allows,
+// using sample level/XP progress (matching config.lua's curve) to show
+// off what a real, in-progress reputation looks like at different stages.
 if (typeof GetParentResourceName === 'undefined') {
   renderJobs([
-    { name: 'realestate', label: 'Real Estate' },
-    { name: 'taxi', label: 'Taxi' },
-    { name: 'bus', label: 'Bus' },
-    { name: 'cardealer', label: 'Vehicle Dealer' },
-    { name: 'mechanic', label: 'Mechanic' },
-    { name: 'judge', label: 'Honorary' },
-    { name: 'lawyer', label: 'Law Firm' },
-    { name: 'reporter', label: 'Reporter' },
-    { name: 'trucker', label: 'Trucker' },
-    { name: 'tow', label: 'Towing' },
-    { name: 'garbage', label: 'Garbage' },
-    { name: 'vineyard', label: 'Vineyard' },
-    { name: 'hotdog', label: 'Hotdog' },
-    { name: 'koi', label: 'Koi' },
-    { name: 'upnatom', label: 'Up n Atom' },
-    { name: 'hornys', label: "Horny's" },
-    { name: 'beanmachine', label: 'Bean Machine' },
-    { name: 'burgershot', label: 'BurgerShot' },
-    { name: 'catcafe', label: 'Cat Cafe' },
-    { name: 'pizzathis', label: 'Pizza This' },
-    { name: 'lscustoms', label: 'LS Customs' },
-    { name: 'redline', label: 'Redline Mechanic' },
-    { name: 'ottos', label: 'Ottos Autos' },
-    { name: 'standcustoms', label: 'Stand Customs' },
-    { name: 'eastcustoms', label: 'East Customs' },
-    { name: 'beekers', label: 'Beekers' },
-    { name: 'bennys', label: 'Bennys' },
-    { name: 'tunershop', label: 'Tunershop' },
-    { name: 'importshop', label: 'Importshop' },
-    { name: 'hayes', label: 'Hayes' },
-    { name: 'reaper', label: 'Reaper Mechanic' },
-    { name: 'harmony', label: 'Harmony' },
-    { name: 'exotic', label: 'Exotics' },
-    { name: 'dreamworks', label: 'Dreamwork Customs' },
-    { name: 'mirrorparkmech', label: 'Mirrior Park Customs' },
-    { name: 'thommy', label: 'Thommy' },
-    { name: 'youtuber', label: 'Rockstar' },
-    { name: 'customped', label: 'Custom Ped' },
+    { name: 'bus', label: 'Bus', level: 1, xp: 40, xpIntoLevel: 40, xpForNextLevel: 150, maxLevel: 10 },
+    { name: 'garbage', label: 'Garbage', level: 3, xp: 510, xpIntoLevel: 120, xpForNextLevel: 330, maxLevel: 10 },
+    { name: 'taxi', label: 'Taxi', level: 6, xp: 1850, xpIntoLevel: 200, xpForNextLevel: 600, maxLevel: 10 },
+    { name: 'tow', label: 'Towing', level: 9, xp: 4020, xpIntoLevel: 300, xpForNextLevel: 870, maxLevel: 10 },
+    { name: 'trucker', label: 'Trucker', level: 10, xp: 4590, xpIntoLevel: 0, xpForNextLevel: 0, maxLevel: 10 },
   ]);
   app.classList.remove('hidden');
 }

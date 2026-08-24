@@ -61,7 +61,9 @@ RegisterNetEvent('qb-tow:server:11101110', function(drops)
 
     local playerPed = GetPlayerPed(source)
     local playerCoords = GetEntityCoords(playerPed)
-    if Player.PlayerData.job.name ~= "tow" or #(playerCoords - vec3(sharedConfig.locations["main"].coords.x, sharedConfig.locations["main"].coords.y, sharedConfig.locations["main"].coords.z)) > 6.0 then
+    -- No longer requires the tow job - anyone can tow. Still requires
+    -- actually being at the tow yard to cash out (anti-exploit check).
+    if #(playerCoords - vec3(sharedConfig.locations["main"].coords.x, sharedConfig.locations["main"].coords.y, sharedConfig.locations["main"].coords.z)) > 6.0 then
         return DropPlayer(source, locale("info.skick"))
     end
 
@@ -76,8 +78,12 @@ RegisterNetEvent('qb-tow:server:11101110', function(drops)
     local taxAmount = math.ceil((price / 100) * config.paymentTax)
     local payment = price - taxAmount
 
+    local multiplier = exports['crazy-reputation']:GetPayoutMultiplier(source, 'tow')
+    payment = math.floor(payment * multiplier)
+
     Player.Functions.AddJobReputation(1)
     Player.Functions.AddMoney("bank", payment, "tow-salary")
+    exports['crazy-reputation']:AddReputation(source, 'tow', drops)
     TriggerClientEvent('ox_lib:notify', source, {
       id = 'tow_pay',
       title = 'Job Payment',
@@ -95,11 +101,10 @@ lib.addCommand('npc', {
     TriggerClientEvent("jobs:client:ToggleNpc", source)
 end)
 
+-- No longer requires the tow/mechanic job - anyone can use /tow.
 lib.addCommand('tow', {
     help = locale("info.tow"),
 }, function(source)
-    local Player = exports.qbx_core:GetPlayer(source)
-    if Player.PlayerData.job.name ~= "tow" and Player.PlayerData.job.name ~= "mechanic" then return end
     TriggerClientEvent("qb-tow:client:TowVehicle", source)
 end)
 

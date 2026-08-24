@@ -39,13 +39,10 @@ local function pairsInOrder(object, _)
 end
 
 local function openIdentificationMenu(closestCityhall)
-    local licensesMeta = QBX.PlayerData.metadata.licences
+    -- Every configured license is purchasable - no longer filtered by
+    -- PlayerData.metadata.licences, which defaults 'weapon' to false for
+    -- everyone and nothing ever sets it true, permanently hiding it.
     local availableLicenses = table_clone(sharedConfig.cityhalls[closestCityhall].licenses)
-    for license in pairs(availableLicenses) do
-        if license and not licensesMeta[license] then
-            availableLicenses[license] = nil
-        end
-    end
     local identityOptions = {}
     for item, id in pairsInOrder(availableLicenses) do
         identityOptions[#identityOptions + 1] = {
@@ -180,7 +177,9 @@ local function spawnPeds()
         FreezeEntityPosition(ped, true)
         SetEntityInvincible(ped, true)
         SetBlockingOfNonTemporaryEvents(ped, true)
-        TaskStartScenarioInPlace(ped, current.scenario, 0, true)
+        if current.scenario then
+            TaskStartScenarioInPlace(ped, current.scenario, 0, true)
+        end
         current.pedHandle = ped
         if config.useTarget then
             exports.ox_target:addLocalEntity(ped, {{

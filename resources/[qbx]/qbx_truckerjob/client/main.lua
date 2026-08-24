@@ -106,6 +106,7 @@ local function createMainTarget()
         debug = debug,
         options = {
             {
+                -- No longer requires the trucker job - anyone can cash out.
                 name = location.label,
                 onSelect = function()
                     getPaid()
@@ -113,9 +114,6 @@ local function createMainTarget()
                 icon = location.icon,
                 label = location.label,
                 distance = 2,
-                canInteract = function()
-                    return QBX.PlayerData.job.name == 'trucker'
-                end
             }
         }
     })
@@ -370,7 +368,7 @@ local function getNewLocation(locationIndex, drop)
                 elseif #(GetEntityCoords(cache.ped) - location.coords) < 5 then
                     if deliver() then
                         local newLocation, newDrop = lib.callback.await('qbx_truckerjob:server:getNewTask', false)
-                        if not newLocation or QBX.PlayerData.job.name ~= 'trucker' then return
+                        if not newLocation then return
                         elseif newLocation == 0 then
                             exports.qbx_core:Notify(locale('mission.return_to_station'), 'info')
                             returnToStation()
@@ -406,9 +404,8 @@ local function createElement(location, sprinteId)
     return element
 end
 
+-- No longer requires the trucker job - elements are created for everyone.
 local function createElements()
-    if QBX.PlayerData.job.name ~= 'trucker' then return end
-
     truckVehBlip = createElement(sharedConfig.locations.vehicle, 326)
     truckerBlip = createElement(sharedConfig.locations.main, 479)
 

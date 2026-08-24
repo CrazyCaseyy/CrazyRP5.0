@@ -224,8 +224,25 @@ lib.callback.register('ox_inventory:buyItem', function(source, data)
 				end
 			end
 
-			if fromData.license and server.hasLicense and not server.hasLicense(playerInv, fromData.license) then
-				return false, false, { type = 'error', description = locale('item_unlicensed') }
+			if fromData.license then
+				local licensed
+
+				if shopType == 'Ammunation' and fromData.license == 'weapon' then
+					-- Ammunation requires BOTH physically carrying the
+					-- weaponlicense item (sold at city hall) AND not being
+					-- revoked by police via ps-mdt (metadata.licences.weapon)
+					-- - a cop revoking it blocks purchases even if the item
+					-- is still on them, without taking the item away.
+					local hasItem = exports.ox_inventory:Search(source, 'count', 'weaponlicense') > 0
+					local authorized = server.hasLicense and server.hasLicense(playerInv, 'weapon')
+					licensed = hasItem and authorized
+				else
+					licensed = not server.hasLicense or server.hasLicense(playerInv, fromData.license)
+				end
+
+				if not licensed then
+					return false, false, { type = 'error', description = locale('item_unlicensed') }
+				end
 			end
 
 			if fromData.grade then

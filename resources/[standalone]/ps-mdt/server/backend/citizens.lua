@@ -769,6 +769,12 @@ ps.registerCallback(resourceName .. ':server:updateCitizenLicense', function(sou
         metadata.licences[licenseType] = enabled
         Player.Functions.SetMetaData('licences', metadata.licences)
         persistLiveMetadata(Player, citizenId)
+
+        -- This only controls purchase AUTHORIZATION, not the physical
+        -- 'weaponlicense' item - granting here does NOT hand out the item
+        -- (they still have to buy it at city hall), and revoking does NOT
+        -- take the item away (see the Ammunation shop's license check,
+        -- which requires both the item and this flag).
         return { success = true }
     end
 

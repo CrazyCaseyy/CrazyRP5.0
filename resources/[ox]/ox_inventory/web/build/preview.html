@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ox Inventory Preview</title>
+    <script type="module" crossorigin src="./assets/index.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index.css?cb=20">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      // Preview-only: fakes the NUI message the Lua backend would normally
+      // send, so this can be opened directly in a browser to check the
+      // styling. Not used in-game - the real index.html has no data
+      // injection at all.
+      setTimeout(() => {
+        window.postMessage({
+          action: 'setupInventory',
+          data: {
+            leftInventory: {
+              id: 'preview', type: 'player', slots: 50, label: 'Mike Hawk', weight: 10274, maxWeight: 85000,
+              items: [
+                { slot: 1, name: 'knife', weight: 300, rarity: 'common', count: 1, metadata: { label: 'Knife' } },
+                { slot: 2, name: 'phone', weight: 190, rarity: 'uncommon', count: 1, metadata: { label: 'Phone' } },
+                { slot: 3, name: 'tablet', weight: 500, rarity: 'uncommon', count: 1, metadata: { label: 'Tablet' } },
+                { slot: 4, name: 'case', weight: 1500, rarity: 'common', count: 1, metadata: { label: 'Case' } },
+                { slot: 5, name: 'id_card', weight: 0, rarity: 'common', count: 1, metadata: { label: 'Identification' } },
+                { slot: 6, name: 'money', weight: 0, rarity: 'common', count: 197976, metadata: { label: 'Money' } },
+                { slot: 7, name: 'cash_rolls', weight: 500, rarity: 'uncommon', count: 2, metadata: { label: 'Cash Rolls' } },
+                { slot: 8, name: 'cryptostick', weight: 200, rarity: 'legendary', count: 2, metadata: { label: 'Crypto Stick' } },
+                { slot: 9, name: 'driver_license', weight: 0, rarity: 'common', count: 1, metadata: { label: 'Drivers License' } },
+                { slot: 10, name: 'weapon_pistol', weight: 1130, rarity: 'epic', count: 1, metadata: { label: 'Pistol', durability: 78 } },
+                { slot: 11, name: 'weaponlicense', weight: 0, rarity: 'rare', count: 1, metadata: { label: 'Weapon License' } },
+                { slot: 14, name: 'weapon_pistol', weight: 1130, rarity: 'common', count: 1, metadata: { label: 'Pistol', durability: 55 } },
+                { slot: 15, name: 'weapon_pistol', weight: 1130, rarity: 'common', count: 1, metadata: { label: 'Pistol', durability: 90 } },
+              ],
+            },
+            rightInventory: { id: 'other', type: 'player', slots: 30, label: '', weight: 0, maxWeight: 85000, items: [] },
+          },
+        }, '*');
+      }, 500);
+    </script>
+  </body>
+</html>

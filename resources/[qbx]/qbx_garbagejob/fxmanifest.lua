@@ -25,5 +25,9 @@ files {
 	'config/shared.lua',
 }
 
+dependencies {
+	'crazy-reputation',
+}
+
 lua54 'yes'
 use_experimental_fxv2_oal 'yes'

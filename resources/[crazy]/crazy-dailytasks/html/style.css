@@ -1,0 +1,232 @@
+/* Same design language as the rest of the server (ox_lib, crazy-hud,
+   crazy-multichar, ps-dispatch, ps-mdt, crazy-reputation): near-black
+   translucent panels, grey 3D-bevel borders, #1573ed accent blue, Geom
+   Graphic W03 display font. Just a box here, not a device frame like the
+   reputation tablet. */
+
+@font-face {
+  font-family: 'Geom Graphic W03';
+  src: url('fonts/GeomGraphic.woff2') format('woff2');
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+:root {
+  --ox-blue: #1573ed;
+  --ox-badge-border: rgba(90, 170, 255, 0.75);
+  --ox-badge-glow: inset 0 0 0 2px rgba(255, 255, 255, 0.12), 0 0 4px rgba(21, 115, 237, 0.3);
+  --ox-panel: rgba(15, 15, 18, 0.96);
+  --ox-panel-strong: rgba(15, 15, 18, 0.98);
+  --ox-border: rgba(140, 140, 150, 0.4);
+  --ox-border-strong: rgba(140, 140, 150, 0.55);
+  --ox-glow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 2px 6px rgba(0, 0, 0, 0.35);
+  --ox-text: #ffffff;
+  --ox-text-dim: #c9c9c9;
+  --ox-green: #3ddc84;
+
+  --font-display: 'Geom Graphic W03', 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+  font-family: var(--font-display);
+  color: var(--ox-text);
+}
+
+.hidden { display: none !important; }
+
+#app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.box {
+  position: relative;
+  width: 520px;
+  max-width: 90vw;
+  background: var(--ox-panel);
+  border: 2px solid var(--ox-border-strong);
+  border-radius: 16px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 20px 60px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(21, 115, 237, 0.1);
+  padding: 28px 28px 24px;
+}
+
+.box-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ox-panel-strong);
+  border: 1px solid var(--ox-border);
+  border-radius: 6px;
+  color: var(--ox-text-dim);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 150ms, color 150ms, box-shadow 150ms;
+}
+.box-close:hover {
+  border-color: var(--ox-badge-border);
+  color: var(--ox-text);
+  box-shadow: var(--ox-badge-glow);
+}
+
+.box-header {
+  margin-bottom: 20px;
+  padding-right: 40px;
+}
+
+.box-title {
+  font-size: 26px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ox-text);
+  text-shadow: 0 0 14px rgba(21, 115, 237, 0.5);
+}
+
+.box-subtitle {
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ox-blue);
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.task-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  background: var(--ox-panel-strong);
+  border: 1px solid var(--ox-border);
+  border-radius: 8px;
+  box-shadow: var(--ox-glow);
+}
+
+.task-card.is-complete {
+  border-color: var(--ox-badge-border);
+  box-shadow: var(--ox-badge-glow);
+}
+
+.task-icon {
+  position: relative;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ox-blue);
+  filter: drop-shadow(0 0 4px rgba(21, 115, 237, 0.5));
+  color: #fff;
+}
+.task-card.is-complete .task-icon {
+  background: var(--ox-green);
+  filter: drop-shadow(0 0 4px rgba(61, 220, 132, 0.5));
+}
+
+.task-icon::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: var(--ox-panel-strong);
+}
+
+.task-icon svg {
+  position: relative;
+  z-index: 1;
+  width: 17px;
+  height: 17px;
+  overflow: visible;
+}
+
+.task-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-top-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.task-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ox-text);
+}
+
+.task-reward {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--ox-blue);
+}
+.task-card.is-complete .task-reward {
+  color: var(--ox-green);
+}
+
+.task-progress-bar {
+  margin-top: 8px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.task-progress-fill {
+  height: 100%;
+  background: var(--ox-blue);
+  box-shadow: 0 0 4px rgba(21, 115, 237, 0.6);
+  transition: width 200ms ease;
+}
+.task-card.is-complete .task-progress-fill {
+  background: var(--ox-green);
+  box-shadow: 0 0 4px rgba(61, 220, 132, 0.6);
+}
+
+.task-progress-text {
+  margin-top: 5px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--ox-text-dim);
+}
+.task-card.is-complete .task-progress-text {
+  color: var(--ox-green);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 30px 0;
+  color: var(--ox-text-dim);
+  font-size: 13px;
+}

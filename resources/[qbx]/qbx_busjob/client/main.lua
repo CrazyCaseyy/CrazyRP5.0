@@ -55,11 +55,13 @@ local function removeNPCBlip()
     end
 end
 
+-- No longer requires the bus job - anyone can drive the bus, so the depot
+-- blip is always shown once player data is available.
 local function updateBlip()
-    if table.type(QBX.PlayerData) == 'empty' or (QBX.PlayerData.job.name ~= "bus" and busBlip) then
+    if table.type(QBX.PlayerData) == 'empty' then
         removeBusBlip()
         return
-    elseif (QBX.PlayerData.job.name == "bus" and not busBlip) then
+    elseif not busBlip then
         local coords = sharedConfig.location
         busBlip = AddBlipForCoord(coords.x, coords.y, coords.z)
         SetBlipSprite(busBlip, 513)
@@ -181,7 +183,8 @@ local function updateZone()
         vehicleZone = nil
     end
 
-    if table.type(QBX.PlayerData) == 'empty' or QBX.PlayerData.job.name ~= 'bus' then return end
+    -- No longer requires the bus job - anyone can spawn/use the bus.
+    if table.type(QBX.PlayerData) == 'empty' then return end
 
     local inRange = false
     local shownTextUI = false

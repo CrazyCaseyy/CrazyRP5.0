@@ -28,17 +28,16 @@ local function setupClient()
     garbageObject = nil
     endBlip = nil
     currentStopNum = 0
-    if playerJob.name == 'garbage' then
-        garbageBlip = AddBlipForCoord(sharedConfig.locations.main.coords.x, sharedConfig.locations.main.coords.y, sharedConfig.locations.main.coords.z)
-        SetBlipSprite(garbageBlip, 318)
-        SetBlipDisplay(garbageBlip, 4)
-        SetBlipScale(garbageBlip, 1.0)
-        SetBlipAsShortRange(garbageBlip, true)
-        SetBlipColour(garbageBlip, 39)
-        BeginTextCommandSetBlipName('STRING')
-        AddTextComponentSubstringPlayerName(sharedConfig.locations.main.label)
-        EndTextCommandSetBlipName(garbageBlip)
-    end
+    -- No longer requires the garbage job - anyone can pick up shifts.
+    garbageBlip = AddBlipForCoord(sharedConfig.locations.main.coords.x, sharedConfig.locations.main.coords.y, sharedConfig.locations.main.coords.z)
+    SetBlipSprite(garbageBlip, 318)
+    SetBlipDisplay(garbageBlip, 4)
+    SetBlipScale(garbageBlip, 1.0)
+    SetBlipAsShortRange(garbageBlip, true)
+    SetBlipColour(garbageBlip, 39)
+    BeginTextCommandSetBlipName('STRING')
+    AddTextComponentSubstringPlayerName(sharedConfig.locations.main.label)
+    EndTextCommandSetBlipName(garbageBlip)
 end
 
 local function garbageMenu()
@@ -424,12 +423,13 @@ local function spawnPeds()
         current.pedHandle = ped
 
         if config.useTarget then
+            -- No 'groups' filter - anyone can interact, not just the
+            -- garbage job.
             exports.ox_target:addLocalEntity(ped, {
                 {
                     name = 'garbage_ped',
                     label = locale('target.talk'),
                     icon = 'fa-solid fa-recycle',
-                    groups = 'garbage',
                     onSelect = garbageMenu,
                 }
             })

@@ -3,6 +3,7 @@ return {
         label = 'Test Burger',
         weight = 220,
         degrade = 60,
+        rarity = 'common',
         client = {
             image = 'burger_chicken.png',
             status = { hunger = 200000 },
@@ -56,11 +57,13 @@ return {
     ['bandage'] = {
         label = 'Bandage',
         weight = 115,
+        rarity = 'common',
     },
 
     ['burger'] = {
         label = 'Burger',
         weight = 220,
+        rarity = 'common',
         client = {
             status = { hunger = 200000 },
             anim = 'eating',
@@ -73,6 +76,7 @@ return {
     ['sprunk'] = {
         label = 'Sprunk',
         weight = 350,
+        rarity = 'common',
         client = {
             status = { thirst = 200000 },
             anim = { dict = 'mp_player_intdrink', clip = 'loop_bottle' },
@@ -86,6 +90,7 @@ return {
         label = 'Parachute',
         weight = 8000,
         stack = false,
+        rarity = 'uncommon',
         client = {
             anim = { dict = 'clothingshirt', clip = 'try_shirt_positive_d' },
             usetime = 1500
@@ -94,6 +99,7 @@ return {
 
     ['garbage'] = {
         label = 'Garbage',
+        rarity = 'common',
     },
 
     ['paperbag'] = {
@@ -101,13 +107,15 @@ return {
         weight = 1,
         stack = false,
         close = false,
-        consume = 0
+        consume = 0,
+        rarity = 'common',
     },
 
     ['panties'] = {
         label = 'Knickers',
         weight = 10,
         consume = 0,
+        rarity = 'common',
         client = {
             status = { thirst = -100000, stress = -25000 },
             anim = { dict = 'mp_player_intdrink', clip = 'loop_bottle' },
@@ -127,6 +135,7 @@ return {
         weight = 190,
         stack = false,
         consume = 0,
+        rarity = 'uncommon',
         client = {
             add = function(total)
                 if total > 0 then
@@ -145,6 +154,7 @@ return {
     ['mustard'] = {
         label = 'Mustard',
         weight = 500,
+        rarity = 'common',
         client = {
             status = { hunger = 25000, thirst = 25000 },
             anim = { dict = 'mp_player_intdrink', clip = 'loop_bottle' },
@@ -157,6 +167,7 @@ return {
     ['water'] = {
         label = 'Water',
         weight = 500,
+        rarity = 'common',
         client = {
             status = { thirst = 200000 },
             anim = { dict = 'mp_player_intdrink', clip = 'loop_bottle' },
@@ -171,6 +182,7 @@ return {
         label = 'Bulletproof Vest',
         weight = 3000,
         stack = false,
+        rarity = 'uncommon',
         client = {
             anim = { dict = 'clothingshirt', clip = 'try_shirt_positive_d' },
             usetime = 3500
@@ -180,6 +192,7 @@ return {
     ['clothing'] = {
         label = 'Clothing',
         consume = 0,
+        rarity = 'common',
     },
 
     ['money'] = {
@@ -227,6 +240,7 @@ return {
         label = 'Radio Jammer',
         weight = 10000,
         allowArmed = true,
+        rarity = 'rare',
         client = {
             event = 'mm_radio:client:usejammer'
         }
@@ -237,6 +251,7 @@ return {
         weight = 1000,
         stack = true,
         allowArmed = true,
+        rarity = 'common',
         client = {
             event = 'mm_radio:client:recharge'
         }
@@ -288,196 +303,235 @@ return {
     ['crack_baggy'] = {
         label = 'Crack Baggy',
         weight = 100,
+        rarity = 'uncommon',
     },
 
     ['cokebaggy'] = {
         label = 'Bag of Coke',
         weight = 100,
+        rarity = 'uncommon',
     },
 
     ['coke_brick'] = {
         label = 'Coke Brick',
         weight = 2000,
+        rarity = 'rare',
     },
 
     ['coke_small_brick'] = {
         label = 'Coke Package',
         weight = 1000,
+        rarity = 'uncommon',
     },
 
     ['xtcbaggy'] = {
         label = 'Bag of Ecstasy',
         weight = 100,
+        rarity = 'uncommon',
     },
 
     ['meth'] = {
         label = 'Methamphetamine',
         weight = 100,
+        rarity = 'uncommon',
     },
 
     ['oxy'] = {
         label = 'Oxycodone',
         weight = 100,
+        rarity = 'uncommon',
     },
 
     ['weed_ak47'] = {
         label = 'AK47 2g',
         weight = 200,
+        rarity = 'common',
     },
 
     ['weed_ak47_seed'] = {
         label = 'AK47 Seed',
         weight = 1,
+        rarity = 'common',
     },
 
     ['weed_skunk'] = {
         label = 'Skunk 2g',
         weight = 200,
+        rarity = 'common',
     },
 
     ['weed_skunk_seed'] = {
         label = 'Skunk Seed',
         weight = 1,
+        rarity = 'common',
     },
 
     ['weed_amnesia'] = {
         label = 'Amnesia 2g',
         weight = 200,
+        rarity = 'common',
     },
 
     ['weed_amnesia_seed'] = {
         label = 'Amnesia Seed',
         weight = 1,
+        rarity = 'common',
     },
 
     ['weed_og-kush'] = {
         label = 'OGKush 2g',
         weight = 200,
+        rarity = 'common',
     },
 
     ['weed_og-kush_seed'] = {
         label = 'OGKush Seed',
         weight = 1,
+        rarity = 'common',
     },
 
     ['weed_white-widow'] = {
         label = 'OGKush 2g',
         weight = 200,
+        rarity = 'common',
     },
 
     ['weed_white-widow_seed'] = {
         label = 'White Widow Seed',
         weight = 1,
+        rarity = 'common',
     },
 
     ['weed_purple-haze'] = {
         label = 'Purple Haze 2g',
         weight = 200,
+        rarity = 'common',
     },
 
     ['weed_purple-haze_seed'] = {
         label = 'Purple Haze Seed',
         weight = 1,
+        rarity = 'common',
     },
 
     ['weed_brick'] = {
         label = 'Weed Brick',
         weight = 2000,
+        rarity = 'uncommon',
     },
 
     ['weed_nutrition'] = {
         label = 'Plant Fertilizer',
         weight = 2000,
+        rarity = 'common',
     },
 
     ['joint'] = {
         label = 'Joint',
         weight = 200,
+        rarity = 'common',
     },
 
     ['rolling_paper'] = {
         label = 'Rolling Paper',
         weight = 0,
+        rarity = 'common',
     },
 
     ['empty_weed_bag'] = {
         label = 'Empty Weed Bag',
         weight = 0,
+        rarity = 'common',
     },
 
     ['firstaid'] = {
         label = 'First Aid',
         weight = 2500,
+        rarity = 'uncommon',
     },
 
     ['ifaks'] = {
         label = 'Individual First Aid Kit',
         weight = 2500,
+        rarity = 'uncommon',
     },
 
     ['painkillers'] = {
         label = 'Painkillers',
         weight = 400,
+        rarity = 'common',
     },
 
     ['firework1'] = {
         label = '2Brothers',
         weight = 1000,
+        rarity = 'common',
     },
 
     ['firework2'] = {
         label = 'Poppelers',
         weight = 1000,
+        rarity = 'common',
     },
 
     ['firework3'] = {
         label = 'WipeOut',
         weight = 1000,
+        rarity = 'common',
     },
 
     ['firework4'] = {
         label = 'Weeping Willow',
         weight = 1000,
+        rarity = 'common',
     },
 
     ['steel'] = {
         label = 'Steel',
         weight = 100,
+        rarity = 'common',
     },
 
     ['rubber'] = {
         label = 'Rubber',
         weight = 100,
+        rarity = 'common',
     },
 
     ['metalscrap'] = {
         label = 'Metal Scrap',
         weight = 100,
+        rarity = 'common',
     },
 
     ['iron'] = {
         label = 'Iron',
         weight = 100,
+        rarity = 'common',
     },
 
     ['copper'] = {
         label = 'Copper',
         weight = 100,
+        rarity = 'common',
     },
 
     ['aluminum'] = {
         label = 'Aluminium',
         weight = 100,
+        rarity = 'common',
     },
 
     ['plastic'] = {
         label = 'Plastic',
         weight = 100,
+        rarity = 'common',
     },
 
     ['glass'] = {
         label = 'Glass',
         weight = 100,
+        rarity = 'common',
     },
 
     ['gatecrack'] = {
@@ -495,16 +549,19 @@ return {
     ['trojan_usb'] = {
         label = 'Trojan USB',
         weight = 100,
+        rarity = 'epic',
     },
 
     ['toaster'] = {
         label = 'Toaster',
         weight = 5000,
+        rarity = 'common',
     },
 
     ['small_tv'] = {
         label = 'Small TV',
         weight = 100,
+        rarity = 'common',
     },
 
     ['security_card_01'] = {
@@ -534,128 +591,150 @@ return {
     ['diving_gear'] = {
         label = 'Diving Gear',
         weight = 30000,
+        rarity = 'uncommon',
     },
 
     ['diving_fill'] = {
         label = 'Diving Tube',
         weight = 3000,
+        rarity = 'common',
     },
 
     ['antipatharia_coral'] = {
         label = 'Antipatharia',
         weight = 1000,
+        rarity = 'rare',
     },
 
     ['dendrogyra_coral'] = {
         label = 'Dendrogyra',
         weight = 1000,
+        rarity = 'rare',
     },
 
     ['jerry_can'] = {
         label = 'Jerrycan',
         weight = 3000,
+        rarity = 'common',
     },
 
     ['nitrous'] = {
         label = 'Nitrous',
         weight = 1000,
+        rarity = 'uncommon',
     },
 
     ['wine'] = {
         label = 'Wine',
         weight = 500,
+        rarity = 'common',
     },
 
     ['grape'] = {
         label = 'Grape',
         weight = 10,
+        rarity = 'common',
     },
 
     ['grapejuice'] = {
         label = 'Grape Juice',
         weight = 200,
+        rarity = 'common',
     },
 
     ['coffee'] = {
         label = 'Coffee',
         weight = 200,
+        rarity = 'common',
     },
 
     ['vodka'] = {
         label = 'Vodka',
         weight = 500,
+        rarity = 'common',
     },
 
     ['whiskey'] = {
         label = 'Whiskey',
         weight = 200,
+        rarity = 'common',
     },
 
     ['beer'] = {
         label = 'Beer',
         weight = 200,
+        rarity = 'common',
     },
 
     ['sandwich'] = {
         label = 'Sandwich',
         weight = 200,
+        rarity = 'common',
     },
 
     ['walking_stick'] = {
         label = 'Walking Stick',
         weight = 1000,
+        rarity = 'common',
     },
 
     ['lighter'] = {
         label = 'Lighter',
         weight = 200,
+        rarity = 'common',
     },
 
     ['binoculars'] = {
         label = 'Binoculars',
         weight = 800,
+        rarity = 'common',
     },
 
     ['stickynote'] = {
         label = 'Sticky Note',
         weight = 0,
+        rarity = 'common',
     },
 
     ['empty_evidence_bag'] = {
         label = 'Empty Evidence Bag',
         weight = 200,
+        rarity = 'common',
     },
 
     ['filled_evidence_bag'] = {
         label = 'Filled Evidence Bag',
         weight = 200,
+        rarity = 'uncommon',
     },
 
     ['harness'] = {
         label = 'Harness',
         weight = 200,
+        rarity = 'common',
     },
 
     ['handcuffs'] = {
         label = 'Handcuffs',
         weight = 200,
+        rarity = 'common',
     },
 
     -- Jim-Mechanic --
 
 ["mechanic_tools"] = {
-    label = "Mechanic tools", weight = 0, stack = false, close = true, description = "Needed for vehicle repairs",
+    label = "Mechanic tools", weight = 0, stack = false, close = true, description = "Needed for vehicle repairs", rarity = "uncommon",
     client = { image = "mechanic_tools.png", event = "jim-mechanic:client:Repair:Check" }
 },
 ["toolbox"] = {
-    label = "Toolbox", weight = 0, stack = false, close = true, description = "Needed for Performance part removal",
+    label = "Toolbox", weight = 0, stack = false, close = true, description = "Needed for Performance part removal", rarity = "uncommon",
     client = { image = "toolbox.png", event = "jim-mechanic:client:Menu" }
 },
 ["ducttape"] = {
-    label = "Duct Tape", weight = 0, stack = false, close = true, description = "Good for quick fixes",
+    label = "Duct Tape", weight = 0, stack = false, close = true, description = "Good for quick fixes", rarity = "common",
     client = { image = "bodyrepair.png", event = "jim-mechanic:quickrepair" }
 },
-['mechboard'] = { label = 'Mechanic Sheet', weight = 0, stack = false, close = true,
+['mechboard'] = { label = 'Mechanic Sheet', weight = 0, stack = false, close = true, rarity = 'uncommon',
     buttons = {
         { 	label = 'View List',
             action = function(slot)
@@ -710,323 +789,323 @@ return {
 },
 --Performance
 ["turbo"] = {
-    label = "Supercharger Turbo", weight = 0, stack = false, close = true, description = "Who doesn't need a 65mm Turbo??",
+    label = "Supercharger Turbo", weight = 0, stack = false, close = true, description = "Who doesn't need a 65mm Turbo??", rarity = "rare",
     client = { image = "turbo.png", event = "jim-mechanic:client:applyTurbo", remove = false },
 },
 ["car_armor"] = {
-    label = "Vehicle Armor", weight = 0, stack = false, close = true, description = "",
+    label = "Vehicle Armor", weight = 0, stack = false, close = true, description = "", rarity = "rare",
     client = { image = "armour.png", event = "jim-mechanic:client:applyArmour", remove = false },
 },
 ["nos"] = {
-    label = "NOS Bottle", weight = 0, stack = false, close = true, description = "A full bottle of NOS",
+    label = "NOS Bottle", weight = 0, stack = false, close = true, description = "A full bottle of NOS", rarity = "rare",
     client = { image = "nos.png", event = "jim-mechanic:client:applyNOS", },
 },
 ["noscan"] = {
-    label = "Empty NOS Bottle", weight = 0, stack = true, close = true, description = "An Empty bottle of NOS",
+    label = "Empty NOS Bottle", weight = 0, stack = true, close = true, description = "An Empty bottle of NOS", rarity = "common",
     client = { image = "noscan.png", }
 },
 ["noscolour"] = {
-    label = "NOS Colour Injector", weight = 0, stack = true, close = true, description = "Make that purge spray",
+    label = "NOS Colour Injector", weight = 0, stack = true, close = true, description = "Make that purge spray", rarity = "uncommon",
     client = { image = "noscolour.png", event = "jim-mechanic:client:NOS:rgbORhex", },
 },
 
 ["engine1"] = {
-    label = "Tier 1 Engine", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 1 Engine", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "engine1.png",  event = "jim-mechanic:client:applyEngine", level = 0, remove = false },
 },
 ["engine2"] = {
-    label = "Tier 2 Engine", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 2 Engine", weight = 0, stack = false, close = true, description = "", rarity = "uncommon",
     client = { image = "engine2.png",  event = "jim-mechanic:client:applyEngine", level = 1, remove = false },
 },
 ["engine3"] = {
-    label = "Tier 3 Engine", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 3 Engine", weight = 0, stack = false, close = true, description = "", rarity = "rare",
     client = { image = "engine3.png",  event = "jim-mechanic:client:applyEngine", level = 2, remove = false },
 },
 ["engine4"] = {
-    label = "Tier 4 Engine", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 4 Engine", weight = 0, stack = false, close = true, description = "", rarity = "epic",
     client = { image = "engine4.png",  event = "jim-mechanic:client:applyEngine", level = 3, remove = false },
 },
 ["engine5"] = {
-    label = "Tier 5 Engine", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 5 Engine", weight = 0, stack = false, close = true, description = "", rarity = "legendary",
     client = { image = "engine5.png",  event = "jim-mechanic:client:applyEngine", level = 4, remove = false },
 },
 
 ["transmission1"] = {
-    label = "Tier 1 Transmission", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 1 Transmission", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "transmission1.png",  event = "jim-mechanic:client:applyTransmission", level = 0, remove = false },
 },
 ["transmission2"] = {
-    label = "Tier 2 Transmission", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 2 Transmission", weight = 0, stack = false, close = true, description = "", rarity = "uncommon",
     client = { image = "transmission2.png",  event = "jim-mechanic:client:applyTransmission", level = 1, remove = false },
 },
 ["transmission3"] = {
-    label = "Tier 3 Transmission", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 3 Transmission", weight = 0, stack = false, close = true, description = "", rarity = "rare",
     client = { image = "transmission3.png",  event = "jim-mechanic:client:applyTransmission", level = 2, remove = false },
 },
 ["transmission4"] = {
-    label = "Tier 4 Transmission", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 4 Transmission", weight = 0, stack = false, close = true, description = "", rarity = "epic",
     client = { image = "transmission4.png",  event = "jim-mechanic:client:applyTransmission", level = 3, remove = false },
 },
 
 ["brakes1"] = {
-    label = "Tier 1 Brakes", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 1 Brakes", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "brakes1.png",  event = "jim-mechanic:client:applyBrakes", level = 0, remove = false },
 },
 ["brakes2"] = {
-    label = "Tier 2 Brakes", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 2 Brakes", weight = 0, stack = false, close = true, description = "", rarity = "uncommon",
     client = { image = "brakes2.png",  event = "jim-mechanic:client:applyBrakes", level = 1, remove = false },
 },
 ["brakes3"] = {
-    label = "Tier 3 Brakes", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 3 Brakes", weight = 0, stack = false, close = true, description = "", rarity = "rare",
     client = { image = "brakes3.png",  event = "jim-mechanic:client:applyBrakes", level = 2, remove = false },
 },
 
 ["suspension1"] = {
-    label = "Tier 1 Suspension", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 1 Suspension", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "suspension1.png", event = "jim-mechanic:client:applySuspension",  level = 0, remove = false },
 },
 ["suspension2"] = {
-    label = "Tier 2 Suspension", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 2 Suspension", weight = 0, stack = false, close = true, description = "", rarity = "uncommon",
     client = { image = "suspension2.png", event = "jim-mechanic:client:applySuspension", level = 1, remove = false },
 },
 ["suspension3"] = {
-    label = "Tier 3 Suspension", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 3 Suspension", weight = 0, stack = false, close = true, description = "", rarity = "rare",
     client = { image = "suspension3.png", event = "jim-mechanic:client:applySuspension", level = 2, remove = false },
 },
 ["suspension4"] = {
-    label = "Tier 4 Suspension", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 4 Suspension", weight = 0, stack = false, close = true, description = "", rarity = "epic",
     client = { image = "suspension4.png", event = "jim-mechanic:client:applySuspension", level = 3, remove = false },
 },
 ["suspension5"] = {
-    label = "Tier 5 Suspension", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 5 Suspension", weight = 0, stack = false, close = true, description = "", rarity = "legendary",
     client = { image = "suspension5.png", event = "jim-mechanic:client:applySuspension", level = 4, remove = false },
 },
 
 ["bprooftires"] = {
-    label = "Bulletproof Tires", weight = 0, stack = false, close = true, description = "",
+    label = "Bulletproof Tires", weight = 0, stack = false, close = true, description = "", rarity = "epic",
     client = { image = "bprooftires.png", event = "jim-mechanic:client:applyBulletProof", remove = false },
 },
 ["drifttires"] = {
-    label = "Drift Tires", weight = 0, stack = false, close = true, description = "",
+    label = "Drift Tires", weight = 0, stack = false, close = true, description = "", rarity = "uncommon",
     client = { image = "drifttires.png", event = "jim-mechanic:client:applyDrift", remove = false },
 },
 
 ["oilp1"] = {
-    label = "Tier 1 Oil Pump", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 1 Oil Pump", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "oilp1.png", event = "jim-mechanic:client:applyExtraPart", level = 1, mod = "oilp", remove = false },
 },
 ["oilp2"] = {
-    label = "Tier 2 Oil Pump", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 2 Oil Pump", weight = 0, stack = false, close = true, description = "", rarity = "uncommon",
     client = { image = "oilp2.png", event = "jim-mechanic:client:applyExtraPart", level = 2, mod = "oilp", remove = false },
 },
 ["oilp3"] = {
-    label = "Tier 3 Oil Pump", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 3 Oil Pump", weight = 0, stack = false, close = true, description = "", rarity = "rare",
     client = { image = "oilp3.png", event = "jim-mechanic:client:applyExtraPart", level = 3, mod = "oilp", remove = false },
 },
 
 ["drives1"] = {
-    label = "Tier 1 Drive Shaft", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 1 Drive Shaft", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "drives1.png", event = "jim-mechanic:client:applyExtraPart", level = 1, mod = "drives", remove = false },
 },
 ["drives2"] = {
-    label = "Tier 2 Drive Shaft", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 2 Drive Shaft", weight = 0, stack = false, close = true, description = "", rarity = "uncommon",
     client = { image = "drives2.png", event = "jim-mechanic:client:applyExtraPart", level = 2, mod = "drives", remove = false },
 },
 ["drives3"] = {
-    label = "Tier 3 Drive Shaft", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 3 Drive Shaft", weight = 0, stack = false, close = true, description = "", rarity = "rare",
     client = { image = "drives3.png", event = "jim-mechanic:client:applyExtraPart", level = 3, mod = "drives", remove = false },
 },
 
 ["cylind1"] = {
-    label = "Tier 1 Cylinder Head", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 1 Cylinder Head", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "cylind1.png", event = "jim-mechanic:client:applyExtraPart", level = 1, mod = "cylind", remove = false },
 },
 ["cylind2"] = {
-    label = "Tier 2 Cylinder Head", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 2 Cylinder Head", weight = 0, stack = false, close = true, description = "", rarity = "uncommon",
     client = { image = "cylind2.png", event = "jim-mechanic:client:applyExtraPart", level = 2, mod = "cylind", remove = false },
 },
 ["cylind3"] = {
-    label = "Tier 3 Cylinder Head", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 3 Cylinder Head", weight = 0, stack = false, close = true, description = "", rarity = "rare",
     client = { image = "cylind3.png", event = "jim-mechanic:client:applyExtraPart", level = 3, mod = "cylind", remove = false },
 },
 
 ["cables1"] = {
-    label = "Tier 1 Battery Cables", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 1 Battery Cables", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "cables1.png", event = "jim-mechanic:client:applyExtraPart", level = 1, mod = "cables", remove = false },
 },
 ["cables2"] = {
-    label = "Tier 2 Battery Cables", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 2 Battery Cables", weight = 0, stack = false, close = true, description = "", rarity = "uncommon",
     client = { image = "cables2.png", event = "jim-mechanic:client:applyExtraPart", level = 2, mod = "cables", remove = false },
 },
 ["cables3"] = {
-    label = "Tier 3 Battery Cables", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 3 Battery Cables", weight = 0, stack = false, close = true, description = "", rarity = "rare",
     client = { image = "cables3.png", event = "jim-mechanic:client:applyExtraPart", level = 3, mod = "cables", remove = false },
 },
 
 ["fueltank1"] = {
-    label = "Tier 1 Fuel Tank", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 1 Fuel Tank", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "fueltank1.png", event = "jim-mechanic:client:applyExtraPart", level = 1, mod = "fueltank", remove = false },
 },
 ["fueltank2"] = {
-    label = "Tier 2 Fuel Tank", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 2 Fuel Tank", weight = 0, stack = false, close = true, description = "", rarity = "uncommon",
     client = { image = "fueltank2.png", event = "jim-mechanic:client:applyExtraPart", level = 2, mod = "fueltank", remove = false },
 },
 ["fueltank3"] = {
-    label = "Tier 3 Fuel Tank", weight = 0, stack = false, close = true, description = "",
+    label = "Tier 3 Fuel Tank", weight = 0, stack = false, close = true, description = "", rarity = "rare",
     client = { image = "fueltank3.png", event = "jim-mechanic:client:applyExtraPart", level = 3, mod = "fueltank", remove = false },
 },
 
 ["antilag"] = {
-    label = "AntiLag", weight = 0, stack = false, close = true, description = "",
+    label = "AntiLag", weight = 0, stack = false, close = true, description = "", rarity = "epic",
     client = { image = "antiLag.png", event = "jim-mechanic:client:applyAntiLag", remove = false },
 },
 
 ["underglow_controller"] = {
-    label = "Neon Controller", weight = 0, stack = false, close = true, description = "",
+    label = "Neon Controller", weight = 0, stack = false, close = true, description = "", rarity = "uncommon",
     client = { image = "underglow_controller.png", event = "jim-mechanic:client:neonMenu", },
 },
 ["headlights"] = {
-    label = "Xenon Headlights", weight = 0, stack = false, close = true, description = "",
+    label = "Xenon Headlights", weight = 0, stack = false, close = true, description = "", rarity = "uncommon",
     client = { image = "headlights.png", event = "jim-mechanic:client:applyXenons", },
 },
 
 ["tint_supplies"] = {
-    label = "Window Tint Kit", weight = 0, stack = false, close = true, description = "",
+    label = "Window Tint Kit", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "tint_supplies.png", event = "jim-mechanic:client:Cosmetic:Check", },
 },
 
 ["customplate"] = {
-    label = "Customized Plates", weight = 0, stack = false, close = true, description = "",
+    label = "Customized Plates", weight = 0, stack = false, close = true, description = "", rarity = "uncommon",
     client = { image = "plate.png", event = "jim-mechanic:client:Cosmetic:Check", },
 },
 ["hood"] = {
-    label = "Vehicle Hood", weight = 0, stack = false, close = true, description = "",
+    label = "Vehicle Hood", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "hood.png", event = "jim-mechanic:client:Cosmetic:Check", },
 },
 ["roof"] = {
-    label = "Vehicle Roof", weight = 0, stack = false, close = true, description = "",
+    label = "Vehicle Roof", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "roof.png", event = "jim-mechanic:client:Cosmetic:Check", },
 },
 ["spoiler"] = {
-    label = "Vehicle Spoiler", weight = 0, stack = false, close = true, description = "",
+    label = "Vehicle Spoiler", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "spoiler.png", event = "jim-mechanic:client:Cosmetic:Check", },
 },
 ["bumper"] = {
-    label = "Vehicle Bumper", weight = 0, stack = false, close = true, description = "",
+    label = "Vehicle Bumper", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "bumper.png", event = "jim-mechanic:client:Cosmetic:Check", },
 },
 ["skirts"] = {
-    label = "Vehicle Skirts", weight = 0, stack = false, close = true, description = "",
+    label = "Vehicle Skirts", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "skirts.png", event = "jim-mechanic:client:Cosmetic:Check", },
 },
 ["exhaust"] = {
-    label = "Vehicle Exhaust", weight = 0, stack = false, close = true, description = "",
+    label = "Vehicle Exhaust", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "exhaust.png", event = "jim-mechanic:client:Cosmetic:Check", },
 },
 ["seat"] = {
-    label = "Seat Cosmetics", weight = 0, stack = false, close = true, description = "",
+    label = "Seat Cosmetics", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "seat.png", event = "jim-mechanic:client:Cosmetic:Check", },
 },
 ["rollcage"] = {
-    label = "Roll Cage", weight = 0, stack = false, close = true, description = "",
+    label = "Roll Cage", weight = 0, stack = false, close = true, description = "", rarity = "uncommon",
     client = { image = "rollcage.png", event = "jim-mechanic:client:Cosmetic:Check", },
 },
 
 ["rims"] = {
-    label = "Custom Wheel Rims", weight = 0, stack = false, close = true, description = "",
+    label = "Custom Wheel Rims", weight = 0, stack = false, close = true, description = "", rarity = "uncommon",
     client = { image = "rims.png", event = "jim-mechanic:client:Rims:Check", },
 },
 
 ["livery"] = {
-    label = "Livery Roll", weight = 0, stack = false, close = true, description = "",
+    label = "Livery Roll", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "livery.png", event = "jim-mechanic:client:Cosmetic:Check", },
 },
 ["paintcan"] = {
-    label = "Vehicle Spray Can", weight = 0, stack = false, close = true, description = "",
+    label = "Vehicle Spray Can", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "spraycan.png", event = "jim-mechanic:client:Paints:Check", },
 },
 ["tires"] = {
-    label = "Drift Smoke Tires", weight = 0, stack = false, close = true, description = "",
+    label = "Drift Smoke Tires", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "tires.png", event = "jim-mechanic:client:Tires:Check", },
 },
 
 ["horn"] = {
-    label = "Custom Vehicle Horn", weight = 0, stack = false, close = true, description = "",
+    label = "Custom Vehicle Horn", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "horn.png", event = "jim-mechanic:client:Cosmetic:Check", },
 },
 
 ["internals"] = {
-    label = "Internal Cosmetics", weight = 0, stack = false, close = true, description = "",
+    label = "Internal Cosmetics", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "internals.png", event = "jim-mechanic:client:Cosmetic:Check", },
 },
 ["externals"] = {
-    label = "Exterior Cosmetics", weight = 0, stack = false, close = true, description = "",
+    label = "Exterior Cosmetics", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "mirror.png", event = "jim-mechanic:client:Cosmetic:Check", },
 },
 
 ["newoil"] = {
-    label = "Car Oil", weight = 0, stack = false, close = true, description = "",
+    label = "Car Oil", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "caroil.png", },
 },
 ["sparkplugs"] = {
-    label = "Spark Plugs", weight = 0, stack = false, close = true, description = "",
+    label = "Spark Plugs", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "sparkplugs.png", },
 },
 ["carbattery"] = {
-    label = "Car Battery", weight = 0, stack = false, close = true, description = "",
+    label = "Car Battery", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "carbattery.png", },
 },
 ["axleparts"] = {
-    label = "Axle Parts", weight = 0, stack = false, close = true, description = "",
+    label = "Axle Parts", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "axleparts.png", },
 },
 ["sparetire"] = {
-    label = "Spare Tire", weight = 0, stack = false, close = true, description = "",
+    label = "Spare Tire", weight = 0, stack = false, close = true, description = "", rarity = "common",
     client = { image = "sparetire.png", event = "jim-mechanic:client:wheelRepair" },
 },
 
 ["harness"] = {
-    label = "Race Harness", weight = 0, stack = true, close = true, description = "Racing Harness so no matter what you stay in the car",
+    label = "Race Harness", weight = 0, stack = true, close = true, description = "Racing Harness so no matter what you stay in the car", rarity = "uncommon",
     client = { image = "harness.png", event = "jim-mechanic:client:applyHarness", remove = false },
 },
 
 ["manual"] = {
-    label = "Manual Transmission", weight = 0, stack = true, close = true, description = "Manual Transmission change for vehicles",
+    label = "Manual Transmission", weight = 0, stack = true, close = true, description = "Manual Transmission change for vehicles", rarity = "uncommon",
     client = { image = "manual.png", event = "jim-mechanic:client:applyManual", remove = false },
 },
 
 ["underglow"] = {
-    label = "Underglow LEDS", weight = 0, stack = true, close = true, description = "Underglow addition for vehicles",
+    label = "Underglow LEDS", weight = 0, stack = true, close = true, description = "Underglow addition for vehicles", rarity = "uncommon",
     client = { image = "underglow.png", event = "jim-mechanic:client:applyUnderglow", remove = false },
 },
 
 ["stancerkit"] = {
-    label = "Stancer Kit", weight = 0, stack = true, close = true, description = "Stancer Kit for vehicles",
+    label = "Stancer Kit", weight = 0, stack = true, close = true, description = "Stancer Kit for vehicles", rarity = "rare",
     client = { image = "stancerkit.png", event = "jim-mechanic:client:stancerMenu", remove = false },
 },
 
 ["newplate"] = {
-    label = "New Plate", weight = 250, stack = false, close = true, description = "A Customizable licence plate.",
+    label = "New Plate", weight = 250, stack = false, close = true, description = "A Customizable licence plate.", rarity = "common",
     client = { image = "newplate.png", event = "jim-mechanic:client:setplate:Menu" }
 },
 
 -- Replace these if these are already installed
 
 ["cleaningkit"] = {
-    label = "Cleaning Kit", weight = 0, stack = true, close = true, description = "A microfiber cloth with some soap will let your car sparkle again!",
+    label = "Cleaning Kit", weight = 0, stack = true, close = true, description = "A microfiber cloth with some soap will let your car sparkle again!", rarity = "common",
    client = { image = "cleaningkit.png", event = "jim-mechanic:client:cleanVehicle"},
 },
 ["repairkit"] = {
-    label = "Repairkit", weight = 0, stack = true, close = true, description = "A nice toolbox with stuff to repair your vehicle",
+    label = "Repairkit", weight = 0, stack = true, close = true, description = "A nice toolbox with stuff to repair your vehicle", rarity = "common",
    client = { image = "repairkit.png", event = "jim-mechanic:vehFailure:RepairVehicle", item = "repairkit", full = false },
 },
 ["advancedrepairkit"] = {
-    label = "Advanced Repairkit", weight = 0, stack = true, close = true, description = "A nice toolbox with stuff to repair your vehicle",
+    label = "Advanced Repairkit", weight = 0, stack = true, close = true, description = "A nice toolbox with stuff to repair your vehicle", rarity = "uncommon",
    client = { image = "advancedkit.png", event = "jim-mechanic:vehFailure:RepairVehicle", item = "advancedrepairkit", full = true },
 },
 
 ["cash_rolls"] = {
-    label = "Cash Rolls", weight = 250, stack = true, close = true, description = "Rolled-up bills taken from a store register",
+    label = "Cash Rolls", weight = 250, stack = true, close = true, description = "Rolled-up bills taken from a store register", rarity = "uncommon",
     client = { image = "cash_rolls.png" },
 },
 
@@ -1117,9 +1196,11 @@ return {
     weight = 500,
     stack = false,
     close = true,
+    rarity = "uncommon",
     client = { image = "tablet.png" },
 },
 
+<<<<<<< Updated upstream
     -- ══════════ crazy-kitchen: auto-registered crafting items (placeholder labels/weights, tune as needed) ══════════
     ['ad_berry_coulis'] = {
         label = 'Berry Coulis',
@@ -2246,4 +2327,16 @@ return {
         weight = 1500,
     },
 
+=======
+-- crazy-dailytasks: reward item from the lawyer's daily task board.
+-- No functionality yet - just the item, more to come later.
+["case"] = {
+    label = "Case",
+    weight = 1500,
+    stack = true,
+    close = true,
+    rarity = "common",
+    client = { image = "briefcase.png" },
+},
+>>>>>>> Stashed changes
 }

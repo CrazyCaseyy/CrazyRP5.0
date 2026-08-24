@@ -19,15 +19,9 @@ local function notify(player, text, notifyType, duration, subTitle, notifyPositi
     return exports.qbx_core:Notify(player.PlayerData.source, text, notifyType, duration, subTitle, notifyPosition, notifyStyle, notifyIcon, notifyIconColor)
 end
 
+-- No longer requires the trucker job - anyone can do delivery runs.
 local function getPlayer(source)
-    local player = exports.qbx_core:GetPlayer(source)
-    if not player then return end
-
-    if player.PlayerData.job.name ~= 'trucker' then
-        return DropPlayer(source, locale('exploit_attempt'))
-    end
-
-    return player
+    return exports.qbx_core:GetPlayer(source)
 end
 
 --- toggle anti spawn abuse flag
@@ -115,10 +109,15 @@ RegisterNetEvent('qbx_truckerjob:server:getPaid', function()
     local price = (dropPrice * playerDrops) + bonus
     local taxAmount = math.ceil((price / 100) * config.paymentTax)
     local payment = price - taxAmount
+
+    local multiplier = exports['crazy-reputation']:GetPayoutMultiplier(source, 'trucker')
+    payment = math.floor(payment * multiplier)
+
     player.Functions.AddJobReputation(playerDrops)
     drops[citizenid] = nil
 
     player.Functions.AddMoney('bank', payment, 'trucker-salary')
+    exports['crazy-reputation']:AddReputation(source, 'trucker', playerDrops)
     notify(player, locale('success.you_earned', payment), 'success')
 end)
 

@@ -1,0 +1,25 @@
+Config = {}
+
+-- The lawyer NPC players talk to for their daily task board.
+Config.Ped = {
+    model = 'a_m_y_business_03',
+    coords = vec4(-550.64, -615.13, 34.6, 324.0),
+    scenario = 'WORLD_HUMAN_STAND_IMPATIENT',
+}
+
+-- Item handed out per completed task. No functionality yet beyond being an
+-- item - more uses for it are a later, separate build.
+Config.RewardItem = 'case'
+
+-- How many tasks are picked (from the pool below, no repeats) each day.
+Config.TaskCount = 3
+
+-- Pool of possible daily tasks - one per civilian job crazy-reputation
+-- tracks. Each day's target for a job is a random amount in [min, max].
+Config.JobTargets = {
+    bus = { label = 'Bus', min = 5, max = 8 },
+    taxi = { label = 'Taxi', min = 5, max = 8 },
+    tow = { label = 'Towing', min = 4, max = 6 },
+    trucker = { label = 'Trucker', min = 4, max = 6 },
+    garbage = { label = 'Garbage', min = 2, max = 3 },
+}

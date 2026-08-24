@@ -11,6 +11,7 @@ dependencies {
     'qbx_core',
     'ox_lib',
     'ox_inventory',
+    'oxmysql',
     'scully_emotemenu',
 }
 
@@ -24,6 +25,8 @@ client_scripts {
 }
 
 server_scripts {
+    '@oxmysql/lib/MySQL.lua',
+    'server/reputation.lua',
     'server/main.lua',
 }
 

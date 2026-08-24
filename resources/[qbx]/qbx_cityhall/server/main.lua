@@ -39,6 +39,18 @@ lib.callback.register('qbx_cityhall:server:requestId', function(source, item, ha
     end
 
     exports.qbx_idcard:CreateMetaLicense(source, itemType.item)
+
+    -- Weapon license purchases also mark the player as authorized to buy
+    -- weapons at Ammunation (metadata.licences.weapon, which defaults to
+    -- false for everyone) - police can later revoke this via ps-mdt
+    -- without touching the physical item itself.
+    if itemType.item == 'weaponlicense' then
+        local metadata = player.PlayerData.metadata
+        metadata.licences = metadata.licences or {}
+        metadata.licences.weapon = true
+        player.Functions.SetMetaData('licences', metadata.licences)
+    end
+
     exports.qbx_core:Notify(source, locale('success.item_recieved') .. itemType.label, 'success')
 end)
 

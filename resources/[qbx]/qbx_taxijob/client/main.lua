@@ -396,13 +396,13 @@ local function setupGarageZone()
         SetBlockingOfNonTemporaryEvents(taxiPed, true)
         FreezeEntityPosition(taxiPed, true)
         SetEntityInvincible(taxiPed, true)
+        -- No 'job' filter - anyone can interact, not just the taxi job.
         exports.ox_target:addLocalEntity(taxiPed, {
             {
                 type = 'client',
                 event = 'qb-taxijob:client:requestcab',
                 icon = 'fa-solid fa-taxi',
                 label = locale('info.request_taxi_target'),
-                job = 'taxi',
             }
         })
     else
@@ -450,7 +450,7 @@ function setupTaxiParkingZone()
         rotation = 55,
         debug = config.debugPoly,
         inside = function()
-            if QBX.PlayerData.job.name ~= 'taxi' then return end
+            -- No longer requires the taxi job - anyone can return the cab.
             if IsControlJustPressed(0, 38) then
                 if whitelistedVehicle() then
                     if meterIsOpen then
@@ -687,12 +687,11 @@ CreateThread(function()
     end
 end)
 
+-- No longer requires the taxi job - anyone can use the taxi zones/blips.
 local function init()
-    if QBX.PlayerData.job.name == 'taxi' then
-        setupGarageZone()
-        setupTaxiParkingZone()
-        setLocationsBlip()
-    end
+    setupGarageZone()
+    setupTaxiParkingZone()
+    setLocationsBlip()
 end
 
 RegisterNetEvent('QBCore:Client:OnJobUpdate', function()
