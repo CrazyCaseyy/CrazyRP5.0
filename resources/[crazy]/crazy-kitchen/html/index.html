@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crazy RP – Business Station</title>
+  <link rel="stylesheet" href="fa-solid.css">
+  <style>
+    @font-face {
+      font-family: "Geom Graphic W03 SemiBold";
+      src: url('./GeomGraphic.woff2') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+    }
+  </style>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<div id="app" style="display:none">
+  <div class="panel craft-panel">
+
+    <div class="panel-header">
+      <div class="panel-header-left">
+        <div class="panel-title"><i class="fa-solid fa-store"></i> BUSINESS <span class="accent" id="panel-mode-title">STATION</span></div>
+        <div class="panel-sub" id="biz-label"></div>
+      </div>
+      <div class="panel-header-right">
+        <div class="btn-icon-sm-wrap"><button class="btn-icon-sm btn-close-x" title="Close [ESC]" onclick="App.close()"><i class="fa-solid fa-xmark"></i></button></div>
+      </div>
+    </div>
+
+    <div class="craft-body">
+
+      <!-- LEFT: Recipe Cards -->
+      <div class="craft-left">
+        <div class="craft-search-row">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="search" class="inp" type="text" placeholder="Search recipes…" oninput="App.filterRecipes()">
+        </div>
+        <div id="recipe-grid" class="craft-grid"></div>
+      </div>
+
+      <!-- RIGHT: Queue -->
+      <div class="craft-right">
+        <div class="queue-title"><i class="fa-solid fa-clock-rotate-left"></i> <span id="queue-title-text">CRAFTING QUEUE</span></div>
+        <div id="queue-items" class="queue-items"></div>
+        <div class="queue-footer">
+          <div class="queue-stat">
+            <span class="queue-stat-label" id="queue-stat-label-left">In Queue</span>
+            <span id="queue-count" class="queue-stat-val">0</span>
+          </div>
+          <div class="queue-stat" style="text-align:right">
+            <span class="queue-stat-label" id="queue-stat-label-right">Est. Time</span>
+            <span id="queue-time" class="queue-stat-val neutral">—</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

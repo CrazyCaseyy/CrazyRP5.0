@@ -27,10 +27,12 @@ CreateThread(function()
     EndTextCommandSetBlipName(blip)
 end)
 
--- Physical card reader on the register counter, for billing an actual nearby
+-- Card reader interaction at the register, for billing an actual nearby
 -- player a custom amount (separate from the abstract "sell a menu item"
 -- register interaction further down, which is for NPC-style walk-up sales).
-exports['crazy-invoicing']:AddCardReader(config.locations.register, nil, config.menu)
+-- Uses AddCardReaderZone, not AddCardReader - the MLO already has a real
+-- till model sitting there, so this doesn't spawn a second one on top of it.
+exports['crazy-invoicing']:AddCardReaderZone(config.locations.register, nil, config.menu)
 
 -- Duty toggle
 exports.ox_target:addBoxZone({

@@ -1119,4 +1119,1131 @@ return {
     close = true,
     client = { image = "tablet.png" },
 },
+
+    -- ══════════ crazy-kitchen: auto-registered crafting items (placeholder labels/weights, tune as needed) ══════════
+    ['ad_berry_coulis'] = {
+        label = 'Berry Coulis',
+        weight = 100,
+    },
+
+    ['ad_black_pepper'] = {
+        label = 'Black Pepper',
+        weight = 100,
+    },
+
+    ['ad_carbonara'] = {
+        label = 'Carbonara',
+        weight = 100,
+    },
+
+    ['ad_carrot_celery'] = {
+        label = 'Carrot Celery',
+        weight = 100,
+    },
+
+    ['ad_cherry_tomatoes'] = {
+        label = 'Cherry Tomatoes',
+        weight = 100,
+    },
+
+    ['ad_chilli_flakes'] = {
+        label = 'Chilli Flakes',
+        weight = 100,
+    },
+
+    ['ad_cocoa_powder'] = {
+        label = 'Cocoa Powder',
+        weight = 100,
+    },
+
+    ['ad_dried_herbs'] = {
+        label = 'Dried Herbs',
+        weight = 100,
+    },
+
+    ['ad_eggs'] = {
+        label = 'Eggs',
+        weight = 100,
+    },
+
+    ['ad_espresso'] = {
+        label = 'Espresso',
+        weight = 100,
+    },
+
+    ['ad_fresh_basil'] = {
+        label = 'Fresh Basil',
+        weight = 100,
+    },
+
+    ['ad_garlic_cloves'] = {
+        label = 'Garlic Cloves',
+        weight = 100,
+    },
+
+    ['ad_gelatin'] = {
+        label = 'Gelatin',
+        weight = 100,
+    },
+
+    ['ad_ground_beef'] = {
+        label = 'Ground Beef',
+        weight = 100,
+    },
+
+    ['ad_heavy_cream'] = {
+        label = 'Heavy Cream',
+        weight = 100,
+    },
+
+    ['ad_house_wine'] = {
+        label = 'House Wine',
+        weight = 100,
+    },
+
+    ['ad_ladyfingers'] = {
+        label = 'Ladyfingers',
+        weight = 100,
+    },
+
+    ['ad_margherita_pizza'] = {
+        label = 'Margherita Pizza',
+        weight = 100,
+    },
+
+    ['ad_margherita_slice'] = {
+        label = 'Margherita Slice',
+        weight = 100,
+    },
+
+    ['ad_marsala_wine'] = {
+        label = 'Marsala Wine',
+        weight = 100,
+    },
+
+    ['ad_mascarpone'] = {
+        label = 'Mascarpone',
+        weight = 100,
+    },
+
+    ['ad_mozzarella'] = {
+        label = 'Mozzarella',
+        weight = 100,
+    },
+
+    ['ad_olive_oil'] = {
+        label = 'Olive Oil',
+        weight = 100,
+    },
+
+    ['ad_pancetta'] = {
+        label = 'Pancetta',
+        weight = 100,
+    },
+
+    ['ad_panna_cotta'] = {
+        label = 'Panna Cotta',
+        weight = 100,
+    },
+
+    ['ad_parmesan'] = {
+        label = 'Parmesan',
+        weight = 100,
+    },
+
+    ['ad_pecorino'] = {
+        label = 'Pecorino',
+        weight = 100,
+    },
+
+    ['ad_penne'] = {
+        label = 'Penne',
+        weight = 100,
+    },
+
+    ['ad_penne_arrabbiata'] = {
+        label = 'Penne Arrabbiata',
+        weight = 100,
+    },
+
+    ['ad_pizza_dough'] = {
+        label = 'Pizza Dough',
+        weight = 100,
+    },
+
+    ['ad_red_wine'] = {
+        label = 'Red Wine',
+        weight = 100,
+    },
+
+    ['ad_sea_salt'] = {
+        label = 'Sea Salt',
+        weight = 100,
+    },
+
+    ['ad_spaghetti'] = {
+        label = 'Spaghetti',
+        weight = 100,
+    },
+
+    ['ad_spaghetti_bolognese'] = {
+        label = 'Spaghetti Bolognese',
+        weight = 100,
+    },
+
+    ['ad_sparkling_water'] = {
+        label = 'Sparkling Water',
+        weight = 100,
+    },
+
+    ['ad_tiramisu'] = {
+        label = 'Tiramisu',
+        weight = 100,
+    },
+
+    ['ad_tomato_sauce'] = {
+        label = 'Tomato Sauce',
+        weight = 100,
+    },
+
+    ['ad_vanilla_pod'] = {
+        label = 'Vanilla Pod',
+        weight = 100,
+    },
+
+    ['aluminium_bar'] = {
+        label = 'Aluminium Bar',
+        weight = 250,
+    },
+
+    ['bs_bacon_bits'] = {
+        label = 'Bacon Bits',
+        weight = 100,
+    },
+
+    ['bs_beef_patty'] = {
+        label = 'Beef Patty',
+        weight = 100,
+    },
+
+    ['bs_breadcrumbs'] = {
+        label = 'Breadcrumbs',
+        weight = 100,
+    },
+
+    ['bs_burger_bun'] = {
+        label = 'Burger Bun',
+        weight = 100,
+    },
+
+    ['bs_burger_sauce'] = {
+        label = 'Burger Sauce',
+        weight = 100,
+    },
+
+    ['bs_buttermilk'] = {
+        label = 'Buttermilk',
+        weight = 100,
+    },
+
+    ['bs_cheese_sauce'] = {
+        label = 'Cheese Sauce',
+        weight = 100,
+    },
+
+    ['bs_cheese_slice'] = {
+        label = 'Cheese Slice',
+        weight = 100,
+    },
+
+    ['bs_classic_burger'] = {
+        label = 'Classic Burger',
+        weight = 100,
+    },
+
+    ['bs_cold_brew'] = {
+        label = 'Cold Brew',
+        weight = 100,
+    },
+
+    ['bs_coleslaw_mix'] = {
+        label = 'Coleslaw Mix',
+        weight = 100,
+    },
+
+    ['bs_cooking_oil'] = {
+        label = 'Cooking Oil',
+        weight = 100,
+    },
+
+    ['bs_crispy_chicken'] = {
+        label = 'Crispy Chicken',
+        weight = 100,
+    },
+
+    ['bs_diced_onion'] = {
+        label = 'Diced Onion',
+        weight = 100,
+    },
+
+    ['bs_double_smash'] = {
+        label = 'Double Smash',
+        weight = 100,
+    },
+
+    ['bs_ice_cream_mix'] = {
+        label = 'Ice Cream Mix',
+        weight = 100,
+    },
+
+    ['bs_ice_cubes'] = {
+        label = 'Ice Cubes',
+        weight = 100,
+    },
+
+    ['bs_iced_coffee'] = {
+        label = 'Iced Coffee',
+        weight = 100,
+    },
+
+    ['bs_lettuce_tomato'] = {
+        label = 'Lettuce Tomato',
+        weight = 100,
+    },
+
+    ['bs_loaded_fries'] = {
+        label = 'Loaded Fries',
+        weight = 100,
+    },
+
+    ['bs_mayo'] = {
+        label = 'Mayo',
+        weight = 100,
+    },
+
+    ['bs_milk'] = {
+        label = 'Milk',
+        weight = 100,
+    },
+
+    ['bs_pickles'] = {
+        label = 'Pickles',
+        weight = 100,
+    },
+
+    ['bs_raw_chicken'] = {
+        label = 'Raw Chicken',
+        weight = 100,
+    },
+
+    ['bs_raw_potato'] = {
+        label = 'Raw Potato',
+        weight = 100,
+    },
+
+    ['bs_salt_pepper'] = {
+        label = 'Salt Pepper',
+        weight = 100,
+    },
+
+    ['bs_smoked_paprika'] = {
+        label = 'Smoked Paprika',
+        weight = 100,
+    },
+
+    ['bs_soda'] = {
+        label = 'Soda',
+        weight = 100,
+    },
+
+    ['bs_soft_serve'] = {
+        label = 'Soft Serve',
+        weight = 100,
+    },
+
+    ['bs_special_sauce'] = {
+        label = 'Special Sauce',
+        weight = 100,
+    },
+
+    ['bs_vanilla_syrup'] = {
+        label = 'Vanilla Syrup',
+        weight = 100,
+    },
+
+    ['bs_wafer_cone'] = {
+        label = 'Wafer Cone',
+        weight = 100,
+    },
+
+    ['bs_whipped_cream'] = {
+        label = 'Whipped Cream',
+        weight = 100,
+    },
+
+    ['carclean'] = {
+        label = 'Carclean',
+        weight = 300,
+    },
+
+    ['carpolish'] = {
+        label = 'Carpolish',
+        weight = 300,
+    },
+
+    ['carpolish_high'] = {
+        label = 'Carpolish High',
+        weight = 350,
+    },
+
+    ['copper_bar'] = {
+        label = 'Copper Bar',
+        weight = 250,
+    },
+
+    ['glue'] = {
+        label = 'Glue',
+        weight = 50,
+    },
+
+    ['gold_bar'] = {
+        label = 'Gold Bar',
+        weight = 250,
+    },
+
+    ['h_berry'] = {
+        label = 'Berry',
+        weight = 100,
+    },
+
+    ['h_berry_mix'] = {
+        label = 'Berry Mix',
+        weight = 100,
+    },
+
+    ['h_brownie'] = {
+        label = 'Brownie',
+        weight = 100,
+    },
+
+    ['h_raw_shrimp'] = {
+        label = 'Raw Shrimp',
+        weight = 100,
+    },
+
+    ['h_rings'] = {
+        label = 'Rings',
+        weight = 100,
+    },
+
+    ['h_shrimp'] = {
+        label = 'Shrimp',
+        weight = 100,
+    },
+
+    ['h_slider'] = {
+        label = 'Slider',
+        weight = 100,
+    },
+
+    ['h_slush'] = {
+        label = 'Slush',
+        weight = 100,
+    },
+
+    ['h_sun'] = {
+        label = 'Sun',
+        weight = 100,
+    },
+
+    ['h_tots'] = {
+        label = 'Tots',
+        weight = 100,
+    },
+
+    ['hab_ach'] = {
+        label = 'Ach',
+        weight = 100,
+    },
+
+    ['hab_bkb'] = {
+        label = 'Bkb',
+        weight = 100,
+    },
+
+    ['hab_choc'] = {
+        label = 'Choc',
+        weight = 100,
+    },
+
+    ['hab_fb'] = {
+        label = 'Fb',
+        weight = 100,
+    },
+
+    ['hab_lst'] = {
+        label = 'Lst',
+        weight = 100,
+    },
+
+    ['hab_rose'] = {
+        label = 'Rose',
+        weight = 100,
+    },
+
+    ['hab_tof'] = {
+        label = 'Tof',
+        weight = 100,
+    },
+
+    ['iron_bar'] = {
+        label = 'Iron Bar',
+        weight = 250,
+    },
+
+    ['kk_ayran'] = {
+        label = 'Ayran',
+        weight = 100,
+    },
+
+    ['kk_baklava'] = {
+        label = 'Baklava',
+        weight = 100,
+    },
+
+    ['kk_basmati_rice'] = {
+        label = 'Basmati Rice',
+        weight = 100,
+    },
+
+    ['kk_butter'] = {
+        label = 'Butter',
+        weight = 100,
+    },
+
+    ['kk_chicken_breast'] = {
+        label = 'Chicken Breast',
+        weight = 100,
+    },
+
+    ['kk_chicken_wrap'] = {
+        label = 'Chicken Wrap',
+        weight = 100,
+    },
+
+    ['kk_chilli_sauce'] = {
+        label = 'Chilli Sauce',
+        weight = 100,
+    },
+
+    ['kk_cinnamon'] = {
+        label = 'Cinnamon',
+        weight = 100,
+    },
+
+    ['kk_crushed_pistachios'] = {
+        label = 'Crushed Pistachios',
+        weight = 100,
+    },
+
+    ['kk_doner_kebab'] = {
+        label = 'Doner Kebab',
+        weight = 100,
+    },
+
+    ['kk_filo_pastry'] = {
+        label = 'Filo Pastry',
+        weight = 100,
+    },
+
+    ['kk_flatbread'] = {
+        label = 'Flatbread',
+        weight = 100,
+    },
+
+    ['kk_fresh_mint'] = {
+        label = 'Fresh Mint',
+        weight = 100,
+    },
+
+    ['kk_garlic_sauce'] = {
+        label = 'Garlic Sauce',
+        weight = 100,
+    },
+
+    ['kk_grilled_pepper'] = {
+        label = 'Grilled Pepper',
+        weight = 100,
+    },
+
+    ['kk_honey'] = {
+        label = 'Honey',
+        weight = 100,
+    },
+
+    ['kk_kebab_spice_mix'] = {
+        label = 'Kebab Spice Mix',
+        weight = 100,
+    },
+
+    ['kk_kofta_mix'] = {
+        label = 'Kofta Mix',
+        weight = 100,
+    },
+
+    ['kk_lamb_cubes'] = {
+        label = 'Lamb Cubes',
+        weight = 100,
+    },
+
+    ['kk_lamb_meat'] = {
+        label = 'Lamb Meat',
+        weight = 100,
+    },
+
+    ['kk_lemon'] = {
+        label = 'Lemon',
+        weight = 100,
+    },
+
+    ['kk_mint_tea'] = {
+        label = 'Mint Tea',
+        weight = 100,
+    },
+
+    ['kk_mixed_grill'] = {
+        label = 'Mixed Grill',
+        weight = 100,
+    },
+
+    ['kk_olive_oil'] = {
+        label = 'Olive Oil',
+        weight = 100,
+    },
+
+    ['kk_pudding_rice'] = {
+        label = 'Pudding Rice',
+        weight = 100,
+    },
+
+    ['kk_rice_pudding'] = {
+        label = 'Rice Pudding',
+        weight = 100,
+    },
+
+    ['kk_rose_water'] = {
+        label = 'Rose Water',
+        weight = 100,
+    },
+
+    ['kk_salad_mix'] = {
+        label = 'Salad Mix',
+        weight = 100,
+    },
+
+    ['kk_shish_kebab'] = {
+        label = 'Shish Kebab',
+        weight = 100,
+    },
+
+    ['kk_skewers'] = {
+        label = 'Skewers',
+        weight = 100,
+    },
+
+    ['kk_sugar'] = {
+        label = 'Sugar',
+        weight = 100,
+    },
+
+    ['kk_sumac'] = {
+        label = 'Sumac',
+        weight = 100,
+    },
+
+    ['kk_tzatziki'] = {
+        label = 'Tzatziki',
+        weight = 100,
+    },
+
+    ['kk_wrap_bread'] = {
+        label = 'Wrap Bread',
+        weight = 100,
+    },
+
+    ['kk_yoghurt'] = {
+        label = 'Yoghurt',
+        weight = 100,
+    },
+
+    ['lead_bar'] = {
+        label = 'Lead Bar',
+        weight = 250,
+    },
+
+    ['lithium_bar'] = {
+        label = 'Lithium Bar',
+        weight = 250,
+    },
+
+    ['old_cloth'] = {
+        label = 'Old Cloth',
+        weight = 100,
+    },
+
+    ['p_boil'] = {
+        label = 'Boil',
+        weight = 100,
+    },
+
+    ['p_cal'] = {
+        label = 'Cal',
+        weight = 100,
+    },
+
+    ['p_coco'] = {
+        label = 'Coco',
+        weight = 100,
+    },
+
+    ['p_coconut'] = {
+        label = 'Coconut',
+        weight = 100,
+    },
+
+    ['p_crem'] = {
+        label = 'Crem',
+        weight = 100,
+    },
+
+    ['p_fillet'] = {
+        label = 'Fillet',
+        weight = 100,
+    },
+
+    ['p_lobster'] = {
+        label = 'Lobster',
+        weight = 100,
+    },
+
+    ['p_pina'] = {
+        label = 'Pina',
+        weight = 100,
+    },
+
+    ['p_pineapple'] = {
+        label = 'Pineapple',
+        weight = 100,
+    },
+
+    ['p_raw_fish'] = {
+        label = 'Raw Fish',
+        weight = 100,
+    },
+
+    ['p_raw_lobster'] = {
+        label = 'Raw Lobster',
+        weight = 100,
+    },
+
+    ['p_raw_squid'] = {
+        label = 'Raw Squid',
+        weight = 100,
+    },
+
+    ['p_rum'] = {
+        label = 'Rum',
+        weight = 100,
+    },
+
+    ['p_seafood_mix'] = {
+        label = 'Seafood Mix',
+        weight = 100,
+    },
+
+    ['p_sex'] = {
+        label = 'Sex',
+        weight = 100,
+    },
+
+    ['p_shark'] = {
+        label = 'Shark',
+        weight = 100,
+    },
+
+    ['p_straw'] = {
+        label = 'Straw',
+        weight = 100,
+    },
+
+    ['p_strawberry'] = {
+        label = 'Strawberry',
+        weight = 100,
+    },
+
+    ['p_tai'] = {
+        label = 'Tai',
+        weight = 100,
+    },
+
+    ['p_tropical_syrup'] = {
+        label = 'Tropical Syrup',
+        weight = 100,
+    },
+
+    ['p_vodka'] = {
+        label = 'Vodka',
+        weight = 100,
+    },
+
+    ['pp_00_flour'] = {
+        label = '00 Flour',
+        weight = 100,
+    },
+
+    ['pp_bbq_chicken_pizza_slice'] = {
+        label = 'Bbq Chicken Pizza Slice',
+        weight = 100,
+    },
+
+    ['pp_bbq_sauce'] = {
+        label = 'Bbq Sauce',
+        weight = 100,
+    },
+
+    ['pp_cheddar'] = {
+        label = 'Cheddar',
+        weight = 100,
+    },
+
+    ['pp_chilli_flakes'] = {
+        label = 'Chilli Flakes',
+        weight = 100,
+    },
+
+    ['pp_chilli_oil'] = {
+        label = 'Chilli Oil',
+        weight = 100,
+    },
+
+    ['pp_cooked_chicken'] = {
+        label = 'Cooked Chicken',
+        weight = 100,
+    },
+
+    ['pp_diavola_pizza_slice'] = {
+        label = 'Diavola Pizza Slice',
+        weight = 100,
+    },
+
+    ['pp_dried_oregano'] = {
+        label = 'Dried Oregano',
+        weight = 100,
+    },
+
+    ['pp_dried_yeast'] = {
+        label = 'Dried Yeast',
+        weight = 100,
+    },
+
+    ['pp_espresso_beans'] = {
+        label = 'Espresso Beans',
+        weight = 100,
+    },
+
+    ['pp_espresso_cup'] = {
+        label = 'Espresso Cup',
+        weight = 100,
+    },
+
+    ['pp_flavour_paste'] = {
+        label = 'Flavour Paste',
+        weight = 100,
+    },
+
+    ['pp_fresh_basil'] = {
+        label = 'Fresh Basil',
+        weight = 100,
+    },
+
+    ['pp_gelato'] = {
+        label = 'Gelato',
+        weight = 100,
+    },
+
+    ['pp_gelato_base'] = {
+        label = 'Gelato Base',
+        weight = 100,
+    },
+
+    ['pp_gorgonzola'] = {
+        label = 'Gorgonzola',
+        weight = 100,
+    },
+
+    ['pp_honey_drizzle'] = {
+        label = 'Honey Drizzle',
+        weight = 100,
+    },
+
+    ['pp_icing_sugar'] = {
+        label = 'Icing Sugar',
+        weight = 100,
+    },
+
+    ['pp_lemon_juice'] = {
+        label = 'Lemon Juice',
+        weight = 100,
+    },
+
+    ['pp_limonata'] = {
+        label = 'Limonata',
+        weight = 100,
+    },
+
+    ['pp_mixed_peppers'] = {
+        label = 'Mixed Peppers',
+        weight = 100,
+    },
+
+    ['pp_mozzarella'] = {
+        label = 'Mozzarella',
+        weight = 100,
+    },
+
+    ['pp_nduja'] = {
+        label = 'Nduja',
+        weight = 100,
+    },
+
+    ['pp_nutella_calzone'] = {
+        label = 'Nutella Calzone',
+        weight = 100,
+    },
+
+    ['pp_nutella_jar'] = {
+        label = 'Nutella Jar',
+        weight = 100,
+    },
+
+    ['pp_olive_oil'] = {
+        label = 'Olive Oil',
+        weight = 100,
+    },
+
+    ['pp_parmesan'] = {
+        label = 'Parmesan',
+        weight = 100,
+    },
+
+    ['pp_pepperoni'] = {
+        label = 'Pepperoni',
+        weight = 100,
+    },
+
+    ['pp_pepperoni_pizza_slice'] = {
+        label = 'Pepperoni Pizza Slice',
+        weight = 100,
+    },
+
+    ['pp_pizza_base'] = {
+        label = 'Pizza Base',
+        weight = 100,
+    },
+
+    ['pp_pizza_dough'] = {
+        label = 'Pizza Dough',
+        weight = 100,
+    },
+
+    ['pp_quattro_formaggi_slice'] = {
+        label = 'Quattro Formaggi Slice',
+        weight = 100,
+    },
+
+    ['pp_red_onion'] = {
+        label = 'Red Onion',
+        weight = 100,
+    },
+
+    ['pp_sea_salt'] = {
+        label = 'Sea Salt',
+        weight = 100,
+    },
+
+    ['pp_sliced_banana'] = {
+        label = 'Sliced Banana',
+        weight = 100,
+    },
+
+    ['pp_sparkling_water'] = {
+        label = 'Sparkling Water',
+        weight = 100,
+    },
+
+    ['pp_spring_onion'] = {
+        label = 'Spring Onion',
+        weight = 100,
+    },
+
+    ['pp_sugar_syrup'] = {
+        label = 'Sugar Syrup',
+        weight = 100,
+    },
+
+    ['pp_tomato_base'] = {
+        label = 'Tomato Base',
+        weight = 100,
+    },
+
+    ['pp_whole_milk'] = {
+        label = 'Whole Milk',
+        weight = 100,
+    },
+
+    ['repair_part_axle'] = {
+        label = 'Repair Part Axle',
+        weight = 600,
+    },
+
+    ['repair_part_brakes'] = {
+        label = 'Repair Part Brakes',
+        weight = 600,
+    },
+
+    ['repair_part_brakes_hg'] = {
+        label = 'Repair Part Brakes (High Grade)',
+        weight = 600,
+    },
+
+    ['repair_part_clutch'] = {
+        label = 'Repair Part Clutch',
+        weight = 600,
+    },
+
+    ['repair_part_clutch_hg'] = {
+        label = 'Repair Part Clutch (High Grade)',
+        weight = 600,
+    },
+
+    ['repair_part_electronics'] = {
+        label = 'Repair Part Electronics',
+        weight = 600,
+    },
+
+    ['repair_part_injectors'] = {
+        label = 'Repair Part Injectors',
+        weight = 600,
+    },
+
+    ['repair_part_injectors_hg'] = {
+        label = 'Repair Part Injectors (High Grade)',
+        weight = 600,
+    },
+
+    ['repair_part_rad'] = {
+        label = 'Repair Part Rad',
+        weight = 600,
+    },
+
+    ['repair_part_rad_hg'] = {
+        label = 'Repair Part Rad (High Grade)',
+        weight = 600,
+    },
+
+    ['repair_part_transmission'] = {
+        label = 'Repair Part Transmission',
+        weight = 600,
+    },
+
+    ['repair_part_transmission_hg'] = {
+        label = 'Repair Part Transmission (High Grade)',
+        weight = 600,
+    },
+
+    ['repairkitadv'] = {
+        label = 'Repairkitadv',
+        weight = 500,
+    },
+
+    ['silver_bar'] = {
+        label = 'Silver Bar',
+        weight = 250,
+    },
+
+    ['tech_trash'] = {
+        label = 'Tech Trash',
+        weight = 150,
+    },
+
+    ['tin_bar'] = {
+        label = 'Tin Bar',
+        weight = 250,
+    },
+
+    ['upgrade_brakes1'] = {
+        label = 'Upgrade Brakes 1',
+        weight = 1500,
+    },
+
+    ['upgrade_brakes2'] = {
+        label = 'Upgrade Brakes 2',
+        weight = 1500,
+    },
+
+    ['upgrade_brakes3'] = {
+        label = 'Upgrade Brakes 3',
+        weight = 1500,
+    },
+
+    ['upgrade_engine1'] = {
+        label = 'Upgrade Engine 1',
+        weight = 1500,
+    },
+
+    ['upgrade_engine2'] = {
+        label = 'Upgrade Engine 2',
+        weight = 1500,
+    },
+
+    ['upgrade_engine3'] = {
+        label = 'Upgrade Engine 3',
+        weight = 1500,
+    },
+
+    ['upgrade_suspension1'] = {
+        label = 'Upgrade Suspension 1',
+        weight = 1500,
+    },
+
+    ['upgrade_suspension2'] = {
+        label = 'Upgrade Suspension 2',
+        weight = 1500,
+    },
+
+    ['upgrade_suspension3'] = {
+        label = 'Upgrade Suspension 3',
+        weight = 1500,
+    },
+
+    ['upgrade_transmission1'] = {
+        label = 'Upgrade Transmission 1',
+        weight = 1500,
+    },
+
+    ['upgrade_transmission2'] = {
+        label = 'Upgrade Transmission 2',
+        weight = 1500,
+    },
+
+    ['upgrade_transmission3'] = {
+        label = 'Upgrade Transmission 3',
+        weight = 1500,
+    },
+
+    ['upgrade_turbo'] = {
+        label = 'Upgrade Turbo',
+        weight = 1500,
+    },
+
 }
