@@ -2,6 +2,36 @@ local resourceName = tostring(GetCurrentResourceName())
 local ok, QBCore = pcall(function() return exports['qb-core']:GetCoreObject() end)
 if not ok then QBCore = nil end
 
+-- xt-prison is the jail system actually active on this server (qbx_police's
+-- own built-in /jail auto-disables when it detects xt-prison running - see
+-- qbx_police/server/main.lua's own IsUsingXTPrison check). xt-prison does
+-- expose a compat event for exactly this (police:server:JailPlayer,
+-- xt-prison/bridge/compat/server.lua), but that event requires the caller
+-- to be a cop standing within 5m of the target - the same restriction
+-- /jail itself has, but wrong for an MDT action that's routinely used from
+-- a desk, nowhere near the suspect. So this calls xt-prison's actual entry
+-- point directly instead (no distance/proximity requirement at all),
+-- falling back to the old event if xt-prison isn't the one running.
+local IsUsingXTPrison = GetResourceState('xt-prison'):find('start')
+
+---@param targetSource number
+---@param sentence number months
+local function jailPlayer(targetSource, sentence)
+    if not IsUsingXTPrison then
+        TriggerClientEvent('police:client:SendToJail', targetSource, sentence)
+        return
+    end
+
+    local playerState = Player(targetSource) and Player(targetSource).state
+    if playerState and playerState.jailTime and playerState.jailTime > 0 then
+        -- Already in jail - just update their time, same branch /jail
+        -- itself takes for someone already incarcerated.
+        exports['xt-prison']:SetJailTime(targetSource, sentence)
+    else
+        lib.callback.await('xt-prison:client:enterJail', targetSource, sentence)
+    end
+end
+
 -- Send to Jail
 ps.registerCallback(resourceName .. ':server:sendToJail', function(source, payload)
     local src = source
@@ -48,19 +78,7 @@ ps.registerCallback(resourceName .. ':server:sendToJail', function(source, paylo
         ['date'] = currentDate
     })
 
-    -- Actual jailing (injail metadata, jailTime statebag, teleport) is
-    -- handled by xt-prison itself, the jail system actually active on
-    -- this server (qbx_police's own built-in /jail auto-disables when it
-    -- detects xt-prison running - see qbx_police/server/main.lua's
-    -- IsUsingXTPrison check). police:client:SendToJail was qb-policejob's
-    -- old event and nothing listens for it anymore now that xt-prison is
-    -- in charge - xt-prison's own compat layer
-    -- (bridge/compat/server.lua) exposes police:server:JailPlayer for
-    -- exactly this instead, but it must come from the officer's own
-    -- client via TriggerServerEvent (it checks the caller is a cop
-    -- within 5m of the target, same as /jail) rather than from here
-    -- server-side, so the actual trigger happens back in
-    -- client/backend/sentencing.lua once this callback returns success.
+    jailPlayer(targetSource, sentence)
     ps.notify(src, 'Sent to jail for ' .. sentence .. ' months', 'success')
 
     if ps.auditLog then
@@ -69,7 +87,7 @@ ps.registerCallback(resourceName .. ':server:sendToJail', function(source, paylo
         })
     end
 
-    return { success = true, message = 'Sent to jail for ' .. sentence .. ' months', targetSource = targetSource, sentence = sentence }
+    return { success = true, message = 'Sent to jail for ' .. sentence .. ' months' }
 end)
 
 ps.registerCallback(resourceName .. ':server:giveCitation', function(source, payload)

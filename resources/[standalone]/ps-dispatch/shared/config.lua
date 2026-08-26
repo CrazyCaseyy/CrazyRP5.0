@@ -186,10 +186,10 @@ Config.AlertCommandCooldown = 60 -- this would make the command work every 60 se
 
 Config.DefaultAlertsDelay = 5 -- Delay between each default alert, prevent spamming
 Config.DefaultAlerts = {
-    Speeding = true,
+    Speeding = false, -- "Reckless driving" calls
     Shooting = true,
     Autotheft = true,
-    Melee = true,
+    Melee = false, -- "Fight in progress" calls
     PlayerDowned = true,
     Explosion = true
 }
