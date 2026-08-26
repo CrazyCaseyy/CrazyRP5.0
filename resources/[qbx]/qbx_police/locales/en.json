@@ -12,6 +12,7 @@
         "amount_higher": "Amount must be higher than 0",
         "vehicle_cuff": "You can't cuff someone in a vehicle",
         "no_cuff": "You don't have handcuffs on you",
+        "cuff_failed": "You failed to cuff them",
         "no_impound": "There are no impounded vehicles",
         "no_spikestripe": "Cannot place anymore spike strips",
         "error_license_type": "Invalid license type",

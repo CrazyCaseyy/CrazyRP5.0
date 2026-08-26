@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>crazy-handcuffs Preview</title>
+  <link rel="stylesheet" href="style.css?v=1" />
+</head>
+<body>
+  <div id="app" class="hidden">
+    <div class="bar-label" id="bar-label">HANDCUFFING</div>
+    <div class="bar-track" id="bar-track">
+      <div class="bar-zone" id="zone-0"></div>
+      <div class="bar-zone" id="zone-1"></div>
+      <div class="bar-zone" id="zone-2"></div>
+      <div class="bar-marker" id="bar-marker"></div>
+    </div>
+  </div>
+
+  <script src="script.js?v=1"></script>
+  <script>
+    // Preview-only: fakes the NUI messages the Lua backend would normally
+    // send, so this can be opened directly in a browser to check the
+    // styling/flow. Not used in-game - the real index.html has no data
+    // injection at all.
+    const DURATION = 4000;
+    const ZONES = [
+      { min: 25, max: 35 },
+      { min: 45, max: 60 },
+      { min: 70, max: 90 },
+    ];
+
+    setTimeout(() => {
+      window.postMessage({ action: 'start', duration: DURATION, zones: ZONES }, '*');
+    }, 500);
+
+    // Simulate hitting all 3 zones at roughly the right moments, then
+    // succeeding - run this preview again (reload) to see the fail state
+    // by commenting out one of the hits below.
+    ZONES.forEach((zone, i) => {
+      const mid = (zone.min + zone.max) / 2;
+      setTimeout(() => {
+        window.postMessage({ action: 'hitZone', index: i + 1 }, '*');
+      }, 500 + (mid / 100) * DURATION);
+    });
+
+    setTimeout(() => {
+      window.postMessage({ action: 'success' }, '*');
+    }, 500 + DURATION * 0.92);
+
+    setTimeout(() => {
+      window.postMessage({ action: 'hide' }, '*');
+    }, 500 + DURATION * 0.92 + 1500);
+  </script>
+</body>
+</html>

@@ -261,6 +261,10 @@ RegisterNetEvent('police:client:CuffPlayer', function()
         return exports.qbx_core:Notify(locale('error.vehicle_cuff'), 'error')
     end
 
+    if not exports['crazy-handcuffs']:StartMinigame(playerId) then
+        return exports.qbx_core:Notify(locale('error.cuff_failed'), 'error')
+    end
+
     if lib.callback.await('police:server:CuffPlayer', false, playerId, false) then
         handCuffAnimation()
     end
