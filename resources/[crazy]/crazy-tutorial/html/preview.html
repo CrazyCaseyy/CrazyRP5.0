@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>crazy-tutorial Preview</title>
+  <link rel="stylesheet" href="style.css?v=1" />
+</head>
+<body>
+  <div id="app" class="hidden">
+    <div class="panel">
+      <button class="panel-close" id="btn-close" aria-label="Close">&times;</button>
+      <div class="panel-header">
+        <div class="panel-title">Getting Started</div>
+        <div class="panel-subtitle">New Arrival</div>
+      </div>
+      <div class="step-list" id="step-list"></div>
+    </div>
+  </div>
+
+  <script src="script.js?v=1"></script>
+  <script>
+    // Preview-only: fakes the NUI messages the Lua backend would normally
+    // send, so this can be opened directly in a browser to check the
+    // styling/flow. Not used in-game - the real index.html has no data
+    // injection at all.
+    setTimeout(() => {
+      window.postMessage({
+        action: 'show',
+        steps: [
+          { id: 'exit', label: 'Leave your apartment', done: false },
+          { id: 'rules', label: 'Read the rules', description: 'Press T to open chat, then type /rules.', done: false },
+          { id: 'inventory', label: 'Open your inventory', description: 'Press TAB to open your inventory.', done: false },
+          {
+            id: 'tablet',
+            label: 'Open your tablet',
+            description: 'It\'s located in your inventory. Drag it to use it and open the tablet.',
+            done: false,
+          },
+          { id: 'phone', label: 'Open your phone', description: 'Press F1 to open your phone.', done: false },
+          { id: 'car', label: 'Rent a car', done: false },
+          { id: 'city', label: 'Enjoy the city!', done: false },
+        ],
+      }, '*');
+    }, 500);
+
+    // Simulate completing steps one after another...
+    setTimeout(() => window.postMessage({ action: 'markStep', id: 'exit' }, '*'), 1500);
+    setTimeout(() => window.postMessage({ action: 'markStep', id: 'rules' }, '*'), 2500);
+    setTimeout(() => window.postMessage({ action: 'markStep', id: 'inventory' }, '*'), 3500);
+    setTimeout(() => window.postMessage({ action: 'markStep', id: 'tablet' }, '*'), 4500);
+    setTimeout(() => window.postMessage({ action: 'markStep', id: 'phone' }, '*'), 5500);
+
+    // ...then stop before "Rent a car" - renting completes both "car" and
+    // "city" at once server-side, so the real panel just stays on screen
+    // until then (the close (X) button is the only way to dismiss it
+    // before that).
+  </script>
+</body>
+</html>

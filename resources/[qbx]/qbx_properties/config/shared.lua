@@ -38,6 +38,18 @@ return {
             description = 'A picture-perfect lateral living experience in one of Los Santos most sought-after tower blocks.',
             enter = vec3(-614.58, 46.52, 43.59)
         },
+        {
+            -- Reuses the Richard Majestic interior shell (same interior/exit/
+            -- clothing/stash/logout points) but with its own exterior "door"
+            -- location. The interior isn't a separate instance/MLO — it's
+            -- the same real, always-loaded game interior every
+            -- RichardMajesticApt2 entry uses, per how isInteriorShell works
+            -- in server/property.lua.
+            interior = 'RichardMajesticApt2',
+            label = 'Alta Apartments',
+            description = 'A quiet apartment complex away from downtown.',
+            enter = vec3(-271.06, -957.83, 30.22)
+        },
     },
 
     interiors = {

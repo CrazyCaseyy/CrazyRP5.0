@@ -252,10 +252,6 @@ function renderApartments() {
       setBusy(state.busy);
     });
     apartmentList.appendChild(card);
-
-    // Only one apartment on file — auto-select it so there's nothing extra
-    // to click for the common case, while still showing what it is.
-    if (state.apartments.length === 1) card.click();
   });
 }
 
@@ -286,11 +282,38 @@ btnIdentityCancel.addEventListener('click', () => {
   focusSlot(state.focusedSlot);
 });
 
+async function submitCharacter(apartmentId) {
+  setBusy(true);
+  const result = await nuiPost('createCharacter', {
+    firstName: inputFirstName.value.trim(),
+    lastName: inputLastName.value.trim(),
+    birthdate: inputBirthdate.value,
+    nationality: inputNationality.value.trim() || DEFAULT_NATIONALITY,
+    gender: state.selectedGender,
+    apartmentId,
+  });
+
+  if (result === 'error') {
+    setBusy(false);
+  } else {
+    closeIdentityModal();
+  }
+}
+
 btnIdentityNext.addEventListener('click', () => {
   if (!inputFirstName.value.trim() || !inputLastName.value.trim() || !inputBirthdate.value) {
     showToast('error', 'Fill in first name, last name, and date of birth.');
     return;
   }
+
+  // Only one apartment on file — skip the picker screen entirely and go
+  // straight to character creation with it. The picker still shows up
+  // normally if more apartments are ever added back to Config.Apartments.
+  if (state.apartments.length === 1) {
+    submitCharacter(state.apartments[0].id);
+    return;
+  }
+
   stepIdentity.classList.add('hidden');
   stepApartment.classList.remove('hidden');
   renderApartments();
@@ -302,27 +325,12 @@ btnApartmentBack.addEventListener('click', () => {
   stepIdentity.classList.remove('hidden');
 });
 
-btnApartmentConfirm.addEventListener('click', async () => {
+btnApartmentConfirm.addEventListener('click', () => {
   if (!state.selectedApartmentId) {
     showToast('error', 'Pick a starting apartment first.');
     return;
   }
-
-  setBusy(true);
-  const result = await nuiPost('createCharacter', {
-    firstName: inputFirstName.value.trim(),
-    lastName: inputLastName.value.trim(),
-    birthdate: inputBirthdate.value,
-    nationality: inputNationality.value.trim() || DEFAULT_NATIONALITY,
-    gender: state.selectedGender,
-    apartmentId: state.selectedApartmentId,
-  });
-
-  if (result === 'error') {
-    setBusy(false);
-  } else {
-    closeIdentityModal();
-  }
+  submitCharacter(state.selectedApartmentId);
 });
 
 btnDelete.addEventListener('click', () => {

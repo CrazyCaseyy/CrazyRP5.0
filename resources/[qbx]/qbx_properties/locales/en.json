@@ -50,10 +50,10 @@
     },
     "drawtext": {
         "stash": "[E] - Stash",
-        "exit": "[E] - Exit | [G] - Manage",
+        "exit": "[E] - Leave Apartment | [G] - Manage Keys",
         "clothing": "[E] - Clothing | [G] - Outfits",
         "logout": "[E] - Logout",
-        "view_property": "[E] - View Property"
+        "view_property": "[E] - Enter Apartment"
     },
     "logs": {
         "create_property": "Attempting to create a property.",

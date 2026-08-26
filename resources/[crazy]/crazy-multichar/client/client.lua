@@ -518,6 +518,22 @@ RegisterCommand('crazy_multichar_open', function()
     TriggerOpenSelectUI()
 end, false)
 
+-- qbx_core's own /logout command (server/commands.lua, admin-restricted)
+-- calls Logout(source), which unregisters the player and fires this event
+-- unconditionally. qbx_core's own client-side handler for it lives in
+-- client/character.lua, but that entire file no-ops when
+-- useExternalCharacters is true (see its line 4) - so with crazy-multichar
+-- installed nothing was ever listening for this, and /logout just tore
+-- down the player's data server-side while the client sat there with no
+-- HUD and the same character ped still standing in the world. This is the
+-- external-screen equivalent: send them back to full character select,
+-- the same flow OpenSelectUI() already runs on a fresh connect.
+RegisterNetEvent('qbx_core:client:playerLoggedOut', function()
+    if GetInvokingResource() then return end -- only ever valid triggered from the server
+    Debug('qbx_core:client:playerLoggedOut received - reopening character select')
+    OpenSelectUI()
+end)
+
 -- ===================================================================
 -- NUI -> qbx_core
 -- ===================================================================

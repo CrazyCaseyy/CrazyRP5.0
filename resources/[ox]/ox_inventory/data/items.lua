@@ -1200,8 +1200,7 @@ return {
     client = { image = "tablet.png" },
 },
 
-<<<<<<< Updated upstream
-    -- ══════════ crazy-kitchen: auto-registered crafting items (placeholder labels/weights, tune as needed) ══════════
+-- ══════════ crazy-kitchen: auto-registered crafting items (placeholder labels/weights, tune as needed) ══════════
     ['ad_berry_coulis'] = {
         label = 'Berry Coulis',
         weight = 100,
@@ -2327,7 +2326,6 @@ return {
         weight = 1500,
     },
 
-=======
 -- crazy-dailytasks: reward item from the lawyer's daily task board.
 -- No functionality yet - just the item, more to come later.
 ["case"] = {
@@ -2338,5 +2336,4 @@ return {
     rarity = "common",
     client = { image = "briefcase.png" },
 },
->>>>>>> Stashed changes
 }

@@ -1,0 +1,230 @@
+/* Same design language as the rest of the server (ox_lib, crazy-hud,
+   crazy-multichar, crazy-dailytasks, crazy-reputation): near-black
+   translucent panels, grey 3D-bevel borders, #1573ed accent blue, Geom
+   Graphic W03 display font. Centered box, same as the daily task board. */
+
+@font-face {
+  font-family: 'Geom Graphic W03';
+  src: url('fonts/GeomGraphic.woff2') format('woff2');
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+:root {
+  --ox-blue: #1573ed;
+  --ox-badge-border: rgba(90, 170, 255, 0.75);
+  --ox-badge-glow: inset 0 0 0 2px rgba(255, 255, 255, 0.12), 0 0 4px rgba(21, 115, 237, 0.3);
+  --ox-panel: rgba(15, 15, 18, 0.96);
+  --ox-panel-strong: rgba(15, 15, 18, 0.98);
+  --ox-border: rgba(140, 140, 150, 0.4);
+  --ox-border-strong: rgba(140, 140, 150, 0.55);
+  --ox-glow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 2px 6px rgba(0, 0, 0, 0.35);
+  --ox-text: #ffffff;
+  --ox-text-dim: #c9c9c9;
+  --ox-green: #3ddc84;
+  --ox-green-glow: inset 0 0 0 2px rgba(255, 255, 255, 0.12), 0 0 8px rgba(61, 220, 132, 0.45);
+
+  --font-display: 'Geom Graphic W03', 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+  font-family: var(--font-display);
+  color: var(--ox-text);
+}
+
+.hidden { display: none !important; }
+
+#app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.box {
+  position: relative;
+  width: 460px;
+  max-width: 90vw;
+  background: var(--ox-panel);
+  border: 2px solid var(--ox-border-strong);
+  border-radius: 16px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 20px 60px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(21, 115, 237, 0.1);
+  padding: 28px 28px 24px;
+}
+
+.box-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ox-panel-strong);
+  border: 1px solid var(--ox-border);
+  border-radius: 6px;
+  color: var(--ox-text-dim);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 150ms, color 150ms, box-shadow 150ms;
+}
+.box-close:hover {
+  border-color: var(--ox-badge-border);
+  color: var(--ox-text);
+  box-shadow: var(--ox-badge-glow);
+}
+
+.box-header {
+  margin-bottom: 18px;
+  padding-right: 40px;
+}
+
+.box-title {
+  font-size: 26px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ox-text);
+  text-shadow: 0 0 14px rgba(21, 115, 237, 0.5);
+}
+
+.box-subtitle {
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ox-blue);
+}
+
+.rules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+  margin-bottom: 20px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.rules-list li {
+  position: relative;
+  padding: 10px 14px 10px 34px;
+  background: var(--ox-panel-strong);
+  border: 1px solid var(--ox-border);
+  border-radius: 8px;
+  box-shadow: var(--ox-glow);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--ox-text-dim);
+}
+
+.rules-list li::before {
+  content: attr(data-index);
+  position: absolute;
+  left: 12px;
+  top: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ox-blue);
+}
+
+.accept-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  background: var(--ox-panel-strong);
+  border: 1px solid var(--ox-border);
+  border-radius: 8px;
+  box-shadow: var(--ox-glow);
+  cursor: pointer;
+  user-select: none;
+}
+
+.accept-row input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.accept-box {
+  position: relative;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  border: 1px solid var(--ox-border-strong);
+  background: var(--ox-panel);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 150ms, background 150ms, box-shadow 150ms;
+}
+
+.accept-check {
+  width: 13px;
+  height: 13px;
+  color: #fff;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 150ms, transform 150ms;
+}
+
+.accept-row input:checked ~ .accept-box {
+  background: var(--ox-green);
+  border-color: var(--ox-green);
+  box-shadow: var(--ox-green-glow);
+}
+.accept-row input:checked ~ .accept-box .accept-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.accept-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ox-text);
+}
+
+.btn-confirm {
+  width: 100%;
+  padding: 12px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ox-text-dim);
+  background: var(--ox-panel-strong);
+  border: 1px solid var(--ox-border);
+  border-radius: 8px;
+  cursor: not-allowed;
+  transition: color 200ms, background 200ms, border-color 200ms, box-shadow 200ms;
+}
+
+.btn-confirm.is-ready {
+  color: #06210f;
+  background: var(--ox-green);
+  border-color: var(--ox-green);
+  box-shadow: 0 0 16px rgba(61, 220, 132, 0.45);
+  cursor: pointer;
+}
+.btn-confirm.is-ready:hover {
+  filter: brightness(1.08);
+}

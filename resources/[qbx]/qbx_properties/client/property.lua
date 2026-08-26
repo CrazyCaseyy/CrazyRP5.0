@@ -174,14 +174,16 @@ end
 local function checkInteractions()
     local interactOptions = {
         ['stash'] = function(coords)
-            qbx.drawText3d({ coords = coords, text = locale('drawtext.stash') })
+            lib.showTextUI(locale('drawtext.stash'))
             if IsControlJustPressed(0, 38) then
+                lib.hideTextUI()
                 TriggerServerEvent('qbx_properties:server:openStash')
             end
         end,
         ['exit'] = function(coords)
-            qbx.drawText3d({ coords = coords, text = locale('drawtext.exit') })
+            lib.showTextUI(locale('drawtext.exit'))
             if IsControlJustPressed(0, 38) then
+                lib.hideTextUI()
                 DoScreenFadeOut(1000)
                 while not IsScreenFadedOut() do Wait(0) end
                 TriggerServerEvent('qbx_properties:server:exitProperty')
@@ -191,8 +193,9 @@ local function checkInteractions()
             end
         end,
         ['clothing'] = function(coords)
-            qbx.drawText3d({ coords = coords, text = locale('drawtext.clothing') })
+            lib.showTextUI(locale('drawtext.clothing'))
             if IsControlJustPressed(0, 38) then
+                lib.hideTextUI()
                 exports['illenium-appearance']:startPlayerCustomization(function(appearance)
                     if appearance then
                         TriggerServerEvent("illenium-appearance:server:saveAppearance", appearance)
@@ -204,30 +207,40 @@ local function checkInteractions()
                 })
             end
             if IsControlJustPressed(0, 47) then
+                lib.hideTextUI()
                 TriggerEvent('illenium-appearance:client:openOutfitMenu')
             end
         end,
         ['logout'] = function(coords)
-            qbx.drawText3d({ coords = coords, text = locale('drawtext.logout') })
+            lib.showTextUI(locale('drawtext.logout'))
             if IsControlJustPressed(0, 38) then
+                lib.hideTextUI()
                 DoScreenFadeOut(1000)
                 while not IsScreenFadedOut() do Wait(0) end
                 TriggerServerEvent('qbx_properties:server:logoutProperty')
             end
         end,
     }
+    local nearAny = false
     CreateThread(function()
         while insideProperty do
             local sleep = 800
             local playerCoords = GetEntityCoords(cache.ped)
+            local isNearAny = false
             for i = 1, #interactions do
                 if #(playerCoords - interactions[i].coords) < 1.5 and not IsDecorating then
                     sleep = 0
+                    isNearAny = true
                     interactOptions[interactions[i].type](interactions[i].coords)
                 end
             end
+            if nearAny and not isNearAny then
+                lib.hideTextUI()
+            end
+            nearAny = isNearAny
             Wait(sleep)
         end
+        if nearAny then lib.hideTextUI() end
     end)
 end
 
@@ -287,6 +300,7 @@ end)
 
 RegisterNetEvent('qbx_properties:client:unloadProperty', function()
     DoScreenFadeIn(1000)
+    lib.hideTextUI()
     insideProperty = false
     if DoesEntityExist(interiorShell) then DeleteEntity(interiorShell) end
     for _, v in pairs(DecorationObjects) do
@@ -410,7 +424,17 @@ end
 function PreparePropertyMenu(propertyCoords)
     local propertyList = lib.callback.await('qbx_properties:callback:requestProperties', false, propertyCoords)
     if #propertyList == 1 then
-        singlePropertyMenu(propertyList[1], true)
+        local property = propertyList[1]
+        -- Skip the menu entirely for your own place (or one you hold keys
+        -- to) - E just puts you straight inside instead of making you pick
+        -- "Enter" off a one-item list.
+        if QBX.PlayerData.citizenid == property.owner or lib.table.contains(json.decode(property.keyholders), QBX.PlayerData.citizenid) then
+            DoScreenFadeOut(1000)
+            while not IsScreenFadedOut() do Wait(0) end
+            TriggerServerEvent('qbx_properties:server:enterProperty', { id = property.id })
+            return
+        end
+        singlePropertyMenu(property, true)
     else
         propertyMenu(propertyList)
     end
@@ -426,18 +450,26 @@ CreateThread(function()
     end
 
     properties = lib.callback.await('qbx_properties:callback:loadProperties')
+    local nearProperty = false
     while true do
         local sleep = 800
         local playerCoords = GetEntityCoords(cache.ped)
+        local isNearProperty = false
         for i = 1, #properties do
             if #(playerCoords - properties[i].xyz) < 1.6 then
                 sleep = 0
-                qbx.drawText3d({ coords = properties[i].xyz, text = locale('drawtext.view_property') })
+                isNearProperty = true
+                lib.showTextUI(locale('drawtext.view_property'))
                 if IsControlJustPressed(0, 38) then
+                    lib.hideTextUI()
                     PreparePropertyMenu(properties[i])
                 end
             end
         end
+        if nearProperty and not isNearProperty then
+            lib.hideTextUI()
+        end
+        nearProperty = isNearProperty
         Wait(sleep)
     end
 end)

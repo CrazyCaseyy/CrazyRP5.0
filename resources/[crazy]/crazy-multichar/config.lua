@@ -51,9 +51,8 @@ Config.NewCharacterSpawn = vector4(-540.58, -212.02, 37.65, 208.88)
 -- ===================================================================
 -- Starting apartment picker
 -- Shown as step 2 of new-character creation, right after the identity
--- form. Unlike a plain spawn-point picker, every entry here has an
--- `interiorIndex` — the matching 1-based position in qbx_properties'
--- own Config.apartmentOptions list
+-- form. Every entry here has an `interiorIndex` — the matching 1-based
+-- position in qbx_properties' own Config.apartmentOptions list
 -- ([qbx]/qbx_properties/config/shared.lua). Picking one triggers
 -- qbx_properties:server:apartmentSelect, which actually INSERTs an
 -- owned row into the `properties` table (owner = the new citizenid),
@@ -69,49 +68,20 @@ Config.NewCharacterSpawn = vector4(-540.58, -212.02, 37.65, 208.88)
 -- reference and as the fallback if interiorIndex ever fails to
 -- resolve; it is NOT where the player ends up (EnterProperty places
 -- them inside the interior shell).
+--
+-- Currently a single entry (Alta Apartments) — the UI auto-selects it
+-- since there's only one (see stepApartment in html/script.js). It
+-- reuses the Richard Majestic interior shell but with its own door
+-- location, matching the entry appended to qbx_properties'
+-- Config.apartmentOptions.
 -- ===================================================================
 Config.Apartments = {
     {
-        id = 'delperro4',
-        label = 'Del Perro Heights Apt 4',
-        blurb = 'Ocean views far away from tourists and bums on Del Perro Beach.',
-        coords = vector4(-1447.35, -537.84, 34.74, 235.0),
-        interiorIndex = 1
-    },
-    {
-        id = 'delperro7',
-        label = 'Del Perro Heights Apt 7',
-        blurb = 'Luxury complex overlooking the beach.',
-        coords = vector4(-1447.35, -537.84, 34.74, 235.0),
-        interiorIndex = 2
-    },
-    {
-        id = 'integrity28',
-        label = '4 Integrity Way Apt 28',
-        blurb = 'An up-and-coming Downtown neighborhood.',
-        coords = vector4(-59.4, -616.29, 37.36, 250.0),
-        interiorIndex = 3
-    },
-    {
-        id = 'integrity30',
-        label = '4 Integrity Way Apt 30',
-        blurb = 'An expansive high-rise unit Downtown.',
-        coords = vector4(-47.52, -585.86, 37.95, 250.0),
-        interiorIndex = 4
-    },
-    {
-        id = 'majestic',
-        label = 'Richard Majestic Apt',
-        blurb = 'A breathtaking luxury condo near AKAN Records.',
-        coords = vector4(-936.15, -378.91, 38.96, 115.0),
-        interiorIndex = 5
-    },
-    {
-        id = 'tinsel',
-        label = 'Tinsel Towers Apt',
-        blurb = 'High-rise living in Downtown Vinewood.',
-        coords = vector4(-614.58, 46.52, 43.59, 91.0),
-        interiorIndex = 6
+        id = 'alta',
+        label = 'Alta Apartments',
+        blurb = 'A quiet apartment complex away from downtown.',
+        coords = vector4(-271.06, -957.83, 30.22, 123.47),
+        interiorIndex = 7
     }
 }
 
@@ -157,9 +127,9 @@ Config.SpawnLocations = {
     },
     {
         id = 'apartments',
-        label = 'Apartments',
+        label = 'Alta Apartments',
         blurb = 'A quiet apartment complex away from downtown.',
-        coords = vector4(-268.82, -956.04, 30.22, 203.66)
+        coords = vector4(-271.06, -957.83, 30.22, 123.47)
     },
     {
         id = 'hospital',

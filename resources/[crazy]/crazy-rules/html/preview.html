@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>crazy-rules Preview</title>
+  <link rel="stylesheet" href="style.css?v=1" />
+</head>
+<body>
+  <div id="app" class="hidden">
+    <div class="box">
+      <button class="box-close" id="btn-close" aria-label="Close">&times;</button>
+
+      <div class="box-header">
+        <div class="box-title">Server Rules</div>
+        <div class="box-subtitle">Read Before You Continue</div>
+      </div>
+
+      <ul class="rules-list" id="rules-list"></ul>
+
+      <label class="accept-row" id="accept-row">
+        <input type="checkbox" id="accept-checkbox" />
+        <span class="accept-box">
+          <svg class="accept-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </span>
+        <span class="accept-label">I have read and accept the rules</span>
+      </label>
+
+      <button class="btn-confirm" id="btn-confirm" disabled>Confirm</button>
+    </div>
+  </div>
+
+  <script src="script.js?v=1"></script>
+  <script>
+    // Preview-only: fakes the NUI message the Lua backend would normally
+    // send, so this can be opened directly in a browser to check the
+    // styling. Not used in-game - the real index.html has no data
+    // injection at all.
+    setTimeout(() => {
+      window.postMessage({
+        action: 'open',
+        rules: [
+          'Be respectful to staff and other players at all times.',
+          'No metagaming (using out-of-character info in-character) or powergaming (forcing outcomes on other players).',
+          'Stay in character while roleplaying - breaking character (/b) is for necessary out-of-character info only.',
+          'Follow staff instructions during any situation or event.',
+          'No exploiting bugs or glitches for personal gain.',
+        ],
+      }, '*');
+    }, 500);
+  </script>
+</body>
+</html>
