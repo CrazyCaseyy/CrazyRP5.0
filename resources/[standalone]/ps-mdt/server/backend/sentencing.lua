@@ -43,12 +43,24 @@ ps.registerCallback(resourceName .. ':server:sendToJail', function(source, paylo
         currentDate.day = 30
     end
 
-    OtherPlayer.Functions.SetMetaData('injail', sentence)
     OtherPlayer.Functions.SetMetaData('criminalrecord', {
         ['hasRecord'] = true,
         ['date'] = currentDate
     })
-    TriggerClientEvent('police:client:SendToJail', targetSource, sentence)
+
+    -- Actual jailing (injail metadata, jailTime statebag, teleport) is
+    -- handled by xt-prison itself, the jail system actually active on
+    -- this server (qbx_police's own built-in /jail auto-disables when it
+    -- detects xt-prison running - see qbx_police/server/main.lua's
+    -- IsUsingXTPrison check). police:client:SendToJail was qb-policejob's
+    -- old event and nothing listens for it anymore now that xt-prison is
+    -- in charge - xt-prison's own compat layer
+    -- (bridge/compat/server.lua) exposes police:server:JailPlayer for
+    -- exactly this instead, but it must come from the officer's own
+    -- client via TriggerServerEvent (it checks the caller is a cop
+    -- within 5m of the target, same as /jail) rather than from here
+    -- server-side, so the actual trigger happens back in
+    -- client/backend/sentencing.lua once this callback returns success.
     ps.notify(src, 'Sent to jail for ' .. sentence .. ' months', 'success')
 
     if ps.auditLog then
@@ -57,7 +69,7 @@ ps.registerCallback(resourceName .. ':server:sendToJail', function(source, paylo
         })
     end
 
-    return { success = true, message = 'Sent to jail for ' .. sentence .. ' months' }
+    return { success = true, message = 'Sent to jail for ' .. sentence .. ' months', targetSource = targetSource, sentence = sentence }
 end)
 
 ps.registerCallback(resourceName .. ':server:giveCitation', function(source, payload)
