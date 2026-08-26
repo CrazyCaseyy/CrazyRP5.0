@@ -1,7 +1,7 @@
 // NUI contract with client/main.lua:
 //   inbound (SendNUIMessage):  { action: 'open'|'update', tasks: [{ job,
 //     label, target, progress, completed }] } | { action: 'close' }
-//   outbound (RegisterNUICallback): 'close'
+//   outbound (RegisterNUICallback): 'close' | 'setWaypoint' ({ job })
 
 const el = (id) => document.getElementById(id);
 
@@ -33,6 +33,7 @@ function escapeHtml(str) {
 
 const BRIEFCASE_ICON = '<svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 8V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3 13h18" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
 const CHECK_ICON = '<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const PIN_ICON = '<svg viewBox="0 0 24 24"><path d="M12 21s7-6.3 7-12a7 7 0 1 0-14 0c0 5.7 7 12 7 12z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="9" r="2.3" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
 
 function renderTasks(tasks) {
   if (!tasks || !tasks.length) {
@@ -53,11 +54,16 @@ function renderTasks(tasks) {
             </div>
             <div class="task-progress-bar"><div class="task-progress-fill" style="width:${pct}%"></div></div>
             <div class="task-progress-text">${task.progress} / ${task.target} completed</div>
+            <button class="task-waypoint-btn" data-job="${escapeHtml(task.job)}">${PIN_ICON}Set Waypoint</button>
           </div>
         </div>
       `;
     })
     .join('');
+
+  taskList.querySelectorAll('.task-waypoint-btn').forEach((btn) => {
+    btn.addEventListener('click', () => nuiPost('setWaypoint', { job: btn.dataset.job }));
+  });
 }
 
 function closeBox() {

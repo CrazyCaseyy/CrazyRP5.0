@@ -81,10 +81,26 @@ local function onTalkToClerk()
     end
 end
 
-CreateThread(function()
+local pedSpawned = false
+
+-- On a fresh server restart, this resource's client scripts start at the
+-- exact same moment as the player's whole session/world is also booting -
+-- every resource is streaming assets at once, so model loading here can
+-- time out even with a generous timeout or a few retries. A manual
+-- `restart crazy-carrental` later works fine because by then the world
+-- is already idle. Rather than race that boot storm, wait for the
+-- player to actually be loaded in - QBCore:Client:OnPlayerLoaded, which
+-- only fires once they're spawned and past character select - so this
+-- runs well clear of it, same as a manual restart would.
+local function SpawnRentalClerk()
+    if pedSpawned then return end
+    pedSpawned = true
+
     local model = joaat(Config.Ped.model)
-    if not lib.requestModel(model, 5000) then
+    local ok = pcall(lib.requestModel, model, 10000)
+    if not ok or not HasModelLoaded(model) then
         print(('^1[crazy-carrental]^7 failed to load ped model %s - rental clerk was not spawned'):format(Config.Ped.model))
+        pedSpawned = false
         return
     end
 
@@ -94,6 +110,7 @@ CreateThread(function()
 
     if not ped or ped == 0 then
         print('^1[crazy-carrental]^7 CreatePed returned an invalid entity - rental clerk was not spawned')
+        pedSpawned = false
         return
     end
 
@@ -110,4 +127,13 @@ CreateThread(function()
         distance = 1.5,
         onSelect = onTalkToClerk,
     }})
-end)
+end
+
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', SpawnRentalClerk)
+
+-- Covers a client that's already loaded in by the time this resource
+-- (re)starts - e.g. a manual `restart crazy-carrental` - since
+-- OnPlayerLoaded won't fire again for them on its own.
+if LocalPlayer.state.isLoggedIn then
+    SpawnRentalClerk()
+end

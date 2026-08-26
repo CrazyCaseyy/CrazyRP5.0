@@ -23,3 +23,14 @@ Config.JobTargets = {
     trucker = { label = 'Trucker', min = 4, max = 6 },
     garbage = { label = 'Garbage', min = 2, max = 3 },
 }
+
+-- Where the "Set Waypoint" button on each task card points to - each
+-- job's own start/depot location, taken directly from that job
+-- resource's own config so it stays consistent if those ever move.
+Config.JobLocations = {
+    bus = vec3(462.22, -641.15, 28.45),           -- qbx_busjob config/shared.lua location
+    taxi = vec3(909.5, -177.35, 74.22),           -- qbx_taxijob config/client.lua locations.main
+    tow = vec3(471.39, -1311.03, 29.21),          -- qbx_towjob config/shared.lua locations.main
+    trucker = vec3(153.0, -3211.68, 5.91),        -- qbx_truckerjob config/shared.lua locations.main
+    garbage = vec3(-313.84, -1522.82, 27.56),     -- qbx_garbagejob config/shared.lua locations.main
+}

@@ -23,15 +23,41 @@ RegisterNUICallback('close', function(_, cb)
     cb(1)
 end)
 
+RegisterNUICallback('setWaypoint', function(data, cb)
+    local coords = Config.JobLocations[data.job]
+    if coords then
+        SetNewWaypoint(coords.x, coords.y)
+        exports.qbx_core:Notify('Waypoint set.', 'success')
+    end
+    cb(1)
+end)
+
 RegisterNetEvent('crazy-dailytasks:client:refreshTasks', function(tasks)
     if not isOpen then return end
     SendNUIMessage({ action = 'update', tasks = tasks })
 end)
 
-CreateThread(function()
+local pedSpawned = false
+
+-- On a fresh server restart, this resource's client scripts start at the
+-- exact same moment as the player's whole session/world is also booting -
+-- every resource is streaming assets at once, so model loading here can
+-- time out (and lib.requestModel throws, not returns false, on timeout -
+-- silently killing this whole thread with no retry). A manual
+-- `restart crazy-dailytasks` later works fine because by then the world
+-- is already idle. Rather than race that boot storm, wait for the player
+-- to actually be loaded in - QBCore:Client:OnPlayerLoaded, which only
+-- fires once they're spawned and past character select - so this runs
+-- well clear of it, same as a manual restart would.
+local function SpawnLawyerPed()
+    if pedSpawned then return end
+    pedSpawned = true
+
     local model = joaat(Config.Ped.model)
-    if not lib.requestModel(model, 5000) then
+    local ok = pcall(lib.requestModel, model, 10000)
+    if not ok or not HasModelLoaded(model) then
         print(('^1[crazy-dailytasks]^7 failed to load ped model %s - lawyer ped was not spawned'):format(Config.Ped.model))
+        pedSpawned = false
         return
     end
 
@@ -41,6 +67,7 @@ CreateThread(function()
 
     if not ped or ped == 0 then
         print('^1[crazy-dailytasks]^7 CreatePed returned an invalid entity - lawyer ped was not spawned')
+        pedSpawned = false
         return
     end
 
@@ -63,4 +90,13 @@ CreateThread(function()
     }})
 
     print(('^2[crazy-dailytasks]^7 lawyer ped spawned at %s'):format(tostring(coords)))
-end)
+end
+
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', SpawnLawyerPed)
+
+-- Covers a client that's already loaded in by the time this resource
+-- (re)starts - e.g. a manual `restart crazy-dailytasks` - since
+-- OnPlayerLoaded won't fire again for them on its own.
+if LocalPlayer.state.isLoggedIn then
+    SpawnLawyerPed()
+end
