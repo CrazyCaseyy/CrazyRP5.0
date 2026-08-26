@@ -23,9 +23,22 @@ local active = false
 local ESCAPE_CAP = 3
 local SPEED_MULTIPLIER_PER_ESCAPE = 0.75 -- 25% faster per prior escape
 local MIN_DURATION = 1200
+local BOX_WIDTH = 6 -- percent width of each actual target box
+
+---@param bands { min: number, max: number }[] the range each box is allowed to land in
+---@return { min: number, max: number }[]
+local function randomizeZones(bands)
+    local zones = {}
+    for i, band in ipairs(bands) do
+        local width = math.min(BOX_WIDTH, band.max - band.min)
+        local start = band.min + math.random() * (band.max - band.min - width)
+        zones[i] = { min = start, max = start + width }
+    end
+    return zones
+end
 
 ---@param targetServerId? number the player playing the minigame, for per-player escape tracking/speedup. Omit to always run at base speed with no tracking.
----@param opts? { duration?: number, zones?: { min: number, max: number }[] }
+---@param opts? { duration?: number, zones?: { min: number, max: number }[] } zones here are bands - a smaller box is randomized somewhere inside each one every run, not the box itself
 ---@return boolean success
 local function StartHandcuffMinigame(targetServerId, opts)
     if active then return false end
@@ -48,11 +61,12 @@ local function StartHandcuffMinigame(targetServerId, opts)
     opts = opts or {}
     local baseDuration = opts.duration or 4000
     local duration = math.max(MIN_DURATION, math.floor(baseDuration * (SPEED_MULTIPLIER_PER_ESCAPE ^ escapeCount)))
-    local zones = opts.zones or {
+    local bands = opts.zones or {
         { min = 25, max = 35 },
         { min = 45, max = 60 },
         { min = 70, max = 90 },
     }
+    local zones = randomizeZones(bands)
 
     SendNUIMessage({ game = 'handcuffs', action = 'start', duration = duration, zones = zones })
 
