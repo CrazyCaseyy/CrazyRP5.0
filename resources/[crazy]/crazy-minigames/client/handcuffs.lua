@@ -5,44 +5,49 @@
 -- press, fails immediately and the bar turns red.
 --
 -- Exported for other resources to gate an action on
--- (exports['crazy-minigames']:StartHandcuffMinigame(targetServerId)),
--- e.g. qbx_police's handcuffing
--- (see [qbx]/qbx_police/client/interactions.lua).
+-- (exports['crazy-minigames']:StartHandcuffMinigame(targetServerId)).
+-- Runs on the player being handcuffed, not the one cuffing them - see
+-- qbx_police's police:client:GetCuffed
+-- ([qbx]/qbx_police/client/interactions.lua), which calls this with
+-- their own cache.serverId in place of the ox_lib skillCheck it used to
+-- run there. Success there means they escaped (same "isSuccess -> don't
+-- get cuffed" branch qbx_police already had), so pass true here.
 --
--- Each failed attempt against the same target (server-tracked, see
--- server/handcuffs.lua) speeds the bar up for their next attempt. After
--- 3 resisted attempts, the 4th is an automatic success - no minigame -
--- same as the suspect finally being overpowered.
+-- Each successful escape (server-tracked, see server/handcuffs.lua)
+-- speeds the bar up for their next attempt. After 3 escapes in a row,
+-- the 4th attempt is an automatic fail - no minigame - they're finally
+-- overpowered regardless of input.
 
 local active = false
 
-local RESIST_CAP = 3
-local SPEED_MULTIPLIER_PER_RESIST = 0.75 -- 25% faster per prior resist
+local ESCAPE_CAP = 3
+local SPEED_MULTIPLIER_PER_ESCAPE = 0.75 -- 25% faster per prior escape
 local MIN_DURATION = 1200
 
----@param targetServerId? number the player being cuffed, for per-suspect resist tracking/speedup. Omit to always run at base speed with no tracking.
+---@param targetServerId? number the player playing the minigame, for per-player escape tracking/speedup. Omit to always run at base speed with no tracking.
 ---@param opts? { duration?: number, zones?: { min: number, max: number }[] }
 ---@return boolean success
 local function StartHandcuffMinigame(targetServerId, opts)
     if active then return false end
     active = true
 
-    local resistCount = 0
+    local escapeCount = 0
     if targetServerId then
-        local ok, result = pcall(lib.callback.await, 'crazy-minigames:server:getHandcuffResistCount', false, targetServerId)
-        if ok and type(result) == 'number' then resistCount = result end
+        local ok, result = pcall(lib.callback.await, 'crazy-minigames:server:getHandcuffEscapeCount', false, targetServerId)
+        if ok and type(result) == 'number' then escapeCount = result end
     end
 
-    if targetServerId and resistCount >= RESIST_CAP then
-        -- Worn them down - this attempt succeeds automatically.
-        TriggerServerEvent('crazy-minigames:server:resetHandcuffResist', targetServerId)
+    if targetServerId and escapeCount >= ESCAPE_CAP then
+        -- Escaped too many times in a row - overpowered this time, no
+        -- chance to resist.
+        TriggerServerEvent('crazy-minigames:server:resetHandcuffEscapes', targetServerId)
         active = false
-        return true
+        return false
     end
 
     opts = opts or {}
     local baseDuration = opts.duration or 4000
-    local duration = math.max(MIN_DURATION, math.floor(baseDuration * (SPEED_MULTIPLIER_PER_RESIST ^ resistCount)))
+    local duration = math.max(MIN_DURATION, math.floor(baseDuration * (SPEED_MULTIPLIER_PER_ESCAPE ^ escapeCount)))
     local zones = opts.zones or {
         { min = 25, max = 35 },
         { min = 45, max = 60 },
@@ -61,9 +66,9 @@ local function StartHandcuffMinigame(targetServerId, opts)
 
         if targetServerId then
             if success then
-                TriggerServerEvent('crazy-minigames:server:resetHandcuffResist', targetServerId)
+                TriggerServerEvent('crazy-minigames:server:handcuffEscaped', targetServerId)
             else
-                TriggerServerEvent('crazy-minigames:server:handcuffResisted', targetServerId)
+                TriggerServerEvent('crazy-minigames:server:resetHandcuffEscapes', targetServerId)
             end
         end
 

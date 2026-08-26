@@ -1,23 +1,22 @@
--- Tracks how many times each suspect has resisted (failed the cuffing
--- minigame), keyed by their live server id - a fresh count each time
--- they're actually caught, not something meant to persist across
--- reconnects. Server-authoritative so the count can't be reset by the
--- officer's client, and so it holds regardless of which officer is
--- making the attempt.
-local resistCounts = {}
+-- Tracks how many times in a row each player has escaped the handcuff
+-- minigame, keyed by their live server id - a fresh streak each time
+-- they're actually caught (or escape enough to get overpowered), not
+-- something meant to persist across reconnects. Server-authoritative so
+-- it can't be manipulated from the client.
+local escapeCounts = {}
 
-lib.callback.register('crazy-minigames:server:getHandcuffResistCount', function(source, targetServerId)
-    return resistCounts[targetServerId] or 0
+lib.callback.register('crazy-minigames:server:getHandcuffEscapeCount', function(source, targetServerId)
+    return escapeCounts[targetServerId] or 0
 end)
 
-RegisterNetEvent('crazy-minigames:server:handcuffResisted', function(targetServerId)
-    resistCounts[targetServerId] = (resistCounts[targetServerId] or 0) + 1
+RegisterNetEvent('crazy-minigames:server:handcuffEscaped', function(targetServerId)
+    escapeCounts[targetServerId] = (escapeCounts[targetServerId] or 0) + 1
 end)
 
-RegisterNetEvent('crazy-minigames:server:resetHandcuffResist', function(targetServerId)
-    resistCounts[targetServerId] = nil
+RegisterNetEvent('crazy-minigames:server:resetHandcuffEscapes', function(targetServerId)
+    escapeCounts[targetServerId] = nil
 end)
 
 AddEventHandler('playerDropped', function()
-    resistCounts[source] = nil
+    escapeCounts[source] = nil
 end)

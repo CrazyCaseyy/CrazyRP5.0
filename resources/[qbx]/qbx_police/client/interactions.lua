@@ -261,10 +261,6 @@ RegisterNetEvent('police:client:CuffPlayer', function()
         return exports.qbx_core:Notify(locale('error.vehicle_cuff'), 'error')
     end
 
-    if not exports['crazy-minigames']:StartHandcuffMinigame(playerId) then
-        return exports.qbx_core:Notify(locale('error.cuff_failed'), 'error')
-    end
-
     if lib.callback.await('police:server:CuffPlayer', false, playerId, false) then
         handCuffAnimation()
     end
@@ -344,7 +340,7 @@ RegisterNetEvent('police:client:GetCuffed', function(playerId, isSoftcuff)
             exports.qbx_core:Notify(locale('info.cuff'), 'success')
         else
             if config.breakCuffs == true then
-                local isSuccess = lib.skillCheck(config.breakCuffsDifficulty, config.breakCuffsKeys)
+                local isSuccess = exports['crazy-minigames']:StartHandcuffMinigame(cache.serverId)
                 if isSuccess then
                     TriggerServerEvent('police:server:SetHandcuffStatus', false)
                     ClearPedTasksImmediately(cache.ped)
