@@ -1,402 +1,289 @@
 local config = require 'config.client'
-local zone
-local activeZone = {}
-local currentVehicle = {}
-local entityZones = {}
-local occasionVehicles = {}
 
-local function spawnOccasionsVehicles(vehicles)
-    if zone then
-        local oSlot = config.zones[zone].vehicleSpots
-        if not occasionVehicles[zone] then occasionVehicles[zone] = {} end
-        if vehicles then
-            for i = 1, #vehicles, 1 do
-                local model = joaat(vehicles[i].model)
-                lib.requestModel(model)
-                occasionVehicles[zone][i] = {
-                    car = CreateVehicle(model, oSlot[i].x, oSlot[i].y, oSlot[i].z, false, false),
-                    loc = vector3(oSlot[i].x, oSlot[i].y, oSlot[i].z),
-                    price = vehicles[i].price,
-                    owner = vehicles[i].seller,
-                    model = vehicles[i].model,
-                    plate = vehicles[i].plate,
-                    oid = vehicles[i].occasionid,
-                    desc = vehicles[i].description,
-                    mods = vehicles[i].mods
-                }
-
-                lib.setVehicleProperties(occasionVehicles[zone][i].car, json.decode(vehicles[i].mods))
-
-                SetModelAsNoLongerNeeded(model)
-                SetVehicleOnGroundProperly(occasionVehicles[zone][i].car)
-                SetEntityInvincible(occasionVehicles[zone][i].car,true)
-                SetEntityHeading(occasionVehicles[zone][i].car, oSlot[i].w)
-                SetVehicleDoorsLocked(occasionVehicles[zone][i].car, 3)
-                SetVehicleNumberPlateText(occasionVehicles[zone][i].car, occasionVehicles[zone][i].oid)
-                FreezeEntityPosition(occasionVehicles[zone][i].car,true)
-                if config.useTarget then
-                    if not entityZones then entityZones = {} end
-                    entityZones[i] = exports.ox_target:addLocalEntity(occasionVehicles[zone][i].car, {
-                        {
-                            icon = 'fas fa-car',
-                            label = locale('menu.view_contract'),
-                            onSelect = function()
-                                TriggerEvent('qb-vehiclesales:client:OpenContract', i)
-                            end,
-                            distance = 2.0
-                        }
-                    })
-                end
-            end
+-- Each browsePoint is paired with whichever previewPoint is physically
+-- closest to it, computed once at load rather than hardcoded, so this
+-- still works correctly if points are ever added/moved. previewIndexFor
+-- looks up that pairing by browse point index.
+local previewIndexFor = {}
+for browseI, browseCoords in ipairs(config.browsePoints) do
+    local closest, closestDist
+    for previewI, previewCoords in ipairs(config.previewPoints) do
+        local dist = #(browseCoords - previewCoords.xyz)
+        if not closestDist or dist < closestDist then
+            closest, closestDist = previewI, dist
         end
     end
+    previewIndexFor[browseI] = closest
 end
 
-local function despawnOccasionsVehicles()
-    if not zone then return end
-    local oSlot = config.zones[zone].vehicleSpots
-    for i = 1, #oSlot, 1 do
-        local loc = oSlot[i]
-        local oldVehicle = GetClosestVehicle(loc.x, loc.y, loc.z, 1.3, 0, 70)
-        if oldVehicle then
-            DeleteVehicle(oldVehicle)
-        end
+local previewVehicles = {} -- [previewIndex] = entity
+local currentPreviewModel = {} -- [previewIndex] = model, so menus can tell what's already on display
 
-        if entityZones[i] and config.useTarget then
-            exports.ox_target:removeLocalEntity(occasionVehicles[zone][i].car, locale('menu.view_contract'))
-        end
+local function updatePreview(previewIndex, model)
+    local existing = previewVehicles[previewIndex]
+    if existing and DoesEntityExist(existing) then
+        DeleteEntity(existing)
     end
-    table.wipe(entityZones)
+    previewVehicles[previewIndex] = nil
+    currentPreviewModel[previewIndex] = model
+
+    if not model then return end
+
+    local coords = config.previewPoints[previewIndex]
+    if not coords then return end
+
+    local hash = joaat(model)
+    lib.requestModel(hash, 5000)
+    local veh = CreateVehicle(hash, coords.x, coords.y, coords.z, coords.w, false, false)
+    SetModelAsNoLongerNeeded(hash)
+
+    SetEntityInvincible(veh, true)
+    FreezeEntityPosition(veh, true)
+    SetVehicleDoorsLocked(veh, 2)
+    SetVehicleEngineOn(veh, false, true, true)
+    SetVehicleUndriveable(veh, true)
+
+    previewVehicles[previewIndex] = veh
 end
 
-local function openSellContract(bool)
-    SetNuiFocus(bool, bool)
-    SendNUIMessage({
-        action = 'sellVehicle',
-        showTakeBackOption = false,
-        bizName = config.zones[zone].businessName,
-        sellerData = {
-            firstname = QBX.PlayerData.charinfo.firstname,
-            lastname = QBX.PlayerData.charinfo.lastname,
-            account = QBX.PlayerData.charinfo.account,
-            phone = QBX.PlayerData.charinfo.phone
-        },
-        plate = qbx.getVehiclePlate(cache.vehicle)
+RegisterNetEvent('qbx_vehiclesales:client:updatePreview', function(previewIndex, model)
+    updatePreview(previewIndex, model)
+end)
+
+local function setPreview(browseIndex, vehicle)
+    local previewIndex = previewIndexFor[browseIndex]
+    if not previewIndex then return end
+
+    TriggerServerEvent('qbx_vehiclesales:server:setPreview', previewIndex, vehicle.model)
+    exports.qbx_core:Notify(('Now previewing the %s.'):format(vehicle.name), 'success')
+end
+
+local function purchaseVehicle(vehicle)
+    local alert = lib.alertDialog({
+        header = ('Purchase %s'):format(vehicle.name),
+        content = ('Buy the %s for $%s? This will come out of your bank account.'):format(vehicle.name, lib.math.groupdigits(vehicle.price)),
+        centered = true,
+        cancel = true,
     })
+    if alert ~= 'confirm' then return end
+
+    local result = lib.callback.await('qbx_vehiclesales:server:purchaseVehicle', false, vehicle.model)
+    exports.qbx_core:Notify(result.message, result.success and 'success' or 'error')
 end
 
-local function openBuyContract(sellerData, vehicleData)
-    SetNuiFocus(true, true)
-    SendNUIMessage({
-        action = 'buyVehicle',
-        showTakeBackOption = sellerData.charinfo.firstname == QBX.PlayerData.charinfo.firstname and sellerData.charinfo.lastname == QBX.PlayerData.charinfo.lastname,
-        bizName = config.zones[zone].businessName,
-        sellerData = {
-            firstname = sellerData.charinfo.firstname,
-            lastname = sellerData.charinfo.lastname,
-            account = sellerData.charinfo.account,
-            phone = sellerData.charinfo.phone
-        },
-        vehicleData = {
-            desc = vehicleData.desc,
-            price = vehicleData.price
-        },
-        plate = vehicleData.plate
-    })
-end
-
-local function sellVehicleWait(price)
-    DoScreenFadeOut(250)
-    Wait(250)
-    DeleteVehicle(cache.vehicle)
-    Wait(1500)
-    DoScreenFadeIn(250)
-    exports.qbx_core:Notify((locale('success.car_up_for_sale'):format(price)), 'success')
-    PlaySound(-1, 'SELECT', 'HUD_FRONTEND_DEFAULT_SOUNDSET', false, 0, true)
-end
-
-local function sellData(data, model)
-    local dataReturning = lib.callback.await('qb-vehiclesales:server:CheckModelName', false, model)
-    local vehicleData = {}
-    vehicleData.ent = cache.vehicle
-    vehicleData.model = dataReturning
-    vehicleData.plate = model
-    vehicleData.mods = lib.getVehicleProperties(vehicleData.ent)
-    vehicleData.desc = data.desc
-    TriggerServerEvent('qb-occasions:server:sellVehicle', data.price, vehicleData)
-    sellVehicleWait(data.price)
-end
-
-local function createZones()
-    for k, v in pairs(config.zones) do
-
-        local SellSpot = lib.zones.poly({
-            name = k,
-            points = v.polyzone,
-            thickness = 50,
-            debug = false,
-            onEnter = function(self)
-                zone = self.name
-                local vehicles = lib.callback.await('qb-occasions:server:getVehicles', false)
-                despawnOccasionsVehicles()
-                spawnOccasionsVehicles(vehicles)
-            end,
-            onExit = function()
-                despawnOccasionsVehicles()
-                zone = nil
-            end,
-        })
-        
-        activeZone[k] = SellSpot
+-- No progress bar (it has its own busy-state that can get in the way of
+-- ox_target elsewhere) and no ox_target zone for the return either -
+-- both live as plain lib.showTextUI prompts instead, matching the style
+-- crazy-hud's own "Start Engine" prompt uses (a badge/label pill, not a
+-- depleting bar): a left-side countdown while driving around, which
+-- swaps to a bottom-center "[E] - Return Test Drive" prompt (crazy-hud's
+-- Start Engine prompt's own position) the moment they're back at the
+-- spawn point, ending the test drive on that keypress.
+local function startTestDrive(vehicle)
+    local netId = lib.callback.await('qbx_vehiclesales:server:startTestDrive', false, vehicle.model)
+    if not netId then
+        return exports.qbx_core:Notify('Could not start the test drive.', 'error')
     end
-end
 
-local function deleteZones()
-    for k in pairs(activeZone) do
-        activeZone[k]:remove()
-    end
-    table.wipe(activeZone)
-end
+    local startTime = GetGameTimer()
+    local durationMs = config.testDriveDuration * 1000
+    local spawnCoords = config.testDriveSpawn.xyz
 
-local function isCarSpawned(Car)
-    if occasionVehicles and next(occasionVehicles) then
-        for k in pairs(occasionVehicles[zone]) do
-            if k == Car then
-                return true
-            end
-        end
-    end
-    return false
-end
+    CreateThread(function()
+        while true do
+            Wait(0)
 
-RegisterNUICallback('sellVehicle', function(data, cb)
-    local plate = qbx.getVehiclePlate(cache.vehicle) --Getting the plate and sending to the function
-    sellData(data,plate)
-    cb('ok')
-end)
+            local remaining = durationMs - (GetGameTimer() - startTime)
+            if remaining <= 0 then break end
 
-RegisterNUICallback('close', function(_, cb)
-    SetNuiFocus(false, false)
-    cb('ok')
-end)
-
-RegisterNUICallback('buyVehicle', function(_, cb)
-    TriggerServerEvent('qb-occasions:server:buyVehicle', currentVehicle)
-    cb('ok')
-end)
-
-RegisterNUICallback('takeVehicleBack', function(_, cb)
-    TriggerServerEvent('qb-occasions:server:ReturnVehicle', currentVehicle)
-    cb('ok')
-end)
-
-RegisterNetEvent('qb-occasions:client:BuyFinished', function(vehData)
-    DoScreenFadeOut(250)
-    Wait(500)
-    local netId = lib.callback.await('qbx_vehiclesales:server:spawnVehicle', false, vehData, config.zones[zone].buyVehicle, false)
-    local timeout = 100
-    while not NetworkDoesEntityExistWithNetworkId(netId) and timeout > 0 do
-        Wait(10)
-        timeout -= 1
-    end
-    local veh = NetToVeh(netId)
-    SetEntityHeading(veh, config.zones[zone].buyVehicle.w)
-    SetVehicleFuelLevel(veh, 100)
-    exports.qbx_core:Notify(locale('success.vehicle_bought'), 'success', 2500)
-    Wait(500)
-    DoScreenFadeIn(250)
-    currentVehicle = {}
-end)
-
-AddEventHandler('qb-occasions:client:SellBackCar', function()
-    if cache.vehicle then
-        local vehicleData = {}
-        vehicleData.model = GetEntityModel(cache.vehicle)
-        vehicleData.plate = GetVehicleNumberPlateText(cache.vehicle)
-        local owned, balance = lib.callback.await('qbx_vehiclesales:server:checkVehicleOwner', false, vehicleData.plate)
-        if owned then
-            if balance < 1 then
-                TriggerServerEvent('qb-occasions:server:sellVehicleBack', vehicleData)
-                DeleteVehicle(cache.vehicle)
+            if #(GetEntityCoords(cache.ped) - spawnCoords) < config.targetRadius then
+                lib.showTextUI('[E] - Return Test Drive', { position = 'bottom-center' })
+                if IsControlJustPressed(0, 38) then break end
             else
-                exports.qbx_core:Notify(locale('error.finish_payments'), 'error', 3500)
+                lib.showTextUI(('Test Drive: %ds remaining'):format(math.ceil(remaining / 1000)), { position = 'left-center' })
             end
-        else
-            exports.qbx_core:Notify(locale('error.not_your_vehicle'), 'error', 3500)
         end
-    else
-        exports.qbx_core:Notify(locale('error.not_in_veh'), 'error', 4500)
+
+        lib.hideTextUI()
+        TriggerServerEvent('qbx_vehiclesales:server:endTestDrive', netId)
+        exports.qbx_core:Notify('Your test drive has ended.', 'inform')
+    end)
+end
+
+local openVehicleMenu
+
+local function editPrice(vehicle, browseIndex, backMenu)
+    local data = lib.inputDialog(('Edit Price - %s'):format(vehicle.name), {
+        { type = 'number', label = 'Price', description = 'New purchase price for this vehicle', default = vehicle.price, min = 0, required = true },
+    })
+    if not data then return end
+
+    local result = lib.callback.await('qbx_vehiclesales:server:setPrice', false, vehicle.model, data[1])
+    exports.qbx_core:Notify(result.message, result.success and 'success' or 'error')
+    if result.success then
+        vehicle.price = data[1]
+        openVehicleMenu(vehicle, browseIndex, backMenu)
     end
-end)
+end
 
-RegisterNetEvent('qb-occasions:client:ReturnOwnedVehicle', function(vehData)
-    DoScreenFadeOut(250)
-    Wait(500)
-    local netId = lib.callback.await('qbx_vehiclesales:server:spawnVehicle', false, vehData, config.zones[zone].buyVehicle, false)
-    local timeout = 100
-    while not NetworkDoesEntityExistWithNetworkId(netId) and timeout > 0 do
-        Wait(10)
-        timeout -= 1
-    end
-    local veh = NetToVeh(netId)
-    SetEntityHeading(veh, config.zones[zone].buyVehicle.w)
-    SetVehicleFuelLevel(veh, 100)
-    exports.qbx_core:Notify(locale('success.vehicle_bought'), 'success', 2500)
-    Wait(500)
-    DoScreenFadeIn(250)
-    currentVehicle = {}
-end)
+openVehicleMenu = function(vehicle, browseIndex, backMenu)
+    local options = {
+        {
+            title = 'Purchase',
+            description = ('$%s'):format(lib.math.groupdigits(vehicle.price)),
+            icon = 'dollar-sign',
+            onSelect = function() purchaseVehicle(vehicle) end,
+        },
+        {
+            title = 'Test Drive',
+            description = ('%s seconds'):format(config.testDriveDuration),
+            icon = 'car-side',
+            onSelect = function() startTestDrive(vehicle) end,
+        },
+    }
 
-RegisterNetEvent('qb-occasion:client:refreshVehicles', function()
-    if zone then
-        local vehicles = lib.callback.await('qb-occasions:server:getVehicles')
-        despawnOccasionsVehicles()
-        spawnOccasionsVehicles(vehicles)
-    end
-end)
-
-AddEventHandler('qb-vehiclesales:client:SellVehicle', function()
-    local VehiclePlate = qbx.getVehiclePlate(cache.vehicle)
-    local owned, balance = lib.callback.await('qbx_vehiclesales:server:checkVehicleOwner', false, VehiclePlate)
-
-    if not owned then
-        return exports.qbx_core:Notify(locale('error.not_your_vehicle'), 'error', 3500)
-    end
-
-    if balance and balance > 0 then
-        return exports.qbx_core:Notify(locale('error.finish_payments'), 'error', 3500)
-    end
-
-    local vehicles = lib.callback.await('qb-occasions:server:getVehicles', false)
-    if not vehicles or #vehicles < #config.zones[zone].vehicleSpots then
-        openSellContract(true)
-    else
-        exports.qbx_core:Notify(locale('error.no_space_on_lot'), 'error', 3500)
-    end
-end)
-
-AddEventHandler('qb-vehiclesales:client:OpenContract', function(contract)
-    currentVehicle = occasionVehicles[zone][contract]
-    if not currentVehicle then
-        exports.qbx_core:Notify(locale('error.not_for_sale'), 'error', 7500)
-        return
-    end
-
-    local info = lib.callback.await('qb-occasions:server:getSellerInformation', false, currentVehicle.owner)
-    if info then
-        info.charinfo = json.decode(info.charinfo)
-    else
-        info = {}
-        info.charinfo = {
-            firstname = locale('charinfo.firstname'),
-            lastname = locale('charinfo.lastname'),
-            account = locale('charinfo.account'),
-            phone = locale('charinfo.phone')
+    -- Manager/boss grades of the pdm job only.
+    if QBX.PlayerData.job.name == 'pdm' and QBX.PlayerData.job.grade.level >= 2 then
+        options[#options + 1] = {
+            title = 'Edit Price',
+            description = 'Change what this vehicle sells for',
+            icon = 'pen-to-square',
+            onSelect = function() editPrice(vehicle, browseIndex, backMenu) end,
         }
     end
 
-    openBuyContract(info, currentVehicle)
-end)
+    -- Already the car on display at the spot nearest this menu - no point
+    -- offering to display it again.
+    local previewIndex = previewIndexFor[browseIndex]
+    if not previewIndex or currentPreviewModel[previewIndex] ~= vehicle.model then
+        options[#options + 1] = {
+            title = 'Set as Preview',
+            description = 'Show this car on the display spot nearest you',
+            icon = 'eye',
+            onSelect = function() setPreview(browseIndex, vehicle) end,
+        }
+    end
 
-AddEventHandler('qb-occasions:client:MainMenu', function()
     lib.registerContext({
-        id = 'qb_vehiclesales_menu',
-        title = config.zones[zone].businessName,
-        options = {
-            {
-                title =  locale('menu.sell_vehicle'),
-                description = locale('menu.sell_vehicle_help'),
-                event = 'qb-vehiclesales:client:SellVehicle',
-            },
-            {
-                title =  locale('menu.sell_back'),
-                description = locale('menu.sell_back_help'),
-                event = 'qb-occasions:client:SellBackCar',
-            },
-        },
+        id = 'qbx_vehiclesales_vehicle',
+        title = vehicle.name,
+        menu = backMenu or ('qbx_vehiclesales_category_' .. vehicle.category),
+        options = options,
     })
-    lib.showContext('qb_vehiclesales_menu')
-end)
+    lib.showContext('qbx_vehiclesales_vehicle')
+end
+
+local function openCategoryMenu(categoryKey, label, vehicles, browseIndex)
+    local options = {}
+
+    for i = 1, #vehicles do
+        local vehicle = vehicles[i]
+        options[#options + 1] = {
+            title = vehicle.name,
+            description = ('%s - $%s'):format(vehicle.brand, lib.math.groupdigits(vehicle.price)),
+            icon = 'car',
+            arrow = true,
+            onSelect = function() openVehicleMenu(vehicle, browseIndex) end,
+        }
+    end
+
+    if #options == 0 then
+        options[1] = {
+            title = 'Nothing here yet',
+            description = 'Check back later',
+            icon = 'circle-info',
+            disabled = true,
+        }
+    end
+
+    lib.registerContext({
+        id = 'qbx_vehiclesales_category_' .. categoryKey,
+        title = label,
+        menu = 'qbx_vehiclesales_categories',
+        options = options,
+    })
+    lib.showContext('qbx_vehiclesales_category_' .. categoryKey)
+end
+
+---@return table? vehicle the catalog entry for this model, searching every category including custom
+local function findInCatalog(catalog, model)
+    for _, list in pairs(catalog) do
+        for i = 1, #list do
+            if list[i].model == model then return list[i] end
+        end
+    end
+end
+
+local function openDealership(browseIndex)
+    local catalog = lib.callback.await('qbx_vehiclesales:server:getCatalog', false)
+    if not catalog then
+        return exports.qbx_core:Notify('Could not load the catalog.', 'error')
+    end
+
+    local options = {}
+
+    -- Whatever's already on display at the spot nearest this menu, right
+    -- at the top so it's one click to buy or test drive it.
+    local previewIndex = previewIndexFor[browseIndex]
+    local displayedModel = previewIndex and currentPreviewModel[previewIndex]
+    local displayedVehicle = displayedModel and findInCatalog(catalog, displayedModel)
+    if displayedVehicle then
+        options[#options + 1] = {
+            title = displayedVehicle.name,
+            description = ('On display now - %s - $%s'):format(displayedVehicle.brand, lib.math.groupdigits(displayedVehicle.price)),
+            icon = 'eye',
+            arrow = true,
+            onSelect = function() openVehicleMenu(displayedVehicle, browseIndex, 'qbx_vehiclesales_categories') end,
+        }
+    end
+
+    for _, cat in ipairs(config.categories) do
+        options[#options + 1] = {
+            title = cat.label,
+            icon = 'car',
+            arrow = true,
+            onSelect = function() openCategoryMenu(cat.key, cat.label, catalog[cat.key] or {}, browseIndex) end,
+        }
+    end
+
+    options[#options + 1] = {
+        title = 'Custom Cars',
+        icon = 'star',
+        arrow = true,
+        onSelect = function() openCategoryMenu('custom', 'Custom Cars', catalog.custom or {}, browseIndex) end,
+    }
+
+    lib.registerContext({
+        id = 'qbx_vehiclesales_categories',
+        title = 'Dealership',
+        options = options,
+    })
+    lib.showContext('qbx_vehiclesales_categories')
+end
 
 CreateThread(function()
-    for k, cars in pairs(config.zones) do
-        lib.zones.box({
-            coords = vec3(cars.sellVehicle.x, cars.sellVehicle.y, cars.sellVehicle.z),
-            size = vec3(3.0, 4.0, 3.0),
-            rotation = 0,
+    for i, coords in ipairs(config.browsePoints) do
+        exports.ox_target:addSphereZone({
+            coords = coords,
+            radius = config.targetRadius,
+            options = {
+                {
+                    name = 'qbx_vehiclesales_open_' .. i,
+                    icon = 'fa-solid fa-car',
+                    label = 'Browse Vehicles',
+                    onSelect = function() openDealership(i) end,
+                },
+            },
             debug = false,
-            onEnter = function()
-                if cache.vehicle then
-                    lib.showTextUI(locale('menu.interaction'), {position = 'left-center'})
-                end
-            end,
-            onExit = function()
-                lib.hideTextUI()
-            end,
-            inside = function()
-                if IsControlJustReleased(0, 38) then
-                    if cache.vehicle then
-                        TriggerEvent('qb-occasions:client:MainMenu')
-                    else
-                        exports.qbx_core:Notify(locale('error.not_in_veh'), 'error', 4500)
-                    end
-                end
-            end
         })
+    end
 
-        if not config.useTarget then
-            for k2, v in pairs(config.zones[k].vehicleSpots) do
-                lib.zones.box({
-                    coords = vec3(v.x, v.y, v.z),
-                    size = vec3(4.0, 5.0, 3.0),
-                    rotation = 0,
-                    debug = false,
-                    onEnter = function()
-                        if isCarSpawned(k2) then
-                            lib.showTextUI(locale('menu.view_contract_int'), {position = 'left-center'})
-                        end
-                    end,
-                    onExit = function()
-                        lib.hideTextUI()
-                    end,
-                    inside = function()
-                        if IsControlJustReleased(0, 38) then
-                            TriggerEvent('qb-vehiclesales:client:OpenContract', k2)
-                        end
-                    end
-                })
-            end
+    -- Sync whatever's already being previewed (set by other players, or
+    -- from before this client loaded in) rather than starting blank.
+    local previews = lib.callback.await('qbx_vehiclesales:server:getPreviews', false)
+    if previews then
+        for previewIndex, model in pairs(previews) do
+            updatePreview(previewIndex, model)
         end
-
-        local occasionBlip = AddBlipForCoord(cars.sellVehicle.x, cars.sellVehicle.y, cars.sellVehicle.z)
-        SetBlipSprite(occasionBlip, 326)
-        SetBlipDisplay(occasionBlip, 4)
-        SetBlipScale(occasionBlip, 0.75)
-        SetBlipAsShortRange(occasionBlip, true)
-        SetBlipColour(occasionBlip, 3)
-        BeginTextCommandSetBlipName('STRING')
-        AddTextComponentSubstringPlayerName(locale('info.used_vehicle_lot'))
-        EndTextCommandSetBlipName(occasionBlip)
-    end
-end)
-
-RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    createZones()
-end)
-
-RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
-    deleteZones()
-end)
-
-AddEventHandler('onResourceStart', function(resourceName)
-    if cache.resource == resourceName then
-        createZones()
-    end
-end)
-
-AddEventHandler('onResourceStop', function(resourceName)
-    if cache.resource == resourceName then
-        deleteZones()
-        despawnOccasionsVehicles()
     end
 end)

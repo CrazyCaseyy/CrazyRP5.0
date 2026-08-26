@@ -1,11 +1,15 @@
 fx_version 'cerulean'
 game 'gta5'
 
-description 'qbx_vehiclesales'
-repository 'https://github.com/Qbox-project/qbx_vehiclesales'
-version '1.0.0'
+description 'Vehicle dealership - ox_target catalog, purchase or test drive'
+version '2.0.0'
 
-ox_lib 'locale'
+dependencies {
+    'qbx_core',
+    'qbx_vehiclekeys',
+    'ox_lib',
+    'ox_target',
+}
 
 shared_scripts {
     '@ox_lib/init.lua',
@@ -18,20 +22,11 @@ client_scripts {
 }
 
 server_scripts {
-    '@oxmysql/lib/MySQL.lua',
     'server/main.lua'
 }
 
-ui_page 'html/ui.html'
-
 files {
     'config/client.lua',
-    'locales/*.json',
-    'html/logo.svg',
-    'html/ui.css',
-    'html/ui.html',
-    'html/vue.min.js',
-    'html/ui.js'
 }
 
 lua54 'yes'

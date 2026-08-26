@@ -1,146 +1,150 @@
-local VEHICLES = exports.qbx_core:GetVehiclesByName()
+local config = require 'config.client'
 
-local function generateOID()
-    local num = math.random(1, 10) .. math.random(111, 999)
-    return 'OC' .. num
+local catalog
+local catalogByModel
+local activeTestDrives = {} -- [source] = netId, so endTestDrive can only ever delete the vehicle that player's own test drive actually spawned
+
+-- [previewIndex] = model. Defaults every spot to a Sultan on every
+-- restart rather than starting empty, so the lot never looks bare until
+-- someone happens to change a display car.
+local previewState = {}
+for i = 1, #config.previewPoints do
+    previewState[i] = 'sultan'
 end
 
-lib.callback.register('qb-occasions:server:getVehicles', function()
-    local result = MySQL.query.await('SELECT * FROM occasion_vehicles')
-    if result[1] then
-        return result
+---@return table<string, { model: string, name: string, brand: string, price: number, category: string }[]>
+local function buildCatalog()
+    local vehicles = exports.qbx_core:GetVehiclesByName()
+
+    local allowedCategories = {}
+    for _, cat in ipairs(config.categories) do allowedCategories[cat.key] = true end
+
+    local excluded = {}
+    for _, model in ipairs(config.excludedModels) do excluded[model] = true end
+
+    local grouped = {}
+    for _, cat in ipairs(config.categories) do grouped[cat.key] = {} end
+
+    catalogByModel = {}
+
+    for model, veh in pairs(vehicles) do
+        if allowedCategories[veh.category] and not excluded[model] then
+            local entry = { model = model, name = veh.name, brand = veh.brand, price = veh.price, category = veh.category }
+            table.insert(grouped[veh.category], entry)
+            catalogByModel[model] = entry
+        end
     end
+
+    grouped.custom = {}
+    for _, veh in ipairs(config.customVehicles) do
+        local entry = { model = veh.model, name = veh.name, brand = veh.brand, price = veh.price, category = 'custom' }
+        table.insert(grouped.custom, entry)
+        catalogByModel[veh.model] = entry
+    end
+
+    for _, list in pairs(grouped) do
+        table.sort(list, function(a, b) return a.name < b.name end)
+    end
+
+    return grouped
+end
+
+lib.callback.register('qbx_vehiclesales:server:getCatalog', function(source)
+    if not catalog then catalog = buildCatalog() end
+    return catalog
 end)
 
-lib.callback.register('qb-occasions:server:getSellerInformation', function(_, citizenId)
-    local result = MySQL.query.await('SELECT * FROM players WHERE citizenid = ?', {citizenId})
-    if result[1] then
-        return result[1]
+-- Manager/boss grades of the pdm job only - the catalog itself stays
+-- editable in place (catalogByModel entries are shared with catalog, so
+-- this is visible to every player's next getCatalog fetch, no rebuild
+-- needed).
+lib.callback.register('qbx_vehiclesales:server:setPrice', function(source, model, newPrice)
+    local player = exports.qbx_core:GetPlayer(source)
+    if not player or player.PlayerData.job.name ~= 'pdm' or player.PlayerData.job.grade.level < 2 then
+        return { success = false, message = 'You are not authorized to do that.' }
     end
+
+    newPrice = tonumber(newPrice)
+    if not newPrice or newPrice < 0 then
+        return { success = false, message = 'Enter a valid price.' }
+    end
+
+    if not catalog then catalog = buildCatalog() end
+    local entry = catalogByModel[model]
+    if not entry then return { success = false, message = 'That vehicle is not for sale here.' } end
+
+    entry.price = math.floor(newPrice)
+    return { success = true, message = ('Updated the %s to $%s.'):format(entry.name, lib.math.groupdigits(entry.price)) }
 end)
 
-lib.callback.register('qb-vehiclesales:server:CheckModelName', function(_, plate)
-    if plate then
-        return MySQL.scalar.await('SELECT vehicle FROM player_vehicles WHERE plate = ?', {plate})
+lib.callback.register('qbx_vehiclesales:server:purchaseVehicle', function(source, model)
+    if not catalogByModel or not catalogByModel[model] then return { success = false, message = 'That vehicle is not for sale here.' } end
+
+    local vehicle = catalogByModel[model]
+    local player = exports.qbx_core:GetPlayer(source)
+    if not player then return { success = false, message = 'Something went wrong.' } end
+
+    local removed = player.Functions.RemoveMoney('bank', vehicle.price, ('Purchased a %s'):format(vehicle.name))
+    if not removed then
+        return { success = false, message = 'Not enough money in your bank account.' }
     end
+
+    local vehicleId = exports.qbx_vehicles:CreatePlayerVehicle({
+        model = model,
+        citizenid = player.PlayerData.citizenid,
+    })
+
+    if not vehicleId then
+        player.Functions.AddMoney('bank', vehicle.price, 'Purchase refund - failed to register vehicle')
+        return { success = false, message = 'Something went wrong registering that vehicle.' }
+    end
+
+    return { success = true, message = ('Purchased the %s - check your garage.'):format(vehicle.name) }
 end)
 
-lib.callback.register('qbx_vehiclesales:server:spawnVehicle', function (source, vehicle, coords, warp)
-    local vehmods = json.decode(vehicle.mods)
-    local netId, veh = qbx.spawnVehicle({model = vehicle.model, spawnSource = coords, warp = warp, props = vehmods})
-    if not veh or veh == 0 then return end
-    
-    SetVehicleNumberPlateText(veh, vehicle.plate)
-    TriggerClientEvent('vehiclekeys:client:SetOwner', source, vehicle.plate)
+lib.callback.register('qbx_vehiclesales:server:startTestDrive', function(source, model)
+    if not catalogByModel or not catalogByModel[model] then return end
+
+    local netId, veh = qbx.spawnVehicle({
+        model = joaat(model),
+        spawnSource = config.testDriveSpawn,
+        warp = GetPlayerPed(source),
+    })
+
+    if not netId or netId == 0 or not veh or veh == 0 then return end
+
+    exports.qbx_vehiclekeys:GiveKeys(source, veh)
+    activeTestDrives[source] = netId
+
     return netId
 end)
 
-lib.callback.register('qbx_vehiclesales:server:checkVehicleOwner', function(source, plate)
-    local player = exports.qbx_core:GetPlayer(source)
-    local result = MySQL.single.await('SELECT * FROM player_vehicles WHERE plate = ? AND citizenid = ?', {plate, player.PlayerData.citizenid})
+RegisterNetEvent('qbx_vehiclesales:server:endTestDrive', function(netId)
+    local source = source
+    -- Only ever the vehicle that player's own test drive actually spawned -
+    -- not an arbitrary netId, so this can't be used to delete anyone else's.
+    if activeTestDrives[source] ~= netId then return end
+    activeTestDrives[source] = nil
 
-    if result and result.id then
-        local financeRow = MySQL.single.await('SELECT * FROM vehicle_financing WHERE vehicleId = ?', {result.id})
-        return true, financeRow?.balance or 0
-    end
-
-    return false
-end)
-
-RegisterNetEvent('qb-occasions:server:ReturnVehicle', function(vehicleData)
-    local src = source
-    local player = exports.qbx_core:GetPlayer(src)
-    local result = MySQL.query.await('SELECT * FROM occasion_vehicles WHERE plate = ? AND occasionid = ?', {vehicleData.plate, vehicleData.oid})
-
-    if not result[1] then
-        exports.qbx_core:Notify(src, locale('error.vehicle_does_not_exist'), 'error', 3500)
-        return
-    end
-
-    if result[1].seller ~= player.PlayerData.citizenid then
-        exports.qbx_core:Notify(src, locale('error.not_your_vehicle'), 'error', 3500)
-        return
-    end
-
-    MySQL.insert('INSERT INTO player_vehicles (license, citizenid, vehicle, hash, mods, plate, state) VALUES (?, ?, ?, ?, ?, ?, ?)', {player.PlayerData.license, player.PlayerData.citizenid, vehicleData.model, joaat(vehicleData.model), vehicleData.mods, vehicleData.plate, 0})
-    MySQL.query('DELETE FROM occasion_vehicles WHERE occasionid = ? AND plate = ?', {vehicleData.oid, vehicleData.plate})
-    TriggerClientEvent('qb-occasions:client:ReturnOwnedVehicle', src, result[1])
-    TriggerClientEvent('qb-occasion:client:refreshVehicles', -1)
-end)
-
-RegisterNetEvent('qb-occasions:server:sellVehicle', function(vehiclePrice, vehicleData)
-    local src = source
-    local player = exports.qbx_core:GetPlayer(src)
-    MySQL.query('DELETE FROM player_vehicles WHERE plate = ? AND vehicle = ?',{vehicleData.plate, vehicleData.model})
-    MySQL.insert('INSERT INTO occasion_vehicles (seller, price, description, plate, model, mods, occasionid) VALUES (?, ?, ?, ?, ?, ?, ?)',{player.PlayerData.citizenid, vehiclePrice, vehicleData.desc, vehicleData.plate, vehicleData.model,json.encode(vehicleData.mods), generateOID()})
-    TriggerEvent('qb-log:server:CreateLog', 'vehicleshop', 'Vehicle for Sale', 'red','**' .. GetPlayerName(src) .. '** has a ' .. vehicleData.model .. ' priced at ' .. vehiclePrice)
-    TriggerClientEvent('qb-occasion:client:refreshVehicles', -1)
-end)
-
----@param model number
----@return number price defaults to 0
-local function getVehPrice(model)
-    for _, v in pairs(VEHICLES) do
-        if v.hash == model then
-            return tonumber(v.price)
-        end
-    end
-    return 0
-end
-
-RegisterNetEvent('qb-occasions:server:sellVehicleBack', function(vehData)
-    local src = source
-    local player = exports.qbx_core:GetPlayer(src)
-    local plate = vehData.plate
-    local price = getVehPrice(vehData.model)
-    local payout = math.floor(price * 0.5) -- This will give you half of the cars value
-    local success = MySQL.query.await('DELETE FROM player_vehicles WHERE plate = ? AND citizenid = ?', {plate, player.PlayerData.citizenid})
-    if success and success.affectedRows > 0 then -- only pay out after we delete the vehicle
-        player.Functions.AddMoney('bank', payout)
-        exports.qbx_core:Notify(src, (locale('success.sold_car_for_price'):format(payout)), 'success', 5500)
+    local veh = NetworkGetEntityFromNetworkId(netId)
+    if veh and veh ~= 0 and DoesEntityExist(veh) then
+        DeleteEntity(veh)
     end
 end)
 
-RegisterNetEvent('qb-occasions:server:buyVehicle', function(vehicleData)
-    local src = source
-    local player = exports.qbx_core:GetPlayer(src)
-    local result = MySQL.query.await('SELECT * FROM occasion_vehicles WHERE plate = ? AND occasionid = ?',{vehicleData.plate, vehicleData.oid})
-    if not result[1] or not next(result[1]) then return end
-    if player.PlayerData.money.bank < result[1].price then
-        exports.qbx_core:Notify(src, locale('error.not_enough_money'), 'error', 3500)
-        return
-    end
+AddEventHandler('playerDropped', function()
+    activeTestDrives[source] = nil
+end)
 
-    local sellerCitizenId = result[1].seller
-    local sellerData = exports.qbx_core:GetPlayerByCitizenId(sellerCitizenId)
-    local newPrice = math.ceil((result[1].price / 100) * 77)
-    player.Functions.RemoveMoney('bank', result[1].price)
-    MySQL.insert(
-        'INSERT INTO player_vehicles (license, citizenid, vehicle, hash, mods, plate, state) VALUES (?, ?, ?, ?, ?, ?, ?)', {
-            player.PlayerData.license,
-            player.PlayerData.citizenid, result[1].model,
-            GetHashKey(result[1].model),
-            result[1].mods,
-            result[1].plate,
-            0
-        })
-    if sellerData then
-        sellerData.Functions.AddMoney('bank', newPrice)
-    else
-        local buyerData = MySQL.query.await('SELECT * FROM players WHERE citizenid = ?',{sellerCitizenId})
-        if buyerData[1] then
-            local buyerMoney = json.decode(buyerData[1].money)
-            buyerMoney.bank = buyerMoney.bank + newPrice
-            MySQL.update('UPDATE players SET money = ? WHERE citizenid = ?', {json.encode(buyerMoney), sellerCitizenId})
-        end
-    end
-    TriggerEvent('qb-log:server:CreateLog', 'vehicleshop', 'bought', 'green', '**' .. GetPlayerName(src) .. '** has bought for ' .. result[1].price .. ' (' .. result[1].plate ..') from **' .. sellerCitizenId .. '**')
-    TriggerClientEvent('qb-occasions:client:BuyFinished', src, result[1])
-    TriggerClientEvent('qb-occasion:client:refreshVehicles', -1)
-    MySQL.query('DELETE FROM occasion_vehicles WHERE plate = ? AND occasionid = ?',{result[1].plate, result[1].occasionid})
-    TriggerEvent('qb-phone:server:sendNewMailToOffline', sellerCitizenId, {
-        sender = locale('mail.sender'),
-        subject = locale('mail.subject'),
-        message = (locale('mail.message'):format(newPrice, VEHICLES[result[1].model].name))
-    })
+lib.callback.register('qbx_vehiclesales:server:getPreviews', function(source)
+    return previewState
+end)
+
+RegisterNetEvent('qbx_vehiclesales:server:setPreview', function(previewIndex, model)
+    if type(previewIndex) ~= 'number' or previewIndex < 1 or previewIndex > #config.previewPoints then return end
+    if not catalog then catalog = buildCatalog() end
+    if not catalogByModel[model] then return end
+
+    previewState[previewIndex] = model
+    TriggerClientEvent('qbx_vehiclesales:client:updatePreview', -1, previewIndex, model)
 end)

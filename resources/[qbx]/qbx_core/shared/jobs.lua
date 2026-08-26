@@ -1189,5 +1189,32 @@ return {
             },
         },
     },
+    ['pdm'] = {
+        label = 'Premium Deluxe Motorsport',
+        defaultDuty = true,
+        offDutyPay = false,
+        grades = {
+            [0] = {
+                name = 'Recruit',
+                payment = 50
+            },
+            [1] = {
+                name = 'Worker',
+                payment = 75
+            },
+            [2] = {
+                name = 'Manager',
+                isboss = true,
+                bankAuth = true,
+                payment = 100
+            },
+            [3] = {
+                name = 'Boss',
+                isboss = true,
+                bankAuth = true,
+                payment = 150
+            },
+        },
+    },
 
 }

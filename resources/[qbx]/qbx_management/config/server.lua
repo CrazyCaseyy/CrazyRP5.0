@@ -29,5 +29,11 @@ return {
             rotation = 39.68,
             type = 'gang',
         },
+        pdm = {
+            coords = vec3(-1047.24, -1383.13, 5.35),
+            size = vec3(1.5, 1.5, 1.5),
+            rotation = 0.0,
+            type = 'job',
+        },
     },
 }

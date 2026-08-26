@@ -7,6 +7,10 @@ version '1.4.0'
 
 ox_lib 'locale'
 
+dependencies {
+    'ox_target',
+}
+
 shared_scripts {
     '@ox_lib/init.lua',
 }
