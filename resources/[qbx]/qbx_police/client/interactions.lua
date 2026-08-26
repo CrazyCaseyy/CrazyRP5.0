@@ -330,6 +330,19 @@ end)
 
 RegisterNetEvent('police:client:GetCuffed', function(playerId, isSoftcuff)
     if not QBX.PlayerData.metadata.ishandcuffed then
+        -- Resolve the minigame (if any) BEFORE marking them cuffed at all,
+        -- rather than optimistically setting ishandcuffed = true up front
+        -- and trying to undo it after - that left a window, while the
+        -- minigame was still running, where the player was already
+        -- server-flagged as cuffed regardless of the eventual outcome.
+        if isSoftcuff and config.breakCuffs == true then
+            local isSuccess = exports['crazy-minigames']:StartHandcuffMinigame(cache.serverId)
+            if isSuccess then
+                exports.qbx_core:Notify(locale('success.escapedcuff'), 'success')
+                return
+            end
+        end
+
         TriggerServerEvent('police:server:SetHandcuffStatus', true)
         ClearPedTasksImmediately(cache.ped)
         if cache.weapon ~= `WEAPON_UNARMED` then
@@ -339,15 +352,6 @@ RegisterNetEvent('police:client:GetCuffed', function(playerId, isSoftcuff)
             cuffType = 16
             exports.qbx_core:Notify(locale('info.cuff'), 'success')
         else
-            if config.breakCuffs == true then
-                local isSuccess = exports['crazy-minigames']:StartHandcuffMinigame(cache.serverId)
-                if isSuccess then
-                    TriggerServerEvent('police:server:SetHandcuffStatus', false)
-                    ClearPedTasksImmediately(cache.ped)
-                    exports.qbx_core:Notify(locale('success.escapedcuff'), 'success')
-                    return
-                end
-            end
             cuffType = 48
             exports.qbx_core:Notify(locale('info.cuffed_walk'), 'success')
         end
