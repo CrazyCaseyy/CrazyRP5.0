@@ -86,6 +86,10 @@ local function StartHandcuffMinigame(targetServerId, opts)
             end
         end
 
+        if not success then
+            PlaySoundFrontend(-1, 'ERROR', 'HUD_FRONTEND_DEFAULT_SOUNDSET', true)
+        end
+
         SendNUIMessage({ game = 'handcuffs', action = success and 'success' or 'fail' })
         SetTimeout(success and 400 or 700, function()
             SendNUIMessage({ game = 'handcuffs', action = 'hide' })
@@ -112,6 +116,7 @@ local function StartHandcuffMinigame(targetServerId, opts)
 
             if IsControlJustPressed(0, 38) then -- E
                 if zone and pct >= zone.min and pct <= zone.max then
+                    PlaySoundFrontend(-1, 'SELECT', 'HUD_FRONTEND_DEFAULT_SOUNDSET', true)
                     SendNUIMessage({ game = 'handcuffs', action = 'hitZone', index = hitIndex })
                     hitIndex += 1
                     if hitIndex > #zones then
