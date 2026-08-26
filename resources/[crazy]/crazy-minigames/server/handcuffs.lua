@@ -6,15 +6,15 @@
 -- making the attempt.
 local resistCounts = {}
 
-lib.callback.register('crazy-handcuffs:server:getResistCount', function(source, targetServerId)
+lib.callback.register('crazy-minigames:server:getHandcuffResistCount', function(source, targetServerId)
     return resistCounts[targetServerId] or 0
 end)
 
-RegisterNetEvent('crazy-handcuffs:server:resisted', function(targetServerId)
+RegisterNetEvent('crazy-minigames:server:handcuffResisted', function(targetServerId)
     resistCounts[targetServerId] = (resistCounts[targetServerId] or 0) + 1
 end)
 
-RegisterNetEvent('crazy-handcuffs:server:resetResist', function(targetServerId)
+RegisterNetEvent('crazy-minigames:server:resetHandcuffResist', function(targetServerId)
     resistCounts[targetServerId] = nil
 end)
 

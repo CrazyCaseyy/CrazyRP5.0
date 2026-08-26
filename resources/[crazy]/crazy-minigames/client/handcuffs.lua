@@ -5,12 +5,13 @@
 -- press, fails immediately and the bar turns red.
 --
 -- Exported for other resources to gate an action on
--- (exports['crazy-handcuffs']:StartMinigame(targetServerId)), e.g.
--- qbx_police's handcuffing (see [qbx]/qbx_police/client/interactions.lua).
+-- (exports['crazy-minigames']:StartHandcuffMinigame(targetServerId)),
+-- e.g. qbx_police's handcuffing
+-- (see [qbx]/qbx_police/client/interactions.lua).
 --
 -- Each failed attempt against the same target (server-tracked, see
--- server/main.lua) speeds the bar up for their next attempt. After 3
--- resisted attempts, the 4th is an automatic success - no minigame -
+-- server/handcuffs.lua) speeds the bar up for their next attempt. After
+-- 3 resisted attempts, the 4th is an automatic success - no minigame -
 -- same as the suspect finally being overpowered.
 
 local active = false
@@ -22,19 +23,19 @@ local MIN_DURATION = 1200
 ---@param targetServerId? number the player being cuffed, for per-suspect resist tracking/speedup. Omit to always run at base speed with no tracking.
 ---@param opts? { duration?: number, zones?: { min: number, max: number }[] }
 ---@return boolean success
-local function StartMinigame(targetServerId, opts)
+local function StartHandcuffMinigame(targetServerId, opts)
     if active then return false end
     active = true
 
     local resistCount = 0
     if targetServerId then
-        local ok, result = pcall(lib.callback.await, 'crazy-handcuffs:server:getResistCount', false, targetServerId)
+        local ok, result = pcall(lib.callback.await, 'crazy-minigames:server:getHandcuffResistCount', false, targetServerId)
         if ok and type(result) == 'number' then resistCount = result end
     end
 
     if targetServerId and resistCount >= RESIST_CAP then
         -- Worn them down - this attempt succeeds automatically.
-        TriggerServerEvent('crazy-handcuffs:server:resetResist', targetServerId)
+        TriggerServerEvent('crazy-minigames:server:resetHandcuffResist', targetServerId)
         active = false
         return true
     end
@@ -48,7 +49,7 @@ local function StartMinigame(targetServerId, opts)
         { min = 70, max = 90 },
     }
 
-    SendNUIMessage({ action = 'start', duration = duration, zones = zones })
+    SendNUIMessage({ game = 'handcuffs', action = 'start', duration = duration, zones = zones })
 
     local p = promise.new()
     local resolved = false
@@ -60,15 +61,15 @@ local function StartMinigame(targetServerId, opts)
 
         if targetServerId then
             if success then
-                TriggerServerEvent('crazy-handcuffs:server:resetResist', targetServerId)
+                TriggerServerEvent('crazy-minigames:server:resetHandcuffResist', targetServerId)
             else
-                TriggerServerEvent('crazy-handcuffs:server:resisted', targetServerId)
+                TriggerServerEvent('crazy-minigames:server:handcuffResisted', targetServerId)
             end
         end
 
-        SendNUIMessage({ action = success and 'success' or 'fail' })
+        SendNUIMessage({ game = 'handcuffs', action = success and 'success' or 'fail' })
         SetTimeout(success and 400 or 700, function()
-            SendNUIMessage({ action = 'hide' })
+            SendNUIMessage({ game = 'handcuffs', action = 'hide' })
         end)
         p:resolve(success)
     end
@@ -92,7 +93,7 @@ local function StartMinigame(targetServerId, opts)
 
             if IsControlJustPressed(0, 38) then -- E
                 if zone and pct >= zone.min and pct <= zone.max then
-                    SendNUIMessage({ action = 'hitZone', index = hitIndex })
+                    SendNUIMessage({ game = 'handcuffs', action = 'hitZone', index = hitIndex })
                     hitIndex += 1
                     if hitIndex > #zones then
                         finish(true)
@@ -113,4 +114,4 @@ local function StartMinigame(targetServerId, opts)
     return Citizen.Await(p)
 end
 
-exports('StartMinigame', StartMinigame)
+exports('StartHandcuffMinigame', StartHandcuffMinigame)

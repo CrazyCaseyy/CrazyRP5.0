@@ -2,9 +2,9 @@ fx_version 'cerulean'
 game 'gta5'
 lua54 'yes'
 
-name 'crazy-handcuffs'
+name 'crazy-minigames'
 author 'crazy-rp'
-description 'Bottom-of-screen timing minigame, exported for other resources to gate handcuffing on'
+description 'Shared home for custom minigames (handcuffs, and future additions), one NUI page shared between them'
 version '1.0.0'
 
 dependencies {
@@ -15,12 +15,14 @@ shared_scripts {
     '@ox_lib/init.lua',
 }
 
+-- Each minigame gets its own file here - add new ones to both lists
+-- below as they're built.
 client_scripts {
-    'client/main.lua',
+    'client/handcuffs.lua',
 }
 
 server_scripts {
-    'server/main.lua',
+    'server/handcuffs.lua',
 }
 
 ui_page 'html/index.html'
