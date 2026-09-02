@@ -9,15 +9,14 @@
 -- hooks rather than duplicating any of their logic here:
 --   exit         -> qbx_properties' exitProperty (server/main.lua)
 --   rules        -> crazy-rules' accepted event (server/main.lua)
---   inventory    -> below, a passive keybind on the same default key
---                   ox_inventory itself uses (see ox.cfg's inventory:keys),
---                   since ox_inventory doesn't expose an "opened" event -
---                   this is a best-effort proxy for "pressed the key",
---                   not a verified open. Description text is a static
---                   default too - GetControlInstructionalButton (the
---                   native for reading a player's live rebind) is built
---                   for controller glyph icons, not clean keyboard text,
---                   and returned garbage when tried here.
+--   inventory    -> below, watching ox_inventory's own 'invOpen' state bag
+--                   (player:<serverId>, set true by ox_inventory itself in
+--                   client.lua whenever the inventory actually opens) -
+--                   a verified open, not just a keypress. Description text
+--                   is a static default - GetControlInstructionalButton
+--                   (the native for reading a player's live rebind) is
+--                   built for controller glyph icons, not clean keyboard
+--                   text, and returned garbage when tried here.
 --   tablet       -> crazy-reputation's client:open event (purely
 --                   client-side, no server hop needed)
 --   phone        -> lb-phone's own AddCheck('openPhone', ...) hook, which
@@ -102,18 +101,13 @@ RegisterNetEvent('crazy-reputation:client:open', function()
     markStep('tablet')
 end)
 
--- Passive observer keybind, matching ox_inventory's own primary open key
--- (client.keys[1] there, currently "TAB" per ox.cfg). Doesn't consume or
--- interfere with ox_inventory's own binding - multiple resources can each
--- bind the same physical key independently.
-lib.addKeybind({
-    name = 'crazy_tutorial_inventory_hint',
-    description = 'Tutorial: inventory key pressed',
-    defaultKey = 'TAB',
-    onPressed = function()
-        markStep('inventory')
-    end,
-})
+-- Watches ox_inventory's own 'invOpen' state bag rather than a keybind, so
+-- this only completes once the inventory has actually opened (e.g. it's
+-- also blocked while cuffed, dead, etc. - all of which ox_inventory itself
+-- already accounts for by simply never setting this true).
+AddStateBagChangeHandler('invOpen', ('player:%s'):format(cache.serverId), function(_, _, value)
+    if value then markStep('inventory') end
+end)
 
 -- lb-phone's public hook system: every resource's registered "openPhone"
 -- check runs on each open attempt, and must all return true for it to
