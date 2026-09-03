@@ -11,12 +11,17 @@ return {
         useGpsPrice = true -- use GPS distance instead of driven distance
     },
     locations = {
+        -- The return zone - drive the cab back here to end the shift and
+        -- return it. Also where the depot blip is placed.
         main = {
-            coords = vec4(909.5, -177.35, 74.22, 238.5),
+            coords = vec4(908.03, -176.34, 73.16, 62.57),
         },
-        garage = {
-            coords = vec3(895.3, -179.35, 75.0),
-        }
+    },
+    -- The clipboard NPC that hands out a taxi on interact.
+    ped = {
+        model = 's_m_m_dockwork_01',
+        scenario = 'WORLD_HUMAN_CLIPBOARD',
+        coords = vec4(894.21, -180.4, 73.7, 309.94),
     },
     pzLocations = {
         takeLocations = {

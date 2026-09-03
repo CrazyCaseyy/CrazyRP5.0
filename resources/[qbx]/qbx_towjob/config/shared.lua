@@ -1,16 +1,18 @@
 return {
     locations = {
-        ["main"] = {
+        -- Where the clipboard ped stands - talking to them starts the job
+        -- (assigns a tow spot and hands out the flatbed) and, later,
+        -- finishes it.
+        ["start"] = {
             label = "Towing HQ",
-            coords = vec4(471.39, -1311.03, 29.21, 114.5),
+            coords = vec4(495.7, -1340.68, 28.31, 4.4),
         },
+        -- Both the flatbed's spawn point and where it has to be driven
+        -- back to - the same spot, so there's one hub instead of a
+        -- separate take-out zone and drop-off zone.
         ["vehicle"] = {
             label = "Flatbed",
-            coords = vec4(489.65, -1331.82, 29.33, 306.5),
-        },
-        ["dropoff"] = {
-            label = "Vehicle Drop Off Location",
-            coords = vec3(491.00, -1314.69, 29.25)
+            coords = vec4(489.52, -1337.53, 28.32, 1.01),
         },
         ["towspots"] = {
             [1] = { model = "sultanrs", coords = vec3(-2480.8720703125, -211.96409606934, 17.397672653198) },

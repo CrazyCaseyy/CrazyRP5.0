@@ -19,6 +19,25 @@ local garbText = false
 local trucText = false
 local pedsSpawned = false
 
+-- Group lobby state - nil/false/{} whenever working solo (the default).
+local currentLobbyId = nil
+local lobbyMembers = {}
+local lobbyIsLeader = false
+local lobbyStarted = false
+
+-- Forward declarations - these all reference each other (menu -> dialog ->
+-- server -> menu again), so they're assigned as plain functions further
+-- down rather than nested local functions.
+local applyLobbySnapshot
+local openLobbyMenu
+local createGroup
+local openJoinGroupMenu
+local attemptJoin
+local openSetCutsDialog
+local beginLobbyShift
+local handleBagDelivered
+local SetRouteBack
+
 local function setupClient()
     garbageVehicle = nil
     hasBag = false
@@ -41,6 +60,11 @@ local function setupClient()
 end
 
 local function garbageMenu()
+    if currentLobbyId then
+        openLobbyMenu()
+        return
+    end
+
     local options = {}
     options[#options + 1] = {
         title = locale('menu.collect'),
@@ -53,6 +77,19 @@ local function garbageMenu()
             description = locale('menu.request_route'),
             event = 'qb-garbagejob:client:RequestRoute'
         }
+        options[#options + 1] = {
+            title = locale('menu.create_group'),
+            description = locale('menu.create_group_desc'),
+            icon = 'user-group',
+            onSelect = createGroup,
+        }
+        options[#options + 1] = {
+            title = locale('menu.join_group'),
+            description = locale('menu.join_group_desc'),
+            icon = 'right-to-bracket',
+            arrow = true,
+            onSelect = openJoinGroupMenu,
+        }
     end
     lib.registerContext({
         id = 'qb_gargabejob_mainMenu',
@@ -61,6 +98,282 @@ local function garbageMenu()
     })
 
     lib.showContext('qb_gargabejob_mainMenu')
+end
+
+-- ===================================================================
+-- Group lobbies
+-- ===================================================================
+
+applyLobbySnapshot = function(snapshot)
+    if not snapshot then
+        currentLobbyId = nil
+        lobbyMembers = {}
+        lobbyIsLeader = false
+        lobbyStarted = false
+        return
+    end
+
+    currentLobbyId = snapshot.id
+    lobbyMembers = snapshot.members
+    lobbyIsLeader = snapshot.leaderCid == QBX.PlayerData.citizenid
+    lobbyStarted = snapshot.started
+end
+
+openSetCutsDialog = function()
+    local rows = {}
+    local order = {}
+    for _, m in ipairs(lobbyMembers) do
+        rows[#rows + 1] = {
+            type = 'number',
+            label = m.name,
+            description = locale('menu.cut_percent'),
+            default = math.floor(m.cut + 0.5),
+            min = 0,
+            max = 100,
+        }
+        order[#order + 1] = m.citizenid
+    end
+
+    local input = lib.inputDialog(locale('menu.lobby_setcuts'), rows)
+    if not input then return end
+
+    local cuts = {}
+    for i, cid in ipairs(order) do
+        cuts[cid] = tonumber(input[i]) or 0
+    end
+
+    local result = lib.callback.await('garbagejob:server:setCuts', false, cuts)
+    if not result or result.error then
+        exports.qbx_core:Notify(locale('error.lobby_cuts_failed'), 'error')
+        return
+    end
+
+    applyLobbySnapshot(result.snapshot)
+    exports.qbx_core:Notify(locale('info.lobby_cuts_updated'), 'success')
+end
+
+beginLobbyShift = function()
+    local result = lib.callback.await('garbagejob:server:startLobbyShift', false)
+    if not result or result.error then
+        exports.qbx_core:Notify(locale('error.lobby_start_failed'), 'error')
+        return
+    end
+
+    lobbyStarted = true
+
+    -- Same spawn-point search solo uses (garbagejob:server:spawnVehicle
+    -- already charges the truck deposit - shared out again for everyone
+    -- at payout, same as solo's own deposit refund).
+    local occupied = false
+    for _, v in pairs(sharedConfig.locations.vehicle.coords) do
+        if not IsAnyVehicleNearPoint(v.x, v.y, v.z, 2.5) then
+            local netId = lib.callback.await('garbagejob:server:spawnVehicle', false, v)
+            local veh = lib.waitFor(function()
+                if NetworkDoesEntityExistWithNetworkId(netId) then
+                    return NetToVeh(netId)
+                end
+            end, 'Failed to spawn truck', 3000)
+
+            if veh == 0 then
+                exports.qbx_core:Notify('Failed to spawn truck', 'error')
+                return
+            end
+
+            garbageVehicle = veh
+            SetVehicleFuelLevel(veh, 100.0)
+            SetVehicleFixed(veh)
+            currentStop = result.firstStop
+            currentStopNum = 1
+            amountOfBags = result.totalBags
+            SetGarbageRoute()
+
+            TriggerServerEvent('garbagejob:server:setLobbyVehicle', currentLobbyId, netId)
+            exports.qbx_core:Notify(locale('info.started'), 'success')
+            return
+        else
+            occupied = true
+        end
+    end
+    if occupied then
+        exports.qbx_core:Notify(locale('error.all_occupied'), 'error')
+    end
+end
+
+openLobbyMenu = function()
+    local options = {}
+
+    if lobbyStarted then
+        options[#options + 1] = {
+            title = locale('menu.collect'),
+            description = locale('menu.return_collect'),
+            icon = 'sack-dollar',
+            onSelect = function()
+                TriggerServerEvent('garbagejob:server:payLobbyShift', currentLobbyId)
+            end,
+        }
+    elseif lobbyIsLeader then
+        options[#options + 1] = {
+            title = locale('menu.lobby_start'),
+            description = locale('menu.lobby_start_desc'),
+            icon = 'play',
+            onSelect = beginLobbyShift,
+        }
+        options[#options + 1] = {
+            title = locale('menu.lobby_setcuts'),
+            description = locale('menu.lobby_setcuts_desc'),
+            icon = 'percent',
+            onSelect = openSetCutsDialog,
+        }
+    end
+
+    for _, m in ipairs(lobbyMembers) do
+        options[#options + 1] = {
+            title = m.isLeader and locale('menu.member_leader', m.name) or m.name,
+            description = locale('menu.member_cut', math.floor(m.cut + 0.5)),
+            icon = 'user',
+            disabled = true,
+        }
+    end
+
+    options[#options + 1] = {
+        title = locale('menu.lobby_leave'),
+        icon = 'right-from-bracket',
+        onSelect = function()
+            TriggerServerEvent('garbagejob:server:leaveLobby')
+            applyLobbySnapshot(nil)
+        end,
+    }
+
+    lib.registerContext({
+        id = 'qb_garbagejob_lobbyMenu',
+        title = locale('menu.lobby_header'),
+        options = options,
+    })
+    lib.showContext('qb_garbagejob_lobbyMenu')
+end
+
+createGroup = function()
+    local input = lib.inputDialog(locale('menu.create_group'), {
+        {
+            type = 'input',
+            label = locale('menu.passcode_label'),
+            description = locale('menu.passcode_optional'),
+            required = false,
+        },
+    })
+    if not input then return end
+
+    local result = lib.callback.await('garbagejob:server:createLobby', false, input[1] or '')
+    if not result or result.error then
+        exports.qbx_core:Notify(locale('error.lobby_create_failed'), 'error')
+        return
+    end
+
+    applyLobbySnapshot(result.snapshot)
+    exports.qbx_core:Notify(locale('info.lobby_created'), 'success')
+    openLobbyMenu()
+end
+
+attemptJoin = function(lobbyId, hasPasscode)
+    local passcode = ''
+    if hasPasscode then
+        local input = lib.inputDialog(locale('menu.enter_passcode'), {
+            { type = 'input', label = locale('menu.passcode_label'), required = true },
+        })
+        if not input then return end
+        passcode = input[1]
+    end
+
+    local result = lib.callback.await('garbagejob:server:joinLobby', false, lobbyId, passcode)
+    if not result or result.error then
+        exports.qbx_core:Notify(locale('error.lobby_join_failed'), 'error')
+        return
+    end
+
+    applyLobbySnapshot(result.snapshot)
+    exports.qbx_core:Notify(locale('info.lobby_joined'), 'success')
+    openLobbyMenu()
+end
+
+openJoinGroupMenu = function()
+    local list = lib.callback.await('garbagejob:server:listLobbies', false)
+    local options = {}
+    if list then
+        for _, l in ipairs(list) do
+            options[#options + 1] = {
+                title = locale('menu.lobby_entry', l.leaderName),
+                description = locale('menu.lobby_entry_desc', l.memberCount) .. (l.hasPasscode and (' - ' .. locale('menu.locked')) or ''),
+                icon = l.hasPasscode and 'lock' or 'users',
+                onSelect = function() attemptJoin(l.id, l.hasPasscode) end,
+            }
+        end
+    end
+    if #options == 0 then
+        options[1] = { title = locale('menu.no_lobbies'), disabled = true }
+    end
+
+    lib.registerContext({
+        id = 'qb_garbagejob_joinMenu',
+        title = locale('menu.join_group'),
+        menu = 'qb_gargabejob_mainMenu',
+        options = options,
+    })
+    lib.showContext('qb_garbagejob_joinMenu')
+end
+
+-- Returns true once the stop is cleared (route advanced or finished - in
+-- lobby mode that's handled uniformly for every member via the
+-- lobbyStopAdvanced broadcast, not here), false if there are still bags
+-- left at this stop, or nil on error.
+handleBagDelivered = function(pos)
+    if currentLobbyId then
+        local result = lib.callback.await('garbagejob:server:lobbyDeliverBag', false, currentLobbyId, pos)
+        if not result or result.error then
+            exports.qbx_core:Notify(locale('error.too_far'), 'error')
+            return nil
+        end
+        if not result.cleared then
+            amountOfBags = result.bagsLeft
+            if amountOfBags > 1 then
+                exports.qbx_core:Notify(locale('info.bags_left', amountOfBags))
+            else
+                exports.qbx_core:Notify(locale('info.bags_still', amountOfBags))
+            end
+            return false
+        end
+        return true
+    end
+
+    -- Solo - unchanged from before.
+    if (amountOfBags - 1) <= 0 then
+        local hasMoreStops, nextStop, newBagAmount = lib.callback.await('garbagejob:server:nextStop', false, currentStop, currentStopNum, pos)
+        if hasMoreStops and nextStop ~= 0 then
+            currentStop = nextStop
+            currentStopNum = currentStopNum + 1
+            amountOfBags = newBagAmount
+            SetGarbageRoute()
+            exports.qbx_core:Notify(locale('info.all_bags'))
+            SetVehicleDoorShut(garbageVehicle, 5, false)
+        elseif hasMoreStops and nextStop == currentStop then
+            exports.qbx_core:Notify(locale('info.depot_issue'))
+            amountOfBags = 0
+        else
+            exports.qbx_core:Notify(locale('info.done_working'))
+            SetVehicleDoorShut(garbageVehicle, 5, false)
+            RemoveBlip(deliveryBlip)
+            SetRouteBack()
+            amountOfBags = 0
+        end
+        return true
+    end
+
+    amountOfBags = amountOfBags - 1
+    if amountOfBags > 1 then
+        exports.qbx_core:Notify(locale('info.bags_left', amountOfBags))
+    else
+        exports.qbx_core:Notify(locale('info.bags_still', amountOfBags))
+    end
+    return false
 end
 
 local function BringBackCar()
@@ -85,7 +398,7 @@ local function DeleteZone()
     pZone:remove()
 end
 
-local function SetRouteBack()
+SetRouteBack = function()
     local depot = sharedConfig.locations.main.coords
     endBlip = AddBlipForCoord(depot.x, depot.y, depot.z)
     SetBlipSprite(endBlip, 1)
@@ -131,37 +444,9 @@ local function DeliverAnim()
         hasBag = false
         local pos = GetEntityCoords(cache.ped)
         exports.ox_target:removeEntity(NetworkGetNetworkIdFromEntity(garbageVehicle), 'garbage_deliver')
-        if (amountOfBags - 1) <= 0 then
-            local hasMoreStops, nextStop, newBagAmount = lib.callback.await('garbagejob:server:nextStop', false, currentStop, currentStopNum, pos)
-            if hasMoreStops and nextStop ~= 0 then
-                -- Here he puts your next location and you are not finished working yet.
-                currentStop = nextStop
-                currentStopNum = currentStopNum + 1
-                amountOfBags = newBagAmount
-                SetGarbageRoute()
-                exports.qbx_core:Notify(locale('info.all_bags'))
-                SetVehicleDoorShut(garbageVehicle, 5, false)
-            else
-                if hasMoreStops and nextStop == currentStop then
-                    exports.qbx_core:Notify(locale('info.depot_issue'))
-                    amountOfBags = 0
-                else
-                    -- You are done with work here.
-                    exports.qbx_core:Notify(locale('info.done_working'))
-                    SetVehicleDoorShut(garbageVehicle, 5, false)
-                    RemoveBlip(deliveryBlip)
-                    SetRouteBack()
-                    amountOfBags = 0
-                end
-            end
-        else
-            -- You haven't delivered all bags here
-            amountOfBags = amountOfBags - 1
-            if amountOfBags > 1 then
-                exports.qbx_core:Notify(locale('info.bags_left', amountOfBags))
-            else
-                exports.qbx_core:Notify(locale('info.bags_still', amountOfBags))
-            end
+        local cleared = handleBagDelivered(pos)
+        if cleared == false then
+            -- Still bags left at this stop - let them grab another.
             garbageBinZone = exports.ox_target:addSphereZone({
                 coords = vec3(CL.coords.x, CL.coords.y, CL.coords.z),
                 radius = 2.0,
@@ -285,42 +570,8 @@ local function runWorkLoop()
                             FreezeEntityPosition(cache.ped, false)
                             garbageObject = nil
                             canTakeBag = true
-                            -- Looks if you have delivered all bags
-                            if (amountOfBags - 1) <= 0 then
-                                local hasMoreStops, nextStop, newBagAmount = lib.callback.await(
-                                'garbagejob:server:nextStop', false, currentStop, currentStopNum, pos)
-                                if hasMoreStops and nextStop ~= 0 then
-                                    -- Here he puts your next location and you are not finished working yet.
-                                    currentStop = nextStop
-                                    currentStopNum = currentStopNum + 1
-                                    amountOfBags = newBagAmount
-                                    SetGarbageRoute()
-                                    exports.qbx_core:Notify(locale('info.all_bags'))
-                                    SetVehicleDoorShut(garbageVehicle, 5, false)
-                                else
-                                    if hasMoreStops and nextStop == currentStop then
-                                        exports.qbx_core:Notify(locale('info.depot_issue'))
-                                        amountOfBags = 0
-                                    else
-                                        -- You are done with work here.
-                                        exports.qbx_core:Notify(locale('info.done_working'))
-                                        SetVehicleDoorShut(garbageVehicle, 5, false)
-                                        RemoveBlip(deliveryBlip)
-                                        SetRouteBack()
-                                        amountOfBags = 0
-                                    end
-                                end
-                                hasBag = false
-                            else
-                                -- You haven't delivered all bags here
-                                amountOfBags = amountOfBags - 1
-                                if amountOfBags > 1 then
-                                    exports.qbx_core:Notify(locale('info.bags_left', amountOfBags))
-                                else
-                                    exports.qbx_core:Notify(locale('info.bags_still', amountOfBags))
-                                end
-                                hasBag = false
-                            end
+                            handleBagDelivered(pos)
+                            hasBag = false
 
                             Wait(1500)
                             if trucText then
@@ -470,6 +721,7 @@ local function deletePeds()
 end
 
 AddEventHandler('qb-garbagejob:client:RequestRoute', function()
+    if currentLobbyId then return end -- group shifts start via the lobby menu instead
     if garbageVehicle then
         continueWorking = true
         TriggerServerEvent('garbagejob:server:payShift', continueWorking)
@@ -521,11 +773,81 @@ AddEventHandler('qb-garbagejob:client:RequestRoute', function()
 end)
 
 AddEventHandler('qb-garbagejob:client:RequestPaycheck', function()
+    if currentLobbyId then return end -- group shifts are paid out via the lobby menu instead
     if garbageVehicle then
         BringBackCar()
         exports.qbx_core:Notify(locale('info.truck_returned'))
     end
     TriggerServerEvent('garbagejob:server:payShift')
+end)
+
+-- ===================================================================
+-- Group lobby events
+-- ===================================================================
+
+RegisterNetEvent('garbagejob:client:lobbyUpdated', function(snapshot)
+    applyLobbySnapshot(snapshot)
+end)
+
+-- Non-leader members learn the shared truck's netId here once the leader
+-- spawns it.
+RegisterNetEvent('garbagejob:client:lobbyVehicleReady', function(netId, firstStop, totalBags)
+    if not currentLobbyId then return end
+
+    local veh = lib.waitFor(function()
+        if NetworkDoesEntityExistWithNetworkId(netId) then
+            return NetToVeh(netId)
+        end
+    end, 'Failed to sync truck', 5000)
+    if not veh or veh == 0 then return end
+
+    garbageVehicle = veh
+    currentStop = firstStop
+    currentStopNum = 1
+    amountOfBags = totalBags
+    lobbyStarted = true
+    SetGarbageRoute()
+    exports.qbx_core:Notify(locale('info.started'), 'success')
+end)
+
+-- Fired for every member (the one who delivered included) whenever a stop
+-- is cleared, so nobody's local route state can drift out of sync.
+RegisterNetEvent('garbagejob:client:lobbyStopAdvanced', function(result)
+    if not currentLobbyId then return end
+
+    if result.finished then
+        exports.qbx_core:Notify(locale('info.done_working'))
+        if garbageVehicle then SetVehicleDoorShut(garbageVehicle, 5, false) end
+        if deliveryBlip then RemoveBlip(deliveryBlip) end
+        SetRouteBack()
+        amountOfBags = 0
+        return
+    end
+
+    currentStop = result.nextStop
+    currentStopNum = currentStopNum + 1
+    amountOfBags = result.newBagAmount
+    SetGarbageRoute()
+    exports.qbx_core:Notify(locale('info.all_bags'))
+    if garbageVehicle then SetVehicleDoorShut(garbageVehicle, 5, false) end
+end)
+
+-- Fired for every member once the group payout has been paid out.
+RegisterNetEvent('garbagejob:client:lobbyEnded', function()
+    if garbageVehicle then
+        if endBlip then RemoveBlip(endBlip) end
+        if deliveryBlip then RemoveBlip(deliveryBlip) end
+        garbageVehicle = nil
+        hasBag = false
+        currentStop = 0
+        deliveryBlip = nil
+        amountOfBags = 0
+        garbageObject = nil
+        endBlip = nil
+        currentStopNum = 0
+    end
+    applyLobbySnapshot(nil)
+    exports.qbx_core:Notify(locale('info.truck_returned'))
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()

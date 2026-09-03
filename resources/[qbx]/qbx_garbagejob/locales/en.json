@@ -6,7 +6,11 @@
         "too_far": "You are too far away from the drop-off point",
         "early_finish": "Due to early finish (Completed: %s Total: %s), your deposit will not be returned.",
         "never_clocked_on": "You never clocked on!",
-        "all_occupied": "All parking spots are occupied"
+        "all_occupied": "All parking spots are occupied",
+        "lobby_create_failed": "Could not create a group right now",
+        "lobby_join_failed": "Could not join that group",
+        "lobby_cuts_failed": "Could not update the cuts",
+        "lobby_start_failed": "Could not start the group shift"
     },
     "success": {
         "clear_routes": "Cleared users routes they had %s routes stored",
@@ -22,7 +26,27 @@
         "collect": "Collect Paycheck",
         "return_collect": "Return truck and collect paycheck here!",
         "route": "Request Route",
-        "request_route": "Request a garbage Route"
+        "request_route": "Request a garbage Route",
+        "create_group": "Create Group",
+        "create_group_desc": "Start a route as a crew - you'll decide everyone's cut",
+        "join_group": "Join Group",
+        "join_group_desc": "Join someone else's crew",
+        "passcode_label": "Passcode",
+        "passcode_optional": "Leave blank for anyone to join",
+        "enter_passcode": "Enter Passcode",
+        "no_lobbies": "No open groups right now",
+        "lobby_entry": "%s's Crew",
+        "lobby_entry_desc": "%s member(s)",
+        "locked": "locked",
+        "lobby_header": "Garbage Crew",
+        "lobby_start": "Start Shift",
+        "lobby_start_desc": "Spawns the shared truck and picks a route for the crew",
+        "lobby_setcuts": "Set Cuts",
+        "lobby_setcuts_desc": "Decide what percentage of the payout each member gets",
+        "cut_percent": "Cut %",
+        "member_leader": "%s (Leader)",
+        "member_cut": "%s%% cut",
+        "lobby_leave": "Leave Group"
     },
     "info": {
         "payslip_collect": "[E] - Payslip",
@@ -49,6 +73,9 @@
         "get_truck": "[E] - Garbage Truck",
         "picking_bag": "Grabbing garbage bag..",
         "talk": "[E] Talk to Garbage Man",
-        "stops_left": "You have %s stops left!"
+        "stops_left": "You have %s stops left!",
+        "lobby_created": "Group created - invite others or start when ready",
+        "lobby_joined": "Joined the group",
+        "lobby_cuts_updated": "Cuts updated"
     }
 }

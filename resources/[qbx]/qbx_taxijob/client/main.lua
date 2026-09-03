@@ -6,7 +6,7 @@ local meterIsOpen = false
 local meterActive = false
 local lastLocation = nil
 local mouseActive = false
-local garageZone, taxiParkingZone = nil, nil
+local taxiParkingZone = nil
 local pickupLocation, dropOffLocation = nil, nil
 
 -- used for polyzones
@@ -366,81 +366,50 @@ local function setLocationsBlip()
     EndTextCommandSetBlipName(taxiBlip)
 end
 
-local function taxiGarage()
-    local registeredMenu = {
-        id = 'garages_depotlist',
-        title = locale('menu.taxi_menu_header'),
-        options = {}
-    }
-    local options = {}
-    for _, v in pairs(config.allowedVehicles) do
+-- Only one allowed vehicle model exists (the taxi itself), so interacting
+-- with the ped hands it straight out - no vehicle-choice menu needed.
+local pedSpawned = false
 
-        options[#options + 1] = {
-            title = v.label,
-            event = 'qb-taxi:client:TakeVehicle',
-            args = {model = v.model},
-            icon = 'fa-solid fa-taxi'
+local function SpawnPed()
+    if pedSpawned then return end
+    pedSpawned = true
+
+    local model = joaat(config.ped.model)
+    local ok = pcall(lib.requestModel, model, 10000)
+    if not ok or not HasModelLoaded(model) then
+        print(('^1[qbx_taxijob]^7 failed to load ped model %s - clipboard ped was not spawned'):format(config.ped.model))
+        pedSpawned = false
+        return
+    end
+
+    local coords = config.ped.coords
+    taxiPed = CreatePed(0, model, coords.x, coords.y, coords.z, coords.w, false, false)
+    SetModelAsNoLongerNeeded(model)
+
+    if not taxiPed or taxiPed == 0 then
+        print('^1[qbx_taxijob]^7 CreatePed returned an invalid entity - clipboard ped was not spawned')
+        pedSpawned = false
+        return
+    end
+
+    SetPedDefaultComponentVariation(taxiPed)
+    FreezeEntityPosition(taxiPed, true)
+    SetEntityInvincible(taxiPed, true)
+    SetBlockingOfNonTemporaryEvents(taxiPed, true)
+    TaskStartScenarioInPlace(taxiPed, config.ped.scenario, 0, true)
+
+    -- No 'job' filter - anyone can interact, not just the taxi job.
+    exports.ox_target:addLocalEntity(taxiPed, {
+        {
+            name = 'qbx_taxijob_start',
+            icon = 'fa-solid fa-taxi',
+            label = locale('info.request_taxi_target'),
+            distance = 1.5,
+            onSelect = function()
+                TriggerEvent('qb-taxi:client:TakeVehicle', { model = config.allowedVehicles[1].model })
+            end,
         }
-    end
-
-    registeredMenu['options'] = options
-    lib.registerContext(registeredMenu)
-    lib.showContext('garages_depotlist')
-end
-
-local function setupGarageZone()
-    if config.useTarget then
-        lib.requestModel(`a_m_m_indian_01`)
-        taxiPed = CreatePed(3, `a_m_m_indian_01`, 894.93, -179.12, 74.7 - 1.0, 237.09, false, true)
-        SetModelAsNoLongerNeeded(`a_m_m_indian_01`)
-        SetBlockingOfNonTemporaryEvents(taxiPed, true)
-        FreezeEntityPosition(taxiPed, true)
-        SetEntityInvincible(taxiPed, true)
-        -- No 'job' filter - anyone can interact, not just the taxi job.
-        exports.ox_target:addLocalEntity(taxiPed, {
-            {
-                type = 'client',
-                event = 'qb-taxijob:client:requestcab',
-                icon = 'fa-solid fa-taxi',
-                label = locale('info.request_taxi_target'),
-            }
-        })
-    else
-        local function onEnter()
-            if not cache.vehicle then
-                lib.showTextUI(locale('info.request_taxi'))
-            end
-        end
-
-        local function onExit()
-            lib.hideTextUI()
-        end
-
-        local function inside()
-            if IsControlJustPressed(0, 38) then
-                lib.hideTextUI()
-                taxiGarage()
-                return
-            end
-        end
-
-        garageZone = lib.zones.box({
-            coords = config.locations.garage.coords,
-            size = vec3(1.6, 4.0, 2.8),
-            rotation = 328.5,
-            debug = config.debugPoly,
-            inside = inside,
-            onEnter = onEnter,
-            onExit = onExit
-        })
-    end
-end
-
-local function destroyGarageZone()
-    if not garageZone then return end
-
-    garageZone:remove()
-    garageZone = nil
+    })
 end
 
 function setupTaxiParkingZone()
@@ -463,13 +432,27 @@ function setupTaxiParkingZone()
             end
         end,
         onEnter = function()
-            lib.showTextUI(locale('info.vehicle_parking'))
+            lib.showTextUI(locale('info.vehicle_parking'), { position = 'right-center' })
         end,
         onExit = function()
             lib.hideTextUI()
         end
     })
 end
+
+-- Red circle at the return zone so it's visible from a bit of a
+-- distance, not just once already standing in the (small) return box.
+CreateThread(function()
+    local hubCoords = config.locations.main.coords
+    while true do
+        if #(GetEntityCoords(cache.ped) - hubCoords.xyz) < 30.0 then
+            DrawMarker(2, hubCoords.x, hubCoords.y, hubCoords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.2, 0.15, 200, 0, 0, 222, false, false, 0, true, false, false, false)
+            Wait(0)
+        else
+            Wait(500)
+        end
+    end
+end)
 
 local function destroyTaxiParkingZone()
     if not taxiParkingZone then return end
@@ -646,10 +629,6 @@ RegisterNetEvent('qb-taxi:client:toggleMuis', function()
     end
 end)
 
-RegisterNetEvent('qb-taxijob:client:requestcab', function()
-    taxiGarage()
-end)
-
 -- NUI Callbacks
 RegisterNUICallback('enableMeter', function(data, cb)
     meterActive = data.enabled
@@ -687,18 +666,14 @@ CreateThread(function()
     end
 end)
 
--- No longer requires the taxi job - anyone can use the taxi zones/blips.
+-- No longer requires the taxi job - anyone can use the taxi ped/zone/blip.
+-- These only need setting up once each, not torn down and rebuilt on
+-- every job change any more.
 local function init()
-    setupGarageZone()
-    setupTaxiParkingZone()
+    SpawnPed()
+    if not taxiParkingZone then setupTaxiParkingZone() end
     setLocationsBlip()
 end
-
-RegisterNetEvent('QBCore:Client:OnJobUpdate', function()
-    destroyGarageZone()
-    destroyTaxiParkingZone()
-    init()
-end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     isLoggedIn = true
@@ -709,7 +684,9 @@ RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
     isLoggedIn = false
 end)
 
-CreateThread(function()
-    if not isLoggedIn then return end
+-- Covers a client that's already loaded in by the time this resource
+-- (re)starts - e.g. a manual `restart qbx_taxijob` - since
+-- OnPlayerLoaded won't fire again for them on its own.
+if isLoggedIn then
     init()
-end)
+end

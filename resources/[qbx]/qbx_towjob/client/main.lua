@@ -5,13 +5,9 @@ local JobsDone = 0
 local NpcOn = false
 local CurrentLocation = {}
 local CurrentBlip = nil
-local LastVehicle = 0
-local VehicleSpawned = false
-local selectedVeh = nil
-local showMarker = false
 local CurrentBlip2 = nil
 local CurrentTow = nil
-local drawDropOff = false
+local LastVehicle = 0
 
 -- Functions
 
@@ -22,15 +18,6 @@ local function getRandomVehicleLocation()
         randomVehicle = math.random(1, #sharedConfig.locations["towspots"])
     end
     return randomVehicle
-end
-
-local function drawDropOffMarker()
-    CreateThread(function()
-        while drawDropOff do
-            DrawMarker(2, sharedConfig.locations["dropoff"].coords.x, sharedConfig.locations["dropoff"].coords.y, sharedConfig.locations["dropoff"].coords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.2, 0.15, 200, 0, 0, 222, false, false, 0, true, false, false, false)
-            Wait(0)
-        end
-    end)
 end
 
 local function getVehicleInDirection(coordFrom, coordTo)
@@ -48,29 +35,6 @@ local function isTowVehicle(vehicle)
     return false
 end
 
--- Old Menu Code (being removed)
-
-local function MenuGarage()
-    local towMenu = {}
-    for k in pairs(config.vehicles) do
-        towMenu[#towMenu + 1] = {
-            title = config.vehicles[k],
-            event = "qb-tow:client:TakeOutVehicle",
-            args = {
-                vehicle = k
-            }
-        }
-    end
-
-    lib.registerContext({
-        id = 'tow_veh_menu',
-        title = locale("menu.header"),
-        options = towMenu
-    })
-
-    lib.showContext('tow_veh_menu')
-end
-
 local function CreateZone(type, number)
     local coords
     local heading
@@ -79,30 +43,18 @@ local function CreateZone(type, number)
     local label
     local size
 
-    if type == "main" then
-        event = "qb-tow:client:PaySlip"
-        label = locale("label.payslip")
-        coords = sharedConfig.locations["main"].coords.xyz
-        heading = sharedConfig.locations["main"].coords.w
-        boxName = sharedConfig.locations["main"].label
-        size = vec3(3, 3, 10)
-    elseif type == "vehicle" then
-        event = "qb-tow:client:Vehicle"
-        label = locale("label.vehicle")
-        coords = sharedConfig.locations["vehicle"].coords.xyz
-        heading = sharedConfig.locations["vehicle"].coords.w
-        boxName = sharedConfig.locations["vehicle"].label
-        size = vec3(5, 5, 10)
-    elseif type == "towspots" then
+    if type == "towspots" then
         event = "qb-tow:client:SpawnNPCVehicle"
         label = locale("label.npcz")
         coords = sharedConfig.locations[type][number].coords.xyz
         heading = sharedConfig.locations["towspots"][number].coords.w --[[@as number?]]
         boxName = sharedConfig.locations["towspots"][number].name
         size = vec3(50, 50, 10)
+    else
+        return
     end
 
-    if config.useTarget and type == "main" then
+    if config.useTarget then
         exports.ox_target:addBoxZone({
             name = boxName,
             coords = coords,
@@ -127,23 +79,7 @@ local function CreateZone(type, number)
                 TriggerEvent(event)
             end,
         })
-        if type == "vehicle" then
-            local zoneMark = lib.zones.box({
-                coords = coords,
-                size = vec3(20,20,10),
-                rotation = heading,
-                debug = config.debugPoly,
-                onEnter = function()
-                    TriggerEvent('qb-tow:client:ShowMarker', true)
-                end,
-                onExit = function()
-                    TriggerEvent('qb-tow:client:ShowMarker', false)
-                end
-            })
-            CurrentLocation.zoneCombo = zoneMark
-        elseif type == "towspots" then
-            CurrentLocation.zoneCombo = zone
-        end
+        CurrentLocation.zoneCombo = zone
     end
 end
 
@@ -151,7 +87,6 @@ local function deliverVehicle(vehicle)
     DeleteVehicle(vehicle)
     RemoveBlip(CurrentBlip2)
     JobsDone += 1
-    VehicleSpawned = false
     exports.qbx_core:Notify(locale("mission.delivered_vehicle"), "success")
     exports.qbx_core:Notify(locale("mission.get_new_vehicle"))
 
@@ -169,56 +104,130 @@ local function deliverVehicle(vehicle)
     SetBlipRouteColour(CurrentBlip, 3)
 end
 
-local function CreateElements()
-    local TowBlip = AddBlipForCoord(sharedConfig.locations["main"].coords.x, sharedConfig.locations["main"].coords.y, sharedConfig.locations["main"].coords.z)
-    SetBlipSprite(TowBlip, 477)
-    SetBlipDisplay(TowBlip, 4)
-    SetBlipScale(TowBlip, 0.6)
-    SetBlipAsShortRange(TowBlip, true)
-    SetBlipColour(TowBlip, 15)
-    BeginTextCommandSetBlipName("STRING")
-    AddTextComponentSubstringPlayerName(sharedConfig.locations["main"].label)
-    EndTextCommandSetBlipName(TowBlip)
+-- Ends the job: returns/deletes the flatbed and cashes out whatever's
+-- been delivered since it started.
+local function endJob(flatbed)
+    if flatbed and DoesEntityExist(flatbed) then
+        DeleteVehicle(flatbed)
+    end
 
-    local TowVehBlip = AddBlipForCoord(sharedConfig.locations["vehicle"].coords.x, sharedConfig.locations["vehicle"].coords.y, sharedConfig.locations["vehicle"].coords.z)
-    SetBlipSprite(TowVehBlip, 326)
-    SetBlipDisplay(TowVehBlip, 4)
-    SetBlipScale(TowVehBlip, 0.6)
-    SetBlipAsShortRange(TowVehBlip, true)
-    SetBlipColour(TowVehBlip, 15)
-    BeginTextCommandSetBlipName("STRING")
-    AddTextComponentSubstringPlayerName(sharedConfig.locations["vehicle"].label)
-    EndTextCommandSetBlipName(TowVehBlip)
+    if DoesBlipExist(CurrentBlip) then RemoveBlip(CurrentBlip) end
+    if DoesBlipExist(CurrentBlip2) then RemoveBlip(CurrentBlip2) end
+    if CurrentLocation.zoneCombo then
+        CurrentLocation.zoneCombo:remove()
+        CurrentLocation.zoneCombo = nil
+    end
 
-    CreateZone("main")
-    CreateZone("vehicle")
+    local drops = JobsDone
+    NpcOn = false
+    JobsDone = 0
+    CurrentLocation = {}
+    CurrentTow = nil
+
+    if drops > 0 then
+        TriggerServerEvent('qb-tow:server:cashOut', drops)
+    else
+        exports.qbx_core:Notify(locale("mission.vehicle_takenoff"), "success")
+    end
 end
--- Events
 
-RegisterNetEvent('qb-tow:client:SpawnVehicle', function()
-    local vehicleInfo = selectedVeh
-    local coords = sharedConfig.locations["vehicle"].coords
-    local plate = "TOWR"..lib.string.random('1111')
-    local netId = lib.callback.await('qb-tow:server:spawnVehicle', false, vehicleInfo, coords, true)
+local function startJob()
+    if NpcOn then
+        exports.qbx_core:Notify(locale("info.already_working"), "error")
+        return
+    end
+
+    local netId = lib.callback.await('qb-tow:server:startJob', false)
+    if not netId then
+        exports.qbx_core:Notify(locale("error.no_flatbed"), "error")
+        return
+    end
+
     local timeout = 100
     while not NetworkDoesEntityExistWithNetworkId(netId) and timeout > 0 do
         Wait(10)
         timeout -= 1
     end
     local veh = NetworkGetEntityFromNetworkId(netId)
-    SetVehicleNumberPlateText(veh, plate)
-    TriggerEvent("vehiclekeys:client:SetOwner", plate)
-    SetVehicleEngineOn(veh, true, true, false)
-    for i = 1, 9, 1 do
-        SetVehicleExtra(veh, i, false)
+    if veh and veh ~= 0 then
+        SetVehicleEngineOn(veh, true, true, false)
+        for i = 1, 9, 1 do
+            SetVehicleExtra(veh, i, false)
+        end
     end
-end)
 
--- No longer requires the tow job - elements are created once for everyone
--- and don't need recreating on a job change any more.
-RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    CreateElements()
-end)
+    NpcOn = true
+    JobsDone = 0
+
+    local randomLocation = getRandomVehicleLocation()
+    CurrentLocation.x = sharedConfig.locations["towspots"][randomLocation].coords.x
+    CurrentLocation.y = sharedConfig.locations["towspots"][randomLocation].coords.y
+    CurrentLocation.z = sharedConfig.locations["towspots"][randomLocation].coords.z
+    CurrentLocation.model = sharedConfig.locations["towspots"][randomLocation].model
+    CurrentLocation.id = randomLocation
+    CreateZone("towspots", randomLocation)
+
+    CurrentBlip = AddBlipForCoord(CurrentLocation.x, CurrentLocation.y, CurrentLocation.z)
+    SetBlipColour(CurrentBlip, 3)
+    SetBlipRoute(CurrentBlip, true)
+    SetBlipRouteColour(CurrentBlip, 3)
+
+    exports.qbx_core:Notify(locale("info.job_started"), "success")
+end
+
+-- Clipboard ped
+
+local pedSpawned = false
+
+-- Same reasoning as crazy-dailytasks/crazy-carrental's own peds: don't
+-- race the whole-server asset-streaming storm on a fresh boot -
+-- lib.requestModel throws (not returns false) on timeout, silently
+-- killing this thread with no retry, so wait for the player to actually
+-- be loaded in instead.
+local function SpawnPed()
+    if pedSpawned then return end
+    pedSpawned = true
+
+    local model = joaat(config.ped.model)
+    local ok = pcall(lib.requestModel, model, 10000)
+    if not ok or not HasModelLoaded(model) then
+        print(('^1[qbx_towjob]^7 failed to load ped model %s - clipboard ped was not spawned'):format(config.ped.model))
+        pedSpawned = false
+        return
+    end
+
+    local coords = sharedConfig.locations["start"].coords
+    local ped = CreatePed(0, model, coords.x, coords.y, coords.z, coords.w, false, false)
+    SetModelAsNoLongerNeeded(model)
+
+    if not ped or ped == 0 then
+        print('^1[qbx_towjob]^7 CreatePed returned an invalid entity - clipboard ped was not spawned')
+        pedSpawned = false
+        return
+    end
+
+    SetPedDefaultComponentVariation(ped)
+    FreezeEntityPosition(ped, true)
+    SetEntityInvincible(ped, true)
+    SetBlockingOfNonTemporaryEvents(ped, true)
+    TaskStartScenarioInPlace(ped, config.ped.scenario, 0, true)
+
+    exports.ox_target:addLocalEntity(ped, {{
+        name = 'qbx_towjob_start',
+        icon = 'fa-solid fa-truck-pickup',
+        label = locale("label.start_job"),
+        distance = 1.5,
+        onSelect = startJob,
+    }})
+end
+
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', SpawnPed)
+
+if LocalPlayer.state.isLoggedIn then
+    SpawnPed()
+end
+
+-- Events
 
 RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
     PlayerJob = JobInfo
@@ -226,32 +235,11 @@ end)
 
 -- No longer requires the tow job - anyone can toggle a tow spot.
 RegisterNetEvent('jobs:client:ToggleNpc', function()
-    if CurrentTow then
+    if NpcOn then
         exports.qbx_core:Notify(locale("error.finish_work"), "error")
         return
     end
-    NpcOn = not NpcOn
-    if NpcOn then
-        local randomLocation = getRandomVehicleLocation()
-        CurrentLocation.x = sharedConfig.locations["towspots"][randomLocation].coords.x
-        CurrentLocation.y = sharedConfig.locations["towspots"][randomLocation].coords.y
-        CurrentLocation.z = sharedConfig.locations["towspots"][randomLocation].coords.z
-        CurrentLocation.model = sharedConfig.locations["towspots"][randomLocation].model
-        CurrentLocation.id = randomLocation
-        CreateZone("towspots", randomLocation)
-
-        CurrentBlip = AddBlipForCoord(CurrentLocation.x, CurrentLocation.y, CurrentLocation.z)
-        SetBlipColour(CurrentBlip, 3)
-        SetBlipRoute(CurrentBlip, true)
-        SetBlipRouteColour(CurrentBlip, 3)
-    else
-        if DoesBlipExist(CurrentBlip) then
-            RemoveBlip(CurrentBlip)
-            CurrentLocation = {}
-            CurrentBlip = nil
-        end
-        VehicleSpawned = false
-    end
+    startJob()
 end)
 
 RegisterNetEvent('qb-tow:client:TowVehicle', function()
@@ -294,12 +282,10 @@ RegisterNetEvent('qb-tow:client:TowVehicle', function()
                             if NpcOn then
                                 RemoveBlip(CurrentBlip)
                                 exports.qbx_core:Notify(locale("mission.goto_depot"), "inform", 5000)
-                                CurrentBlip2 = AddBlipForCoord(sharedConfig.locations["dropoff"].coords.x, sharedConfig.locations["dropoff"].coords.y, sharedConfig.locations["dropoff"].coords.z)
+                                CurrentBlip2 = AddBlipForCoord(sharedConfig.locations["vehicle"].coords.x, sharedConfig.locations["vehicle"].coords.y, sharedConfig.locations["vehicle"].coords.z)
                                 SetBlipColour(CurrentBlip2, 3)
                                 SetBlipRoute(CurrentBlip2, true)
                                 SetBlipRouteColour(CurrentBlip2, 3)
-                                drawDropOff = true
-                                drawDropOffMarker()
                                 --remove zone
                                 CurrentLocation.zoneCombo:remove()
                             end
@@ -332,13 +318,12 @@ RegisterNetEvent('qb-tow:client:TowVehicle', function()
                 DetachEntity(CurrentTow, true, true)
                 if NpcOn then
                     local targetPos = GetEntityCoords(CurrentTow)
-                    if #(targetPos - vector3(sharedConfig.locations["vehicle"].coords.x, sharedConfig.locations["vehicle"].coords.y, sharedConfig.locations["vehicle"].coords.z)) < 25.0 then
+                    if #(targetPos - sharedConfig.locations["vehicle"].coords.xyz) < 25.0 then
                         deliverVehicle(CurrentTow)
                     end
                 end
                 RemoveBlip(CurrentBlip2)
                 CurrentTow = nil
-                drawDropOff = false
                 exports.qbx_core:Notify(locale("mission.vehicle_takenoff"), "success")
             else
                 StopAnimTask(cache.ped, "mini@repair", "fixing_a_ped", 1.0)
@@ -350,68 +335,51 @@ RegisterNetEvent('qb-tow:client:TowVehicle', function()
     end
 end)
 
-RegisterNetEvent('qb-tow:client:TakeOutVehicle', function(data)
-    local coords = sharedConfig.locations["vehicle"].coords
-    local ped = cache.ped
-    local pos = GetEntityCoords(ped)
-    if #(pos - coords.xyz) <= 5 then
-        local vehicleInfo = data.vehicle
-        TriggerServerEvent('qb-tow:server:DoBail', true, vehicleInfo)
-        selectedVeh = vehicleInfo
-    else
-        exports.qbx_core:Notify(locale("error.too_far_away"), 'error')
-    end
-end)
-
-RegisterNetEvent('qb-tow:client:Vehicle', function()
-    local vehicle = cache.vehicle
-    if not CurrentTow then
-        if vehicle and isTowVehicle(vehicle) then
-            DeleteVehicle(cache.vehicle)
-            TriggerServerEvent('qb-tow:server:DoBail', false)
-        else
-            MenuGarage()
-        end
-    else
-        exports.qbx_core:Notify(locale("error.finish_work"), "error")
-    end
-end)
-
-RegisterNetEvent('qb-tow:client:PaySlip', function()
-    if JobsDone > 0 then
-        RemoveBlip(CurrentBlip)
-        TriggerServerEvent("qb-tow:server:11101110", JobsDone)
-        JobsDone = 0
-        NpcOn = false
-    else
-        exports.qbx_core:Notify(locale("error.no_work_done"), "error")
-    end
-end)
-
 RegisterNetEvent('qb-tow:client:SpawnNPCVehicle', function()
-    if VehicleSpawned then return end
     local netId = lib.callback.await('qb-tow:server:spawnVehicle', false, CurrentLocation.model, vec3(CurrentLocation.x, CurrentLocation.y, CurrentLocation.z))
-    local veh = NetToVeh(netId)
-    SetVehicleFuelLevel(veh, 0.0)
-    VehicleSpawned = true
-end)
-
-RegisterNetEvent('qb-tow:client:ShowMarker', function(active)
-    if PlayerJob.name ~= "tow" then return end
-
-    showMarker = active
+    NetToVeh(netId)
 end)
 
 -- Threads
 
+-- Flatbed hub marker + return prompt - only while a job is actually
+-- active, and only offering to return once there's a flatbed actually
+-- parked there (not just standing in the zone).
 CreateThread(function()
-    local sleep
+    local hubCoords = sharedConfig.locations["vehicle"].coords
+    local promptShown = false
+
     while true do
-        sleep = 1000
-        if showMarker then
-            sleep = 0
-            DrawMarker(2, sharedConfig.locations["vehicle"].coords.x, sharedConfig.locations["vehicle"].coords.y, sharedConfig.locations["vehicle"].coords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.2, 0.15, 200, 0, 0, 222, false, false, 0, true, false, false, false)
+        Wait(0)
+        if not NpcOn then
+            if promptShown then
+                lib.hideTextUI()
+                promptShown = false
+            end
+            Wait(500)
+        else
+            DrawMarker(2, hubCoords.x, hubCoords.y, hubCoords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.2, 0.15, 200, 0, 0, 222, false, false, 0, true, false, false, false)
+
+            if #(GetEntityCoords(cache.ped) - hubCoords.xyz) < 3.0 then
+                local flatbed = lib.getClosestVehicle(hubCoords.xyz, 5.0, true)
+                if flatbed and isTowVehicle(flatbed) then
+                    if not promptShown then
+                        lib.showTextUI(locale("label.return_vehicle"), { position = 'right-center' })
+                        promptShown = true
+                    end
+                    if IsControlJustPressed(0, 38) then
+                        lib.hideTextUI()
+                        promptShown = false
+                        endJob(flatbed)
+                    end
+                elseif promptShown then
+                    lib.hideTextUI()
+                    promptShown = false
+                end
+            elseif promptShown then
+                lib.hideTextUI()
+                promptShown = false
+            end
         end
-        Wait(sleep)
     end
 end)
