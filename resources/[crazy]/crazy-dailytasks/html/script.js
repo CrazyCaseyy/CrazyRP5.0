@@ -1,6 +1,7 @@
 // NUI contract with client/main.lua:
-//   inbound (SendNUIMessage):  { action: 'open'|'update', tasks: [{ job,
-//     label, target, progress, completed, claimed }] } | { action: 'close' }
+//   inbound (SendNUIMessage):  { action: 'open', tasks: [{ job, label,
+//     target, progress, completed, claimed }], atCityHall } |
+//     { action: 'update', tasks } | { action: 'close' }
 //   outbound (RegisterNUICallback): 'close' | 'setWaypoint' ({ job }) |
 //     'setWaypointCityHall'
 
@@ -89,6 +90,7 @@ window.addEventListener('message', ({ data }) => {
   switch (data.action) {
     case 'open':
       renderTasks(data.tasks);
+      btnCityHall.classList.toggle('hidden', !!data.atCityHall);
       app.classList.remove('hidden');
       break;
     case 'update':
@@ -110,5 +112,6 @@ if (typeof GetParentResourceName === 'undefined') {
     { job: 'garbage', label: 'Garbage', target: 3, progress: 3, completed: true, claimed: false },
     { job: 'bus', label: 'Bus', target: 5, progress: 5, completed: true, claimed: true },
   ]);
+  btnCityHall.classList.remove('hidden');
   app.classList.remove('hidden');
 }

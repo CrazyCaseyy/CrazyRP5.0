@@ -1,13 +1,19 @@
 local isOpen = false
 
+-- Rough "you're already here" radius - big enough to cover actually being
+-- inside the City Hall building, not just standing on the exact door
+-- coord.
+local CITYHALL_RADIUS = 15.0
+
 local function openDailyTasks()
     if isOpen then return end
 
     local tasks = lib.callback.await('crazy-dailytasks:server:getTasks', false)
+    local atCityHall = #(GetEntityCoords(cache.ped) - Config.CityHallLocation) < CITYHALL_RADIUS
 
     isOpen = true
     SetNuiFocus(true, true)
-    SendNUIMessage({ action = 'open', tasks = tasks })
+    SendNUIMessage({ action = 'open', tasks = tasks, atCityHall = atCityHall })
 end
 
 local function closeDailyTasks()
