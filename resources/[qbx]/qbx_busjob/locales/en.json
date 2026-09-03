@@ -9,6 +9,7 @@
     },
     "info": {
         "dropped_off": "Person was dropped off",
+        "dropped_off_paid": "Customer dropped off!\nEarned: $%s\nBus Route Paycheck Total: $%s",
         "bus": "Standard Bus",
         "goto_busstop": "Go to the bus stop",
         "busstop_text": "[E] - Bus Stop",
@@ -17,6 +18,10 @@
         "bus_stop_work": "[E] - Stop Working",
         "bus_job_vehicles": "[E] - Job Vehicles",
         "bus_header": "Bus Vehicles",
-        "bus_job": "Bus Job"
+        "bus_job": "Bus Job",
+        "start_route": "Start Route",
+        "end_route": "[E] - End Route",
+        "finish_route_first": "Finish your route first",
+        "route_ended": "Route ended - you earned $%s this route"
     }
 }

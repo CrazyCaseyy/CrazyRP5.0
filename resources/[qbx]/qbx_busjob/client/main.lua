@@ -3,9 +3,10 @@ local sharedConfig = require 'config.shared'
 local route = 1
 local max = #sharedConfig.npcLocations.locations
 local busBlip = nil
-local vehicleZone
 local deliverZone
 local pickupZone
+local pedSpawned = false
+local routeTotal = 0
 
 local NpcData = {
     Active = false,
@@ -62,7 +63,7 @@ local function updateBlip()
         removeBusBlip()
         return
     elseif not busBlip then
-        local coords = sharedConfig.location
+        local coords = config.ped.coords
         busBlip = AddBlipForCoord(coords.x, coords.y, coords.z)
         SetBlipSprite(busBlip, 513)
         SetBlipDisplay(busBlip, 4)
@@ -133,11 +134,17 @@ local function getDeliveryLocation()
                         SetEntityAsNoLongerNeeded(NpcData.Npc)
                         local targetCoords = sharedConfig.npcLocations.locations[NpcData.LastNpc]
                         TaskGoStraightToCoord(NpcData.Npc, targetCoords.x, targetCoords.y, targetCoords.z, 1.0, -1, 0.0, 0.0)
-                        lib.notify({
-                            title = locale('info.bus_job'),
-                            description = locale('info.dropped_off'),
-                            type = 'success'
-                        })
+
+                        local payment = lib.callback.await('qbx_busjob:server:NpcPay', false)
+                        if payment then
+                            routeTotal += payment
+                            lib.notify({
+                                title = locale('info.bus_job'),
+                                description = locale('info.dropped_off_paid', payment, routeTotal),
+                                type = 'success'
+                            })
+                        end
+
                         removeNPCBlip()
                         removePed(NpcData.Npc)
                         resetNpcTask()
@@ -160,95 +167,7 @@ local function getDeliveryLocation()
     })
 end
 
-local function busGarage()
-    local vehicleMenu = {}
-    for _, v in pairs(config.allowedVehicles) do
-        vehicleMenu[#vehicleMenu + 1] = {
-            title = locale('info.bus'),
-            event = "qbx_busjob:client:TakeVehicle",
-            args = v
-        }
-    end
-    lib.registerContext({
-        id = 'qbx_busjob_open_garage_context_menu',
-        title = locale('info.bus_header'),
-        options = vehicleMenu
-    })
-    lib.showContext('qbx_busjob_open_garage_context_menu')
-end
-
-local function updateZone()
-    if vehicleZone then
-        vehicleZone:remove()
-        vehicleZone = nil
-    end
-
-    -- No longer requires the bus job - anyone can spawn/use the bus.
-    if table.type(QBX.PlayerData) == 'empty' then return end
-
-    local inRange = false
-    local shownTextUI = false
-    vehicleZone = lib.zones.sphere({
-        name = "qbx_busjob_bus_main",
-        coords = sharedConfig.location.xyz,
-        radius = 5,
-        debug = config.debugPoly,
-        onEnter = function()
-            inRange = true
-            CreateThread(function()
-                repeat
-                    Wait(0)
-                    if not isPlayerVehicleABus() then
-                        if not shownTextUI then
-                            lib.showTextUI(locale('info.bus_job_vehicles'))
-                            shownTextUI = true
-                        end
-                        if IsControlJustReleased(0, 38) then
-                            busGarage()
-                            lib.hideTextUI()
-                            shownTextUI = false
-                            break
-                        end
-                    else
-                        if not shownTextUI then
-                            lib.showTextUI(locale('info.bus_stop_work'))
-                            shownTextUI = true
-                        end
-                        if IsControlJustReleased(0, 38) then
-                            if not NpcData.Active or NpcData.Active and not NpcData.NpcTaken then
-                                if cache.vehicle then
-                                    BusData.Active = false
-                                    DeleteVehicle(cache.vehicle)
-                                    removeNPCBlip()
-                                    lib.hideTextUI()
-                                    shownTextUI = false
-                                    resetNpcTask()
-                                    break
-                                end
-                            else
-                                lib.notify({
-                                    title = locale('info.bus_job'),
-                                    description = locale('error.drop_off_passengers'),
-                                    type = 'error'
-                                })
-                            end
-                        end
-                    end
-                until not inRange
-            end)
-        end,
-        onExit = function()
-            shownTextUI = false
-            inRange = false
-            Wait(1000)
-            lib.hideTextUI()
-        end
-    })
-end
-
--- onExit()
-
-RegisterNetEvent("qbx_busjob:client:TakeVehicle", function(data)
+local function startRoute()
     if BusData.Active then
         lib.notify({
             title = locale('info.bus_job'),
@@ -258,7 +177,8 @@ RegisterNetEvent("qbx_busjob:client:TakeVehicle", function(data)
         return
     end
 
-    local netId = lib.callback.await('qbx_busjob:server:spawnBus', false, data.model)
+    local model = config.allowedVehicles[1].model
+    local netId = lib.callback.await('qbx_busjob:server:spawnBus', false, model, config.vehicleSpawn)
     Wait(300)
     if not netId or netId == 0 or not NetworkDoesEntityExistWithNetworkId(netId) then
         lib.notify({
@@ -281,8 +201,117 @@ RegisterNetEvent("qbx_busjob:client:TakeVehicle", function(data)
 
     SetVehicleFuelLevel(veh, 100.0)
     SetVehicleEngineOn(veh, true, true, false)
-    lib.hideContext()
+    BusData.Active = true
+    routeTotal = 0
     TriggerEvent('qbx_busjob:client:DoBusNpc')
+end
+
+-- Same reasoning as the other job peds in this server (crazy-dailytasks,
+-- crazy-carrental, qbx_towjob, qbx_taxijob): lib.requestModel throws (not
+-- returns false) on timeout, silently killing this thread on a fresh
+-- server boot - wait for the player to actually be loaded in instead.
+local function spawnPed()
+    if pedSpawned then return end
+    pedSpawned = true
+
+    local model = joaat(config.ped.model)
+    local ok = pcall(lib.requestModel, model, 10000)
+    if not ok or not HasModelLoaded(model) then
+        print(('^1[qbx_busjob]^7 failed to load ped model %s - clipboard ped was not spawned'):format(config.ped.model))
+        pedSpawned = false
+        return
+    end
+
+    local coords = config.ped.coords
+    local ped = CreatePed(0, model, coords.x, coords.y, coords.z, coords.w, false, false)
+    SetModelAsNoLongerNeeded(model)
+
+    if not ped or ped == 0 then
+        print('^1[qbx_busjob]^7 CreatePed returned an invalid entity - ped was not spawned')
+        pedSpawned = false
+        return
+    end
+
+    SetPedDefaultComponentVariation(ped)
+    FreezeEntityPosition(ped, true)
+    SetEntityInvincible(ped, true)
+    SetBlockingOfNonTemporaryEvents(ped, true)
+    TaskStartScenarioInPlace(ped, config.ped.scenario, 0, true)
+
+    -- No 'job' filter - anyone can interact, not just the bus job.
+    exports.ox_target:addLocalEntity(ped, {{
+        name = 'qbx_busjob_start',
+        icon = 'fa-solid fa-bus',
+        label = locale('info.start_route'),
+        distance = 1.5,
+        onSelect = startRoute,
+    }})
+end
+
+-- Red ring at the return point - solid at the ground, fading to
+-- transparent as it rises, so it reads as a beam rather than a flat
+-- disc. Only shown while an active bus is out.
+local function drawEndRing(coords)
+    local layers, maxHeight = 8, 2.0
+    for i = 0, layers - 1 do
+        local t = i / (layers - 1)
+        local alpha = math.floor(200 * (1 - t))
+        DrawMarker(1, coords.x, coords.y, coords.z + t * maxHeight, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 0.05, 220, 0, 0, alpha, false, false, 2, false, nil, nil, false)
+    end
+end
+
+CreateThread(function()
+    local endCoords = config.endLocation
+    local promptShown = false
+
+    while true do
+        if BusData.Active then
+            drawEndRing(endCoords)
+
+            -- Matches qbx_towjob/qbx_taxijob's own return-zone pattern -
+            -- checks for a parked bus nearby, not that the player is
+            -- still sitting in it (they may have hopped out already).
+            local nearbyBus = #(GetEntityCoords(cache.ped) - endCoords) < 3.0 and lib.getClosestVehicle(endCoords, 5.0, true)
+            if nearbyBus and GetEntityModel(nearbyBus) == config.allowedVehicles[1].model then
+                if NpcData.NpcTaken then
+                    if not promptShown then
+                        lib.showTextUI(locale('info.finish_route_first'), { position = 'right-center' })
+                        promptShown = true
+                    end
+                else
+                    if not promptShown then
+                        lib.showTextUI(locale('info.end_route'), { position = 'right-center' })
+                        promptShown = true
+                    end
+                    if IsControlJustPressed(0, 38) then
+                        lib.hideTextUI()
+                        promptShown = false
+                        BusData.Active = false
+                        DeleteVehicle(nearbyBus)
+                        removeNPCBlip()
+                        resetNpcTask()
+                        lib.notify({
+                            title = locale('info.bus_job'),
+                            description = locale('info.route_ended', routeTotal),
+                            type = 'success'
+                        })
+                        routeTotal = 0
+                    end
+                end
+            elseif promptShown then
+                lib.hideTextUI()
+                promptShown = false
+            end
+
+            Wait(0)
+        else
+            if promptShown then
+                lib.hideTextUI()
+                promptShown = false
+            end
+            Wait(500)
+        end
+    end
 end)
 
 -- Events
@@ -291,24 +320,24 @@ AddEventHandler('onResourceStart', function(resourceName)
     if GetCurrentResourceName() ~= resourceName then return end
 
     updateBlip()
-    updateZone()
+    spawnPed()
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     updateBlip()
-    updateZone()
+    spawnPed()
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
 
     updateBlip()
-    updateZone()
+    spawnPed()
 end)
 
 RegisterNetEvent('QBCore:Player:SetPlayerData', function()
 
     updateBlip()
-    updateZone()
+    spawnPed()
 end)
 
 RegisterNetEvent('qbx_busjob:client:DoBusNpc', function()
@@ -377,7 +406,6 @@ RegisterNetEvent('qbx_busjob:client:DoBusNpc', function()
                             removeNPCBlip()
                             getDeliveryLocation()
                             NpcData.NpcTaken = true
-                            TriggerServerEvent('qbx_busjob:server:NpcPay')
                             lib.hideTextUI()
                             shownTextUI = false
                             pickupZone:remove()

@@ -28,7 +28,8 @@ files {
 dependencies {
     'qbx_core',
     'ox_lib',
-    'crazy-reputation'
+    'crazy-reputation',
+    'ox_target'
 }
 
 lua54 'yes'

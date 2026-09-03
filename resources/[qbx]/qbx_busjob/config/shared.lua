@@ -1,5 +1,4 @@
 return {
-    location = vec4(462.22, -641.15, 28.45, 175.0),
     npcLocations = {
         locations = {
             vec4(304.36, -764.56, 29.31, 252.09),

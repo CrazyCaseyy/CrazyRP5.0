@@ -13,11 +13,11 @@ local function isPlayerNearBus(src)
     return false
 end
 
-lib.callback.register('qbx_busjob:server:spawnBus', function(source, model)
+lib.callback.register('qbx_busjob:server:spawnBus', function(source, model, coords)
     local src = source
-    local ped = GetPlayerPed(src)
+    local spawnSource = coords or GetPlayerPed(src)
 
-    local netId = qbx.spawnVehicle({ model = model, spawnSource = ped, warp = true })
+    local netId = qbx.spawnVehicle({ model = model, spawnSource = spawnSource, warp = not coords and true or false })
     if not netId or netId == 0 then return end
     local veh = NetworkGetEntityFromNetworkId(netId)
     if not veh or veh == 0 then return end
@@ -28,10 +28,14 @@ lib.callback.register('qbx_busjob:server:spawnBus', function(source, model)
     return netId
 end)
 
-RegisterNetEvent('qbx_busjob:server:NpcPay', function()
+-- Paid on drop-off now, not pickup - a callback (not a fire-and-forget
+-- event) so the client can show the actual amount earned in its
+-- notification.
+lib.callback.register('qbx_busjob:server:NpcPay', function(source)
     local src = source
     local player = exports.qbx_core:GetPlayer(src)
-    if not isPlayerNearBus(src) then return DropPlayer(src, locale('error.exploit_attempt')) end
+    if not player then return end
+    if not isPlayerNearBus(src) then DropPlayer(src, locale('error.exploit_attempt')) return end
 
     local payment = math.random(15, 25)
     if math.random(1, 100) < config.bonusChance then
@@ -43,4 +47,6 @@ RegisterNetEvent('qbx_busjob:server:NpcPay', function()
 
     player.Functions.AddMoney('cash', payment)
     exports['crazy-reputation']:AddReputation(src, 'bus', 1)
+
+    return payment
 end)

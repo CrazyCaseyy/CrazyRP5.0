@@ -5,6 +5,19 @@ return {
             model = `bus`
         }
     },
+    -- Talk to this ped to start the route - it hands out the bus
+    -- directly (only one vehicle model exists, so there's no menu step).
+    ped = {
+        model = 'ig_floyd',
+        -- Closest vanilla scenario to "using a tablet" while standing -
+        -- GTA doesn't ship a dedicated standing-tablet scenario. Swap
+        -- this if you find a closer match.
+        scenario = 'WORLD_HUMAN_STAND_MOBILE_UPRIGHT',
+        coords = vec4(435.24, -647.33, 27.74, 81.7),
+    },
+    vehicleSpawn = vec4(429.71, -637.72, 27.5, 178.24),
+    -- Drive the bus back here to end the route.
+    endLocation = vec3(423.69, -644.24, 27.5),
     npcSkins = {
         [1] = {
             'a_f_m_skidrow_01',
