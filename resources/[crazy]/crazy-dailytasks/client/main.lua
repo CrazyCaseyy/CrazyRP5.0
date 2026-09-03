@@ -32,9 +32,38 @@ RegisterNUICallback('setWaypoint', function(data, cb)
     cb(1)
 end)
 
+RegisterNUICallback('setWaypointCityHall', function(_, cb)
+    local coords = Config.CityHallLocation
+    SetNewWaypoint(coords.x, coords.y)
+    exports.qbx_core:Notify('Waypoint set.', 'success')
+    cb(1)
+end)
+
 RegisterNetEvent('crazy-dailytasks:client:refreshTasks', function(tasks)
     if not isOpen then return end
     SendNUIMessage({ action = 'update', tasks = tasks })
+end)
+
+RegisterCommand('tasks', function()
+    openDailyTasks()
+end, false)
+
+-- Fired by qbx_cityhall's "Daily Task Rewards" menu option
+-- (client/main.lua there) - same client either way, so this is a plain
+-- TriggerEvent, not a cross-resource export.
+RegisterNetEvent('crazy-dailytasks:client:claimRewards', function()
+    local result = lib.callback.await('crazy-dailytasks:server:claimRewards', false)
+    if not result then return end
+
+    if result.claimed > 0 then
+        exports.qbx_core:Notify(('Claimed %d task reward%s.'):format(result.claimed, result.claimed == 1 and '' or 's'), 'success')
+    else
+        exports.qbx_core:Notify('No completed task rewards to claim right now.', 'inform')
+    end
+
+    if isOpen then
+        SendNUIMessage({ action = 'update', tasks = result.tasks })
+    end
 end)
 
 local pedSpawned = false

@@ -1,13 +1,15 @@
 // NUI contract with client/main.lua:
 //   inbound (SendNUIMessage):  { action: 'open'|'update', tasks: [{ job,
-//     label, target, progress, completed }] } | { action: 'close' }
-//   outbound (RegisterNUICallback): 'close' | 'setWaypoint' ({ job })
+//     label, target, progress, completed, claimed }] } | { action: 'close' }
+//   outbound (RegisterNUICallback): 'close' | 'setWaypoint' ({ job }) |
+//     'setWaypointCityHall'
 
 const el = (id) => document.getElementById(id);
 
 const app = el('app');
 const taskList = el('task-list');
 const btnClose = el('btn-close');
+const btnCityHall = el('btn-cityhall');
 
 function resourceName() {
   return window.GetParentResourceName ? GetParentResourceName() : 'crazy-dailytasks';
@@ -44,13 +46,18 @@ function renderTasks(tasks) {
   taskList.innerHTML = tasks
     .map((task) => {
       const pct = Math.min(100, Math.round((task.progress / task.target) * 100));
+      const ready = task.completed && !task.claimed;
+      const cardClass = task.completed ? (ready ? 'is-complete is-ready' : 'is-complete is-claimed') : '';
+      let rewardText = '+1 Case';
+      if (ready) rewardText = 'Claim at City Hall';
+      else if (task.claimed) rewardText = 'Claimed';
       return `
-        <div class="task-card ${task.completed ? 'is-complete' : ''}">
+        <div class="task-card ${cardClass}">
           <div class="task-icon">${task.completed ? CHECK_ICON : BRIEFCASE_ICON}</div>
           <div class="task-info">
             <div class="task-top-row">
               <div class="task-label">${escapeHtml(task.label)}</div>
-              <div class="task-reward">${task.completed ? 'Claimed' : '+1 Case'}</div>
+              <div class="task-reward">${rewardText}</div>
             </div>
             <div class="task-progress-bar"><div class="task-progress-fill" style="width:${pct}%"></div></div>
             <div class="task-progress-text">${task.progress} / ${task.target} completed</div>
@@ -72,6 +79,7 @@ function closeBox() {
 }
 
 btnClose.addEventListener('click', closeBox);
+btnCityHall.addEventListener('click', () => nuiPost('setWaypointCityHall'));
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeBox();
@@ -99,7 +107,8 @@ if (typeof GetParentResourceName === 'undefined') {
   renderTasks([
     { job: 'taxi', label: 'Taxi', target: 6, progress: 2, completed: false },
     { job: 'tow', label: 'Towing', target: 5, progress: 4, completed: false },
-    { job: 'garbage', label: 'Garbage', target: 3, progress: 3, completed: true },
+    { job: 'garbage', label: 'Garbage', target: 3, progress: 3, completed: true, claimed: false },
+    { job: 'bus', label: 'Bus', target: 5, progress: 5, completed: true, claimed: true },
   ]);
   app.classList.remove('hidden');
 }

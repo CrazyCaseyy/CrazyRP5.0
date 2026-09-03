@@ -117,6 +117,17 @@ local function openCityhallMenu()
         }
     end
 
+    -- Piggybacks crazy-dailytasks' own client event - same client, so a
+    -- plain TriggerEvent works whether or not that resource happens to be
+    -- running (no hard dependency needed).
+    options[#options + 1] = {
+        title = 'Daily Task Rewards',
+        description = 'Claim rewards for any completed daily tasks',
+        onSelect = function()
+            TriggerEvent('crazy-dailytasks:client:claimRewards')
+        end
+    }
+
     lib.registerContext({
         id = 'cityhall_menu',
         title = locale('info.cityhall'),

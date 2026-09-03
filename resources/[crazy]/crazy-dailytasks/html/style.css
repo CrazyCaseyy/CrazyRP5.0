@@ -23,6 +23,7 @@
   --ox-text: #ffffff;
   --ox-text-dim: #c9c9c9;
   --ox-green: #3ddc84;
+  --ox-amber: #f5a623;
 
   --font-display: 'Geom Graphic W03', 'Segoe UI', Roboto, sans-serif;
 }
@@ -92,6 +93,13 @@ html, body {
   padding-right: 40px;
 }
 
+.box-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .box-title {
   font-size: 26px;
   font-weight: 700;
@@ -108,6 +116,41 @@ html, body {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ox-blue);
+}
+
+.box-note {
+  margin-top: 10px;
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  color: var(--ox-text-dim);
+}
+
+.cityhall-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ox-blue);
+  background: var(--ox-panel-strong);
+  border: 1px solid var(--ox-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 150ms, color 150ms, box-shadow 150ms;
+}
+.cityhall-btn svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+.cityhall-btn:hover {
+  border-color: var(--ox-badge-border);
+  box-shadow: var(--ox-badge-glow);
 }
 
 .task-list {
@@ -222,6 +265,25 @@ html, body {
 }
 .task-card.is-complete .task-progress-text {
   color: var(--ox-green);
+}
+
+/* Completed but not yet claimed at City Hall - amber instead of the
+   "fully done" green, so it reads as still needing action. */
+.task-card.is-ready {
+  border-color: rgba(245, 166, 35, 0.75);
+  box-shadow: inset 0 0 0 2px rgba(245, 166, 35, 0.12), 0 0 4px rgba(245, 166, 35, 0.3);
+}
+.task-card.is-ready .task-icon {
+  background: var(--ox-amber);
+  filter: drop-shadow(0 0 4px rgba(245, 166, 35, 0.5));
+}
+.task-card.is-ready .task-reward,
+.task-card.is-ready .task-progress-text {
+  color: var(--ox-amber);
+}
+.task-card.is-ready .task-progress-fill {
+  background: var(--ox-amber);
+  box-shadow: 0 0 4px rgba(245, 166, 35, 0.6);
 }
 
 .task-waypoint-btn {

@@ -34,3 +34,10 @@ Config.JobLocations = {
     trucker = vec3(153.0, -3211.68, 5.91),        -- qbx_truckerjob config/shared.lua locations.main
     garbage = vec3(-313.84, -1522.82, 27.56),     -- qbx_garbagejob config/shared.lua locations.main
 }
+
+-- Completed tasks don't pay out on their own - the reward has to be
+-- claimed at City Hall (see the "Daily Task Rewards" option added to
+-- qbx_cityhall's own menu). This is that same door location, taken from
+-- qbx_cityhall config/client.lua peds[1].coords, for the header's
+-- "Set Waypoint" button.
+Config.CityHallLocation = vec3(-545.32, -611.26, 34.65)

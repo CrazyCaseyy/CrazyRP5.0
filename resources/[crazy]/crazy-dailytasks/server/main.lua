@@ -1,7 +1,11 @@
 -- Daily task board: 3 random civilian-job tasks per player, reset every
 -- time this resource (or the whole server) restarts. Progress is driven by
 -- crazy-reputation's jobCompleted event (fired once per completed job unit
--- - fare, drop, shift), rewarding Config.RewardItem on completion.
+-- - fare, drop, shift). Completing a task does NOT hand out
+-- Config.RewardItem on its own - it just flips `completed`; the player
+-- has to visit City Hall and claim it there (see the "Daily Task Rewards"
+-- option added to qbx_cityhall's own menu), which is what actually flips
+-- `claimed` and gives the item.
 
 MySQL.query([[
     CREATE TABLE IF NOT EXISTS `player_daily_tasks` (
@@ -43,6 +47,7 @@ local function generateTasks()
             target = math.random(cfg.min, cfg.max),
             progress = 0,
             completed = false,
+            claimed = false,
         }
     end
 
@@ -107,11 +112,10 @@ AddEventHandler('crazy-reputation:server:jobCompleted', function(source, job, am
             if task.progress >= task.target then
                 task.completed = true
 
-                exports.ox_inventory:AddItem(source, Config.RewardItem, 1)
                 TriggerClientEvent('ox_lib:notify', source, {
                     id = 'crazy_dailytasks_complete',
                     title = 'Daily Task Complete',
-                    description = ('%s task finished - a Case has been added to your inventory.'):format(task.label),
+                    description = ('%s task finished - head to City Hall to claim your reward.'):format(task.label),
                     showDuration = true,
                     position = 'center-right',
                     icon = 'briefcase',
@@ -125,4 +129,32 @@ AddEventHandler('crazy-reputation:server:jobCompleted', function(source, job, am
         saveTasks(citizenid)
         TriggerClientEvent('crazy-dailytasks:client:refreshTasks', source, state.tasks)
     end
+end)
+
+-- Called from qbx_cityhall's menu (see the "Daily Task Rewards" option
+-- added to its client/main.lua). Hands out Config.RewardItem for every
+-- completed-but-unclaimed task and flips them to claimed.
+lib.callback.register('crazy-dailytasks:server:claimRewards', function(source)
+    local player = exports.qbx_core:GetPlayer(source)
+    if not player then return { claimed = 0, tasks = {} } end
+
+    local citizenid = player.PlayerData.citizenid
+    loadTasks(citizenid)
+
+    local state = PlayerTasks[citizenid]
+    local claimedCount = 0
+
+    for _, task in ipairs(state.tasks) do
+        if task.completed and not task.claimed then
+            task.claimed = true
+            claimedCount = claimedCount + 1
+            exports.ox_inventory:AddItem(source, Config.RewardItem, 1)
+        end
+    end
+
+    if claimedCount > 0 then
+        saveTasks(citizenid)
+    end
+
+    return { claimed = claimedCount, tasks = state.tasks }
 end)
