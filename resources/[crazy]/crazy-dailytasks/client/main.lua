@@ -1,19 +1,13 @@
 local isOpen = false
 
--- Rough "you're already here" radius - big enough to cover actually being
--- inside the City Hall building, not just standing on the exact door
--- coord.
-local CITYHALL_RADIUS = 15.0
-
 local function openDailyTasks()
     if isOpen then return end
 
     local tasks = lib.callback.await('crazy-dailytasks:server:getTasks', false)
-    local atCityHall = #(GetEntityCoords(cache.ped) - Config.CityHallLocation) < CITYHALL_RADIUS
 
     isOpen = true
     SetNuiFocus(true, true)
-    SendNUIMessage({ action = 'open', tasks = tasks, atCityHall = atCityHall })
+    SendNUIMessage({ action = 'open', tasks = tasks })
 end
 
 local function closeDailyTasks()
@@ -38,10 +32,19 @@ RegisterNUICallback('setWaypoint', function(data, cb)
     cb(1)
 end)
 
-RegisterNUICallback('setWaypointCityHall', function(_, cb)
-    local coords = Config.CityHallLocation
-    SetNewWaypoint(coords.x, coords.y)
-    exports.qbx_core:Notify('Waypoint set.', 'success')
+-- Claimed right here at the lawyer ped, not elsewhere - the button lives
+-- inside this same panel.
+RegisterNUICallback('claimRewards', function(_, cb)
+    local result = lib.callback.await('crazy-dailytasks:server:claimRewards', false)
+    if not result then return cb(1) end
+
+    if result.claimed > 0 then
+        exports.qbx_core:Notify(('Claimed %d task reward%s.'):format(result.claimed, result.claimed == 1 and '' or 's'), 'success')
+    else
+        exports.qbx_core:Notify('No completed task rewards to claim right now.', 'inform')
+    end
+
+    SendNUIMessage({ action = 'update', tasks = result.tasks })
     cb(1)
 end)
 
@@ -53,24 +56,6 @@ end)
 RegisterCommand('tasks', function()
     openDailyTasks()
 end, false)
-
--- Fired by qbx_cityhall's "Daily Task Rewards" menu option
--- (client/main.lua there) - same client either way, so this is a plain
--- TriggerEvent, not a cross-resource export.
-RegisterNetEvent('crazy-dailytasks:client:claimRewards', function()
-    local result = lib.callback.await('crazy-dailytasks:server:claimRewards', false)
-    if not result then return end
-
-    if result.claimed > 0 then
-        exports.qbx_core:Notify(('Claimed %d task reward%s.'):format(result.claimed, result.claimed == 1 and '' or 's'), 'success')
-    else
-        exports.qbx_core:Notify('No completed task rewards to claim right now.', 'inform')
-    end
-
-    if isOpen then
-        SendNUIMessage({ action = 'update', tasks = result.tasks })
-    end
-end)
 
 local pedSpawned = false
 

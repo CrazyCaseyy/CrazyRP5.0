@@ -1,16 +1,15 @@
 // NUI contract with client/main.lua:
-//   inbound (SendNUIMessage):  { action: 'open', tasks: [{ job, label,
-//     target, progress, completed, claimed }], atCityHall } |
-//     { action: 'update', tasks } | { action: 'close' }
+//   inbound (SendNUIMessage):  { action: 'open'|'update', tasks: [{ job,
+//     label, target, progress, completed, claimed }] } | { action: 'close' }
 //   outbound (RegisterNUICallback): 'close' | 'setWaypoint' ({ job }) |
-//     'setWaypointCityHall'
+//     'claimRewards'
 
 const el = (id) => document.getElementById(id);
 
 const app = el('app');
 const taskList = el('task-list');
 const btnClose = el('btn-close');
-const btnCityHall = el('btn-cityhall');
+const btnClaim = el('btn-claim');
 
 function resourceName() {
   return window.GetParentResourceName ? GetParentResourceName() : 'crazy-dailytasks';
@@ -41,8 +40,12 @@ const PIN_ICON = '<svg viewBox="0 0 24 24"><path d="M12 21s7-6.3 7-12a7 7 0 1 0-
 function renderTasks(tasks) {
   if (!tasks || !tasks.length) {
     taskList.innerHTML = '<div class="empty-state">No tasks assigned. Check back tomorrow.</div>';
+    btnClaim.classList.add('hidden');
     return;
   }
+
+  const hasUnclaimed = tasks.some((task) => task.completed && !task.claimed);
+  btnClaim.classList.toggle('hidden', !hasUnclaimed);
 
   taskList.innerHTML = tasks
     .map((task) => {
@@ -50,7 +53,7 @@ function renderTasks(tasks) {
       const ready = task.completed && !task.claimed;
       const cardClass = task.completed ? (ready ? 'is-complete is-ready' : 'is-complete is-claimed') : '';
       let rewardText = '+1 Case';
-      if (ready) rewardText = 'Claim at City Hall';
+      if (ready) rewardText = 'Ready to Claim';
       else if (task.claimed) rewardText = 'Claimed';
       return `
         <div class="task-card ${cardClass}">
@@ -80,7 +83,7 @@ function closeBox() {
 }
 
 btnClose.addEventListener('click', closeBox);
-btnCityHall.addEventListener('click', () => nuiPost('setWaypointCityHall'));
+btnClaim.addEventListener('click', () => nuiPost('claimRewards'));
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeBox();
@@ -90,7 +93,6 @@ window.addEventListener('message', ({ data }) => {
   switch (data.action) {
     case 'open':
       renderTasks(data.tasks);
-      btnCityHall.classList.toggle('hidden', !!data.atCityHall);
       app.classList.remove('hidden');
       break;
     case 'update':
@@ -112,6 +114,5 @@ if (typeof GetParentResourceName === 'undefined') {
     { job: 'garbage', label: 'Garbage', target: 3, progress: 3, completed: true, claimed: false },
     { job: 'bus', label: 'Bus', target: 5, progress: 5, completed: true, claimed: true },
   ]);
-  btnCityHall.classList.remove('hidden');
   app.classList.remove('hidden');
 }

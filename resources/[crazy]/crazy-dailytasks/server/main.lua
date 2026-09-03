@@ -3,9 +3,9 @@
 -- crazy-reputation's jobCompleted event (fired once per completed job unit
 -- - fare, drop, shift). Completing a task does NOT hand out
 -- Config.RewardItem on its own - it just flips `completed`; the player
--- has to visit City Hall and claim it there (see the "Daily Task Rewards"
--- option added to qbx_cityhall's own menu), which is what actually flips
--- `claimed` and gives the item.
+-- has to claim it back at the lawyer ped (the "Claim Rewards" button in
+-- the same panel - see client/main.lua's claimRewards NUI callback),
+-- which is what actually flips `claimed` and gives the item.
 
 MySQL.query([[
     CREATE TABLE IF NOT EXISTS `player_daily_tasks` (
@@ -115,7 +115,7 @@ AddEventHandler('crazy-reputation:server:jobCompleted', function(source, job, am
                 TriggerClientEvent('ox_lib:notify', source, {
                     id = 'crazy_dailytasks_complete',
                     title = 'Daily Task Complete',
-                    description = ('%s task finished - head to City Hall to claim your reward.'):format(task.label),
+                    description = ('%s task finished - claim your reward at the lawyer.'):format(task.label),
                     showDuration = true,
                     position = 'center-right',
                     icon = 'briefcase',
@@ -131,9 +131,10 @@ AddEventHandler('crazy-reputation:server:jobCompleted', function(source, job, am
     end
 end)
 
--- Called from qbx_cityhall's menu (see the "Daily Task Rewards" option
--- added to its client/main.lua). Hands out Config.RewardItem for every
--- completed-but-unclaimed task and flips them to claimed.
+-- Called from the "Claim Rewards" button in the daily tasks panel (see
+-- client/main.lua's claimRewards NUI callback). Hands out
+-- Config.RewardItem for every completed-but-unclaimed task and flips them
+-- to claimed.
 lib.callback.register('crazy-dailytasks:server:claimRewards', function(source)
     local player = exports.qbx_core:GetPlayer(source)
     if not player then return { claimed = 0, tasks = {} } end
