@@ -1,0 +1,1500 @@
+adminCustoms = {}
+
+--===================================================================
+-- Main AdminCustoms Check
+--===================================================================
+
+RegisterNetEvent(getScript()..":AdminCustoms", function()
+    adminCustoms.Menu()
+end)
+adminCustoms.Menu = function()
+    local Menu, vehicle
+    local Ped    = PlayerPedId()
+    local coords = GetEntityCoords(Ped)
+    Menu = {}
+
+    if not IsPedInAnyVehicle(Ped, false) then
+        vehicle = Helper.getClosestVehicle(coords)
+        pushVehicle(vehicle)
+    else
+        vehicle = GetVehiclePedIsIn(Ped, false)
+        pushVehicle(vehicle)
+    end
+    local plate = Helper.getTrimmedPlate(vehicle)
+    carMeta = {
+        ["search"] = searchCar(vehicle).name,
+        ["class"]  = searchCar(vehicle).class,
+        ["plate"]  = plate,
+        ["price"]  = searchCar(vehicle).price,
+        ["dist"]   = Helper.getMilageString(plate),
+    }
+    local model = GetEntityModel(vehicle)
+    local isBoat = IsThisModelABoat(model)
+
+    local possMods = not isBoat and Helper.checkHSWMods(vehicle) or {}
+    ExtraDamageComponents.getVehicleStatus(vehicle)
+
+    if DoesEntityExist(vehicle) then
+        -- Debug: Force damage if debugMode is on
+        Menu[#Menu+1] = {
+            icon   = "fas fa-bug",
+            header = "Vehicle Death (Debug)",
+            onSelect = function()
+                EmergencyBench.DebugDamage()
+            end,
+        }
+
+        Menu[#Menu+1] = {
+            icon   = "fas fa-wrench",
+            header = "Set Mileage",
+            onSelect = function()
+                local userInput = createInput("Enter Details", {
+                    { type = "number", text = "New Mileage", name = "mileage", min = 0, max = 9999999 },
+                })
+                local mileage = 0
+                if userInput then
+                    mileage = userInput[1] or userInput["mileage"]
+                    TriggerServerEvent(getScript()..":server:SetDrivingDistance", carMeta.plate, mileage)
+                end
+            end,
+        }
+
+        Menu[#Menu+1] = {
+            icon   = "fas fa-wrench",
+            header = locale("policeMenu", "repairOption"),
+            onSelect = function()
+                TriggerEvent(getScript()..":client:fixEverything")
+                triggerNotify(nil, locale("repairActions", "repairedMsg"), "success")
+            end,
+        }
+
+        -- Paints
+        Menu[#Menu+1] = {
+            arrow   = true,
+            icon    = "fas fa-paint-roller",
+            header  = locale("paintOptions", "menuHeader"),
+            onSelect= function()
+                adminCustoms.PaintMenu()
+            end,
+        }
+
+        if not isBoat then
+
+            Menu[#Menu+1] = {
+                arrow   = true,
+                icon    = "fas fa-upload",
+                header  = locale("common", "maxPerformance"),
+                onSelect= function()
+                    for k, v in pairs({11, 12, 15, 13}) do
+                        if possMods[v] ~= 0 then
+                            if progressBar({
+                                label = locale("common", "actionInstalling"),
+                                time  = 500,
+                                cancel= false
+                            }) then
+                                local modid = possMods[v]
+                                SetVehicleMod(vehicle, v, modid - 1)
+                            end
+                        end
+                    end
+                    --if Config.Repairs.ExtraDamages then
+                    --    for k, v in pairs({"oillevel", "shaftlevel", "cylinderlevel", "cablelevel", "fuellevel"}) do
+                    --        if progressBar({
+                    --            label = locale("common", "actionInstalling"),
+                    --            time  = 500,
+                    --            cancel= false
+                    --        }) then
+                    --            ExtraDamageComponents.applyExtraPart({ client = { level = 3, mod = v, remove = false}})
+                    --        end
+                    --    end
+                    --end
+                    triggerNotify(nil, locale("common", "maxComplete"), "success")
+                end,
+            }
+
+            -- Performance Mods (Engine, Brakes, Suspension, Transmission, Armour, Turbo)
+            local engineid = 11
+            local engineInstalled = (GetVehicleMod(vehicle, engineid) + 1 ~= 0) and "LVL "..(GetVehicleMod(vehicle, engineid)+1) or locale("common", "stockLabel")
+            Menu[#Menu+1] = {
+                arrow = true,
+                icon = invImg("engine"..(GetVehicleMod(vehicle, engineid) + 1)),
+                header= locale("checkDetails", "engineLabel"),
+                txt   = "("..(possMods[engineid]+1)..") "..locale("common", "menuInstalledText")..": "..engineInstalled,
+                onSelect = function()
+                    adminCustoms.ChooseMod({ perform = true, id = engineid, header=locale("checkDetails", "engineLabel") }, possMods)
+                end,
+            }
+
+            local brakesid = 12
+            local brakesInstalled = (GetVehicleMod(vehicle, brakesid)+1 ~= 0) and "LVL "..(GetVehicleMod(vehicle, brakesid)+1) or locale("common", "stockLabel")
+            Menu[#Menu+1] = {
+                arrow = true,
+                icon = invImg("brakes"..(GetVehicleMod(vehicle, brakesid) + 1)),
+                header= locale("checkDetails", "brakesLabel"),
+                txt   = "("..(possMods[brakesid]+1)..") "..locale("common", "menuInstalledText")..": "..brakesInstalled,
+                onSelect = function()
+                    adminCustoms.ChooseMod({ perform = true, id = brakesid, header=locale("checkDetails", "brakesLabel") }, possMods)
+                end,
+            }
+
+
+            local suspensionId = 15
+            if GetNumVehicleMods(vehicle, suspensionId) ~= 0 then
+                local installed = (GetVehicleMod(vehicle, suspensionId)+1 ~= 0) and ("LVL "..(GetVehicleMod(vehicle, suspensionId)+1)) or locale("common", "stockLabel")
+                Menu[#Menu+1] = {
+                    arrow = true,
+                    icon = invImg("suspension"..(GetVehicleMod(vehicle, suspensionId) + 1)),
+                    header= locale("checkDetails", "suspensionLabel"),
+                    txt   = "("..(possMods[suspensionId]+1)..") "..locale("common", "menuInstalledText")..": "..installed,
+                    onSelect = function()
+                        adminCustoms.ChooseMod({ perform = true, id = suspensionId, header = locale("checkDetails", "suspensionLabel") }, possMods)
+                    end,
+                }
+            end
+
+            local transid = 13
+            if GetNumVehicleMods(vehicle, transid) ~= 0 then
+                local installed = (GetVehicleMod(vehicle, transid)+1 ~= 0) and ("LVL "..(GetVehicleMod(vehicle, transid)+1)) or locale("common", "stockLabel")
+                Menu[#Menu+1] = {
+                    arrow   = true,
+                    icon = invImg("transmission"..(GetVehicleMod(vehicle, transid) + 1)),
+                    header  = locale("checkDetails", "transmissionLabel"),
+                    txt     = "("..(possMods[transid]+1)..") "..locale("common", "menuInstalledText")..": "..installed,
+                    onSelect= function()
+                        adminCustoms.ChooseMod({ perform = true, id = transid, header=locale("checkDetails", "transmissionLabel") }, possMods)
+                    end,
+                }
+            end
+
+            local armorid = 16
+            if GetNumVehicleMods(vehicle, armorid) ~= 0 then
+                local installed = locale("common", "stockLabel")
+                if GetVehicleMod(vehicle, armorid) > -1 then
+                    installed = locale("common", "installedMsg"):gsub("!", "")
+                end
+                Menu[#Menu+1] = {
+                    arrow = true,
+                    icon = invImg("car_armor"),
+                    header= locale("checkDetails", "armorLabel"),
+                    txt   = installed,
+                    onSelect = function()
+                        adminCustoms.Toggles({
+                            id = armorid,
+                            header = locale("checkDetails", "armorLabel")
+                        })
+                    end,
+                }
+            end
+
+            local turboinstalled = locale("common", "stockLabel")
+            local turboid = 18
+            if IsToggleModOn(vehicle, turboid) then
+                turboinstalled = locale("common", "installedMsg"):gsub("!", "")
+            end
+            Menu[#Menu+1] = {
+                arrow   = true,
+                icon = invImg("turbo"),
+                header  = locale("checkDetails", "turboLabel"),
+                txt     = turboinstalled,
+                onSelect= function()
+                    adminCustoms.Toggles({
+                        id = turboid,
+                        header = locale("checkDetails", "turboLabel")
+                    })
+                end,
+            }
+
+            if Config.Harness.HarnessControl then
+                Menu[#Menu+1] = {
+                    arrow = true,
+                    icon = invImg("harness"),
+                    header= locale("checkDetails", "harnessLabel"),
+                    txt   = (VehicleStatus[plate].harness == 1)
+                            and locale("common", "installedMsg"):gsub("!", "")
+                            or locale("common", "notInstalled"),
+                    onSelect = function()
+
+                        if VehicleStatus[plate].harness == 1 then
+                            ExtraDamageComponents.setVehicleStatus(vehicle, "harness", 0)
+                            triggerNotify(nil, locale("common", "actionRemoving"), "info")
+                        else
+                            ExtraDamageComponents.setVehicleStatus(vehicle, "harness", 1)
+                            triggerNotify(nil, locale("common", "actionInstalling"), "info")
+                        end
+
+                        if progressBar({
+                            label = locale("common", "actionInstalling")..": "..locale("checkDetails", "harnessLabel"),
+                            time  = 1000,
+                            cancel= true
+                        }) then
+
+                        end
+                        adminCustoms.Menu()
+                    end,
+                }
+            end
+
+            local cycle = IsThisModelABike(GetEntityModel(vehicle))
+            if not cycle and Config.NOS.enable then
+                -- Nos
+                Menu[#Menu+1] = {
+                    arrow   = true,
+                    icon = invImg("nos"),
+                    header  = locale("checkDetails", "nitrousLabel"),
+                    txt     = (VehicleNitrous[plate] and VehicleNitrous[plate].hasnitro) and locale("common", "menuInstalledText") or locale("common", "notInstalled"),
+                    onSelect = function()
+
+                        if VehicleNitrous[plate] and VehicleNitrous[plate].hasnitro then
+                            TriggerServerEvent(getScript()..":server:setNitrous", VehToNet(vehicle), { unloadNitrous = true })
+                            triggerNotify(nil, locale("common", "actionRemoving"), "info")
+                        else
+                            TriggerServerEvent(getScript()..":server:setNitrous", VehToNet(vehicle), { loadNitrous = true })
+                            triggerNotify(nil, locale("common", "actionInstalling"), "info")
+                        end
+
+                        if progressBar({
+                            label = locale("common", "actionInstalling")..": "..locale("checkDetails", "nitrousLabel"),
+                            time  = 1000,
+                            cancel= true
+                        }) then
+
+                        end
+                        adminCustoms.Menu()
+                    end,
+                }
+            end
+            -- Manual Transmission
+            if not cycle and Config.Overrides.manualTransmisson then
+                Menu[#Menu+1] = {
+                    arrow   = true,
+                    icon = invImg("manual"),
+                    header  = getItemLabel("manual"),
+                    txt     = locale("common", (VehicleStatus[plate] and VehicleStatus[plate].manual == 1) and "menuInstalledText" or "notInstalled"),
+                    onSelect = function()
+                        if VehicleStatus[plate].manual == 1 then
+                            ExtraDamageComponents.setVehicleStatus(vehicle, "manual", 0)
+                            triggerNotify(nil, locale("common", "actionRemoving"), "info")
+                        else
+                            ExtraDamageComponents.setVehicleStatus(vehicle, "manual", 1)
+                            triggerNotify(nil, locale("common", "actionInstalling"), "info")
+                        end
+                        if progressBar({
+                            label = locale("common", "actionInstalling")..": "..locale("checkDetails", "transmissionLabel"),
+                            time  = 1000,
+                            cancel= true
+                        }) then
+
+                        end
+                        adminCustoms.Menu()
+                    end,
+                }
+            end
+            -- Antilag
+            if not cycle then
+                -- Extra damage components
+                if Config.Repairs.ExtraDamages == true then
+                    local extraDamage = {
+                        ["oilp"] = { lvl = "oillevel", locale = "oilPumpLabel" },
+                        ["drives"] = { lvl = "shaftlevel", locale = "driveShaftLabel" },
+                        ["cylind"] = { lvl = "cylinderlevel", locale = "cylinderLabel" },
+                        ["cables"] = { lvl = "cablelevel", locale = "cableLabel" },
+                        ["fueltank"] = { lvl = "fuellevel", locale = "fuelTankLabel" },
+                    }
+                    for l, b in pairsByKeys(extraDamage) do
+                        local info = VehicleStatus[plate][b.lvl]
+                        local installed = (info ~= 0) and "LVL "..info or locale("common", "stockLabel")
+                        Menu[#Menu+1] = {
+                            arrow   = true,
+                            icon = info ~= 0 and invImg(l..info),
+                            header  = locale("checkDetails", b.locale),
+                            txt     = installed,
+                            onSelect = function()
+                                local subMenu = {}
+                                subMenu[#subMenu+1] = {
+                                    header = locale("common", "stockLabel"),
+                                    txt = info == 0 and locale("common", "currentInstalled") or nil,
+                                    icon = info == 0 and "fas fa-check" or "fa-solid fa-rotate-left",
+                                    disabled = Config.System.Menu ~= "qb" and info == 0,
+                                    onSelect = function()
+                                        ExtraDamageComponents.setVehicleStatus(vehicle, b.lvl, 0)
+                                        if progressBar({
+                                            label = locale("common", "actionInstalling")..": "..locale("common", "stockLabel"),
+                                            time  = 1000,
+                                            cancel= true
+                                        }) then end
+                                        adminCustoms.Menu()
+
+                                    end,
+                                }
+                                for i = 1, 3 do
+                                    subMenu[#subMenu+1] = {
+                                        header = getItemLabel(l..i),
+                                        icon = invImg(l..i),
+                                        txt = info == i and locale("common", "currentInstalled") or nil,
+                                        disabled = Config.System.Menu ~= "qb" and info == i,
+                                        onSelect = function()
+                                        ExtraDamageComponents.setVehicleStatus(vehicle, b.lvl, i)
+                                            if progressBar({
+                                                label = locale("common", "actionInstalling")..": "..getItemLabel(l..info),
+                                                time  = 1000,
+                                                cancel= true
+                                            }) then end
+                                            adminCustoms.Menu()
+                                        end,
+                                    }
+                                end
+                                openMenu(subMenu, {
+                                    header = locale("checkDetails", b.locale),
+                                    onBack = function()
+                                        adminCustoms.Menu()
+                                    end
+                                })
+                            end,
+                        }
+                    end
+                end
+
+                -- Antilag
+                Menu[#Menu+1] = {
+                    arrow   = true,
+                    icon = invImg("antilag"),
+                    header  = locale("checkDetails", "antilagLabel"),
+                    txt     = locale("common", (VehicleStatus[plate] and VehicleStatus[plate].antiLag == 1) and "menuInstalledText" or "notInstalled"),
+                    onSelect = function()
+                        if VehicleStatus[plate].antiLag == 1 then
+                            ExtraDamageComponents.setVehicleStatus(vehicle, "antiLag", 0)
+                            triggerNotify(nil, locale("common", "actionRemoving"), "info")
+                        else
+                            ExtraDamageComponents.setVehicleStatus(vehicle, "antiLag", 1)
+                            triggerNotify(nil, locale("common", "actionInstalling"), "info")
+                        end
+                        if progressBar({
+                            label = locale("common", "actionInstalling")..": "..locale("checkDetails", "antilagLabel"),
+                            time  = 1000,
+                            cancel= true
+                        }) then
+
+                        end
+                        adminCustoms.Menu()
+                    end,
+                }
+                -- Underglow
+                Menu[#Menu+1] = {
+                    arrow   = true,
+                    icon = invImg("underglow"),
+                    header  = getItemLabel("underglow"),
+                    txt     = locale("common", (VehicleStatus[plate] and VehicleStatus[plate].underglow == 1) and "menuInstalledText" or "notInstalled"),
+                    onSelect = function()
+                        if VehicleStatus[plate].underglow == 1 then
+                            ExtraDamageComponents.setVehicleStatus(vehicle, "underglow", 0)
+                            CreateThread(function()
+                                for i = 0, 4 do
+                                    SetVehicleNeonLightEnabled(vehicle, i, false)
+                                    Wait(40)
+                                end
+                            end)
+                            triggerNotify(nil, locale("common", "actionRemoving"), "info")
+                        else
+                            ExtraDamageComponents.setVehicleStatus(vehicle, "underglow", 1)
+                            CreateThread(function()
+                                for i = 0, 4 do
+                                    SetVehicleNeonLightEnabled(vehicle, i, true)
+                                    Wait(40)
+                                end
+                            end)
+                            triggerNotify(nil, locale("common", "actionInstalling"), "info")
+                        end
+                        if progressBar({
+                            label = locale("common", "actionInstalling")..": "..getItemLabel("underglow"),
+                            time  = 1000,
+                            cancel= true
+                        }) then
+
+                        end
+                        adminCustoms.Menu()
+                    end,
+                }
+                -- Headlights
+                Menu[#Menu+1] = {
+                    arrow   = true,
+                    icon = invImg("headlights"),
+                    header  = getItemLabel("headlights"),
+                    txt     = locale("common", (IsToggleModOn(vehicle, 22)) and "menuInstalledText" or "notInstalled"),
+                    onSelect = function()
+
+                        if progressBar({
+                            label = locale("common", "actionInstalling")..": "..getItemLabel("headlights"),
+                            time  = 1000,
+                            cancel= true
+                        }) then
+                            if IsToggleModOn(vehicle, 22) then
+                                if Helper.checkToggleVehicleMod(vehicle, 22, false) then
+                                    SetVehicleXenonLightsColor(vehicle, 0)
+                                    triggerNotify(nil, locale("common", "actionRemoving"), "info")
+                                end
+                            else
+                                if Helper.checkToggleVehicleMod(vehicle, 22, true) then
+                                    CreateThread(function()
+                                        SetVehicleLights(vehicle, 2)
+                                        Wait(1000)
+                                        SetVehicleLights(vehicle, 1)
+                                        Wait(200)
+                                        SetVehicleLights(vehicle, 0)
+                                    end)
+                                    triggerNotify(nil, locale("common", "actionInstalling"), "info")
+                                end
+                            end
+                        end
+                        adminCustoms.Menu()
+                    end,
+                }
+            end
+
+            -- Rims
+            Menu[#Menu+1] = {
+                arrow   = true,
+                icon = invImg("rims"),
+                header  = locale("rimsMod", "menuHeader"),
+                txt     = (not cycle and (locale("common", "currentInstalled")..": "..br --..(isOx() and br or "")
+                            ..((GetVehicleMod(vehicle, 23) == -1) and locale("common", "stockLabel")
+                            or GetLabelText(GetModTextLabel(vehicle, 23, GetVehicleMod(vehicle, 23))))
+                            .." - ("..wheelType[(GetVehicleWheelType(vehicle))]..")") or ""),
+                onSelect = function()
+                    adminCustoms.RimsMenu()
+                end,
+            }
+        end
+        -- Generate the rest of the cosmetic menu
+        for k, v in pairs(adminCosmeticTable) do
+            -- Roof livery, old livery, custom plate, extra, window, horn logic
+            if (v.roofLiv and GetVehicleRoofLiveryCount(vehicle) >= 1)
+               or (v.oldLiv and GetVehicleLiveryCount(vehicle) >= 1)
+               or v.plate
+               or v.extra
+               or v.window
+               or v.horn
+            then
+                local txt, canDo, extraCount = "", true, 0
+
+                if v.roofLiv then
+                    txt = "("..(GetVehicleRoofLiveryCount(vehicle) - 1)..") "..locale("common", "menuInstalledText")..": "..GetVehicleRoofLivery(vehicle)
+                end
+                if v.oldLiv then
+                    txt = "("..(GetVehicleLiveryCount(vehicle) - 1)..") "..locale("common", "menuInstalledText")..": "..GetVehicleLivery(vehicle)
+                end
+                if v.plate then
+                    for _, b in pairs(Loc[Config.Lan].vehiclePlateOptions) do
+                        if GetVehicleNumberPlateTextIndex(vehicle) == b.id then
+                            txt = "("..GetNumberOfVehicleNumberPlates(vehicle)..") "..locale("common", "menuInstalledText")..": "..b.name
+                            break
+                        else
+                            txt = "("..GetNumberOfVehicleNumberPlates(vehicle)..") "..locale("common", "menuInstalledText")..": "..locale("common", "stockLabel")
+                        end
+                    end
+                end
+                if v.horn then
+                    for _, b in pairs(Loc[Config.Lan].vehicleHorns) do
+                        if GetVehicleMod(vehicle, 14) == b.id then
+                            txt = "("..(#Loc[Config.Lan].vehicleHorns)..") "..locale("common", "menuInstalledText")..": "..b.name
+                            break
+                        else
+                            txt = "("..(#Loc[Config.Lan].vehicleHorns)..") "..locale("common", "menuInstalledText")..": "..locale("common", "stockLabel")
+                        end
+                    end
+                end
+                if v.extra then
+                    for i = 0, 14 do
+                        if DoesExtraExist(vehicle, i) then
+                            canDo = true
+                            extraCount = extraCount + 1
+                        end
+                    end
+                    txt = "[ "..extraCount.." "..locale("checkDetails", "optionsLabel").." ]"
+                    if extraCount == 0 then
+                        canDo = false
+                    end
+                end
+
+                if canDo then
+                    Menu[#Menu+1] = {
+                        arrow   = true,
+                        header  = v.header,
+                        txt     = txt,
+                        icon    = invImg(v.icon),
+                        onSelect= function()
+                            adminCustoms.ChooseMod(v, possMods)
+                        end,
+                    }
+                end
+            end
+
+            -- Mods with standard IDs
+            if v.enable and GetNumVehicleMods(vehicle, v.id) >= 1 then
+                local installed = GetLabelText(GetModTextLabel(vehicle, v.id, GetVehicleMod(vehicle, v.id)))
+                if installed == "NULL" then installed = locale("common", "stockLabel") end
+
+                Menu[#Menu+1] = {
+                    arrow   = true,
+                    header  = v.header,
+                    icon    = invImg(v.icon),
+                    txt     = "("..(GetNumVehicleMods(vehicle, v.id) + 1)..") "..locale("common", "menuInstalledText")..": "..installed,
+                    onSelect= function()
+                        adminCustoms.ChooseMod(v, possMods)
+                    end,
+                }
+            end
+        end
+
+        -- Show menu if there are items
+        if countTable(Menu) >= 1 then
+            openMenu(Menu, {
+                header    = carMeta.search,
+                headertxt = "Admin Customs",
+                canClose  = true,
+                onExit    = function() end,
+            })
+        else
+            triggerNotify(nil, locale("common", "noOptionsAvailable"), "error")
+        end
+    end
+end
+
+--===================================================================
+-- Apply a Selected Mod
+--===================================================================
+adminCustoms.applyMod = function(data, possMods)
+    local Ped = PlayerPedId()
+
+    if not data.mod then
+        data.mod = -1
+    end
+
+    local vehicle = Helper.getClosestVehicle(GetEntityCoords(Ped))
+    pushVehicle(vehicle)
+
+    local modName = GetLabelText(GetModTextLabel(vehicle, tonumber(data.id), tonumber(data.mod)))
+    if modName == "NULL" or data.plate or data.oldLiv or data.roof or data.window then
+        modName = ""
+    end
+
+    if data.id and GetVehicleMod(vehicle, tonumber(data.id)) == tonumber(data.mod) then
+        triggerNotify(nil, modName.." "..locale("common", "alreadyInstalled"), "error")
+        adminCustoms.ChooseMod(data, possMods)
+    else
+        -- Horn preview
+        if data.horn then
+            local horn = GetVehicleMod(vehicle, 14)
+            Helper.checkSetVehicleMod(vehicle, 14, tonumber(data.mod))
+            TriggerServerEvent(getScript()..":server:TestHorn", VehToNet(vehicle))
+            Helper.checkSetVehicleMod(data.veh, 14, horn)
+            SetVehicleModKit(data.veh, 0)
+        end
+
+        if progressBar({
+            label = locale("common", "actionInstalling")..": "..modName,
+            time  = 1000,
+            cancel= true
+        }) then
+            local feedback = locale("common", "installedMsg"):gsub("!", "")
+
+            if data.roofLiv then
+                if data.mod == -1 then data.mod = 0 end
+                SetVehicleRoofLivery(vehicle, data.mod)
+            elseif data.oldLiv then
+                if data.mod == -1 then data.mod = nil end
+                SetVehicleLivery(vehicle, data.mod)
+                SetVehicleMod(vehicle, 48, -1, false)
+            elseif data.plate then
+                if data.mod == -1 then data.mod = 0 end
+                SetVehicleNumberPlateTextIndex(vehicle, data.mod)
+            elseif data.window then
+                if data.mod == -1 then data.mod = 0 end
+                SetVehicleWindowTint(vehicle, tonumber(data.mod))
+                feedback = locale("common", "installedMsg")
+            elseif data.extra then
+                local veh = Helper.getDamageTable(vehicle)
+                if IsVehicleExtraTurnedOn(vehicle, data.mod) then
+                    SetVehicleExtra(vehicle, data.mod, 1)
+                else
+                    SetVehicleExtra(vehicle, data.mod, 0)
+                    SetVehicleFixed(vehicle)
+                    SetVehicleDeformationFixed(vehicle)
+                    if isStarted("qs-advancedgarages") then
+                        exports["qs-advancedgarages"]:RepairNearestVehicle()
+                    end
+                end
+                Helper.forceCarDamage(vehicle, veh)
+                Wait(100)
+                SetVehicleEngineHealth(vehicle, veh.engine)
+                SetVehicleBodyHealth(vehicle, veh.body)
+            else
+                if not Helper.checkSetVehicleMod(vehicle, tonumber(data.id), tonumber(data.mod)) then
+                    triggerNotify(nil, locale("checkDetails", "unavailable"), "error")
+                    return
+                end
+            end
+
+            Helper.addCarToUpdateLoop(vehicle)
+            adminCustoms.ChooseMod(data, possMods)
+            triggerNotify(nil, feedback, "success")
+        else
+            triggerNotify(nil, locale("common", "notInstalled"), "error")
+        end
+
+        Helper.removePropHoldCoolDown()
+        Wait(500)
+        if Config.Overrides.DoorAnimations then
+            for i = 0, 5 do
+                SetVehicleDoorShut(vehicle, i, false)
+            end
+        end
+    end
+end
+
+adminCustoms.ChooseMod = function(data, possMods, skip)
+    local validMods, Menu, vehicle, Ped, coords = {}, {}, nil, PlayerPedId(), GetEntityCoords(PlayerPedId())
+	if not IsPedInAnyVehicle(Ped, false) then
+        vehicle = Helper.getClosestVehicle(coords)
+        pushVehicle(vehicle)
+    else
+        vehicle = GetVehiclePedIsIn(Ped, false)
+        pushVehicle(vehicle)
+    end
+    local stockinstall, stockDisabled, stockIcon = "", false, ""
+	if DoesEntityExist(vehicle) then
+        --Pick which set of mods to look through
+        if data.roofLiv then
+            if GetVehicleRoofLivery(vehicle) <= 0 then
+                stockinstall = locale("common", "currentInstalled")
+                stockDisabled = true
+            end
+            for i = 0, GetVehicleRoofLiveryCount(vehicle)-1 do
+                local txt, disabled, icon = "", false, ""
+                if GetVehicleRoofLivery(vehicle) == (i) then
+                    txt = locale("common", "currentInstalled")
+                    disabled = true
+                    icon = "fas fa-check"
+                end
+                if i ~= 0 then
+                    validMods[i] = {
+                        mod = i,
+                        name = "Livery "..i,
+                        roofLiv = true,
+                        install = txt,
+                        disabled = disabled,
+                        icon = icon,
+                        header = data.header
+                    }
+                end
+            end
+        elseif data.oldLiv then
+            if GetVehicleLivery(vehicle) == 0 then
+                stockinstall = locale("common", "currentInstalled")
+                stockDisabled = true
+            end
+            for i = 0, GetVehicleLiveryCount(vehicle)-1 do
+                local txt, disabled, icon = "", false, ""
+                if GetVehicleLivery(vehicle) == (i) then
+                    txt = locale("common", "currentInstalled")
+                    disabled = true
+                    icon = "fas fa-check"
+                end
+                if i ~= 0 then
+                    validMods[i] = {
+                        mod = i,
+                        name = "Livery "..i..(debugMode and " oldLiv" or ""),
+                        oldLiv = true,
+                        install = txt,
+                        disabled = disabled,
+                        icon = icon,
+                        header = data.header
+                    }
+                end
+            end
+        elseif data.plate then
+            if GetVehicleNumberPlateTextIndex(vehicle) <= 0 then
+                stockinstall = locale("common", "currentInstalled")
+                stockDisabled = true
+            end
+            for l, b in pairs(Loc[Config.Lan].vehiclePlateOptions) do
+                local txt, disabled, icon = "", false, ""
+                if GetVehicleNumberPlateTextIndex(vehicle) == b.id then
+                    txt = locale("common", "currentInstalled")
+                    disabled = true
+                    icon = "fas fa-check"
+                end
+                validMods[l] = {
+                    mod = b.id,
+                    name = b.name,
+                    plate = true,
+                    install = txt,
+                    disabled = disabled,
+                    icon = icon,
+                    header = data.header
+                }
+            end
+        elseif data.window then
+            if GetVehicleWindowTint(vehicle) <= 0 then
+                stockinstall = locale("common", "currentInstalled")
+                stockDisabled = true
+            end
+            for l, b in pairs(Loc[Config.Lan].vehicleWindowOptions) do
+                local txt, disabled, icon = "", false, ""
+                if GetVehicleWindowTint(vehicle) == b.id then
+                    txt = locale("common", "currentInstalled")
+                    disabled = true
+                    icon = "fas fa-check"
+                end
+                validMods[l] = {
+                    mod = b.id,
+                    name = b.name,
+                    window = true,
+                    install = txt,
+                    disabled = disabled,
+                    icon = icon,
+                    header = data.header
+                }
+            end
+        elseif data.horn then
+            if GetVehicleMod(vehicle, 14) == -1 then
+                stockinstall = locale("common", "currentInstalled")
+                stockDisabled = true
+            end
+            for l, b in pairs(Loc[Config.Lan].vehicleHorns) do
+                local txt, disabled, icon = "", false, ""
+                if GetVehicleMod(vehicle, 14) == b.id then
+                    txt = locale("common", "currentInstalled")
+                    disabled = true
+                    icon = "fas fa-check"
+                end
+                validMods[l] = {
+                    mod = b.id,
+                    id = 14,
+                    name = b.name,
+                    horn = true,
+                    install = txt,
+                    disabled = disabled,
+                    icon = icon,
+                    header = data.header
+                }
+            end
+        elseif data.extra then
+            for i = 0, 14 do
+                if DoesExtraExist(vehicle, i) then
+                    hadMod = true
+                    if IsVehicleExtraTurnedOn(vehicle, i) then
+                        icon = "fas fa-check"
+                    else
+                        icon = ""
+                    end
+                    validMods[i] = {
+                        mod = i,
+                        name = "Extra "..i,
+                        extra = true,
+                        install = txt,
+                        disabled = disabled,
+                        icon = icon,
+                        header = data.header
+                    }
+                end
+            end
+        elseif data.perform then
+            for i = 1, possMods[data.id] do  local txt, disabled, icon = "", false, ""
+                if GetVehicleMod(vehicle, data.id) == (i-1) then
+                    txt = locale("common", "currentInstalled")
+                    disabled = true
+                    icon = "fas fa-check"
+                end
+                validMods[i] = {
+                    mod = (i-1),
+                    id = data.id,
+                    name = data.header.." Lvl "..i,
+                    perform = true,
+                    install = txt,
+                    disabled = disabled,
+                    icon = icon,
+                    header = data.header
+                }
+            end
+        else
+            if GetVehicleMod(vehicle, data.id) == -1 then
+                stockinstall = locale("common", "currentInstalled")
+                stockIcon = "fas fa-check"
+                stockDisabled = true
+
+            end
+            for i = 1, GetNumVehicleMods(vehicle, data.id) do
+                local txt, disabled, icon = "", false, ""
+                if GetVehicleMod(vehicle, data.id) == (i-1) then
+                    txt = locale("common", "currentInstalled")
+                    disabled = true
+                    icon = "fas fa-check"
+                end
+                validMods[i] = {
+                    mod = (i - 1),
+                    id = data.id,
+                    name = GetLabelText(GetModTextLabel(vehicle, data.id, (i - 1))),
+                    install = txt,
+                    disabled = disabled,
+                    icon = icon,
+                    header = data.header
+                }
+            end
+        end
+        if not data.horn and not data.plate and not data.extra then
+            Menu[#Menu+1] = {
+                icon = not stockDisabled and "fa-solid fa-rotate-left" or "fas fa-check",
+                isMenuHeader = stockDisabled,
+                header = "0 - "..locale("common", "stockLabel"), txt = stockinstall,
+                onSelect = function()
+                    adminCustoms.applyMod({
+                        mod = -1,
+                        header = data.header,
+                        id = data.id,
+                        plate = data.plate,
+                        window = data.window,
+                        oldLiv = data.oldLiv,
+                        roofLiv = data.roofLiv,
+                        extra = data.extra,
+                        perform = data.perform
+                    }, possMods)
+                end,
+            }
+        elseif data.horn then
+            data.veh = vehicle
+            Menu[#Menu+1] = {
+                header = locale("hornsMod", "testHorn"),
+                icon = "fas fa-circle-play",
+                onSelect = function()
+                    SetVehicleModKit(vehicle, 0)
+                    StartVehicleHorn(vehicle, 1500, "HELDDOWN", false)
+                    CreateThread(function()
+                        Wait(1200)
+                        adminCustoms.ChooseMod(data, possMods)
+                    end)
+                end,
+            }
+            Menu[#Menu+1] = {
+                icon = not stockDisabled and "fa-solid fa-rotate-left" or "fas fa-check",
+                isMenuHeader = stockDisabled,
+                header = locale("common", "zeroPrefix")..locale("common", "stockLabel"),
+                txt = stockinstall,
+                onSelect = function()
+                    adminCustoms.applyMod({
+                        mod = -1,
+                        id = 14,
+                        horn = data.horn,
+                        part = data.part,
+                        plate = data.plate,
+                        window = data.window,
+                        oldLiv = data.oldLiv,
+                        roofLiv = data.roofLiv,
+                        extra = data.extra,
+                        header = data.header
+                    }, possMods)
+                end,
+            }
+        end
+		for l, b in pairsByKeys(validMods) do
+            local icon = {
+                [11] = "engine",
+                [12] = "brakes",
+                [15] = "suspension",
+                [13] = "transmission",
+            }
+			Menu[#Menu+1] = {
+                icon = icon[b.id] and invImg(icon[b.id]..(b.mod + 1)) or b.icon or "fa-solid fa-rotate-left",
+                isMenuHeader = b.disabled,
+                disabled = (Config.System.Menu ~= "qb" and b.disabled),
+				header = b.name,
+                txt = b.install,
+                onSelect = function()
+                    adminCustoms.applyMod(b, possMods)
+                end,
+			}
+		end
+        if not skip then
+            openMenu(Menu, {
+                header = carMeta.search,
+                headertxt = "Admin Customs"
+                    ..br..(isOx() and br or "")
+                    ..locale("common", "optionsCount")
+                    ..#validMods+1,
+                onBack = function()
+                    adminCustoms.Menu()
+                end,
+            })
+        else
+            adminCustoms.Menu()
+        end
+	end
+end
+
+adminCustoms.Toggles = function(data)
+    local Ped = PlayerPedId()
+	local vehicle = Helper.getClosestVehicle(GetEntityCoords(Ped)) pushVehicle(vehicle)
+	if DoesEntityExist(vehicle) then
+		SetVehicleModKit(vehicle, 0)
+		if progressBar({
+            label = locale("common", "actionInstalling").." "..data.header,
+            time = 1000,
+            cancel = true
+        }) then
+            if data.id == 16 then
+                if GetVehicleMod(vehicle, data.id) < GetNumVehicleMods(vehicle, 16)-1 then
+                    Helper.checkSetVehicleMod(vehicle, data.id, GetNumVehicleMods(vehicle, 16)-1)
+                    triggerNotify(nil, Items["car_armor"].label.." "..locale("common", "installedMsg"), "success")
+                else
+                    Helper.checkSetVehicleMod(vehicle, data.id, -1)
+                    triggerNotify(nil, Items["car_armor"].label.." "..locale("common", "removedMsg"), "error")
+                end
+            end
+            if data.id == 18 then
+                if not IsToggleModOn(vehicle, data.id) then
+                    if Helper.checkToggleVehicleMod(vehicle, data.id, true) then
+                        Helper.addCarToUpdateLoop(vehicle)
+                        triggerNotify(nil, Items["turbo"].label.." "..locale("common", "installedMsg"), "success")
+                    else
+                        triggerNotify(nil, Items["turbo"].label..locale("common", "installationFailed"), "error")
+                    end
+                else
+                    if Helper.checkToggleVehicleMod(vehicle, data.id, false) then
+                        Helper.addCarToUpdateLoop(vehicle)
+                        triggerNotify(nil, Items["turbo"].label.." "..locale("common", "removedMsg"), "success")
+                    else
+                        triggerNotify(nil, Items["turbo"].label..locale("common", "removalFailed"), "error")
+                    end
+                end
+            end
+            adminCustoms.Menu()
+        else
+            triggerNotify(nil, Item["turbo"].label..locale("common", "removalFailed"), "error")
+        end
+	end
+end
+
+--===================================================================
+-- Quick Paint (AdminCustoms)
+--===================================================================
+
+adminCustoms.PaintMenu = function()
+    local Ped     = PlayerPedId()
+    local vehicle = nil
+
+    if not IsPedInAnyVehicle(Ped, false) then
+        vehicle = Helper.getClosestVehicle(GetEntityCoords(Ped))
+    else
+        vehicle = GetVehiclePedIsIn(Ped, false)
+    end
+
+    if DoesEntityExist(vehicle) then
+        pushVehicle(vehicle)
+        local vehPrimaryColour, vehSecondaryColour = GetVehicleColours(vehicle)
+        local vehPearlescentColour, vehWheelColour = GetVehicleExtraColours(vehicle)
+        local interiorColor = GetVehicleInteriorColor(vehicle)
+        local dashboardColor = GetVehicleDashboardColour(vehicle)
+
+        for k, v in pairs(Loc[Config.Lan]) do
+            local name = tostring(k)
+            if name == "vehicleResprayOptionsClassic"
+               or name == "vehicleResprayOptionsMatte"
+               or name == "vehicleResprayOptionsMetals"
+               or name == "vehicleResprayOptionsChameleon"
+            then
+                for _, paint in pairs(v) do
+                    local text = ""
+                    if k == "vehicleResprayOptionsClassic" then text = locale("paintOptions", "metallicFinish") end
+                    if k == "vehicleResprayOptionsMatte"   then text = locale("paintOptions", "matteFinish") end
+
+                    if vehPrimaryColour == paint.id then vehPrimaryColour = text.." "..paint.name end
+                    if vehSecondaryColour == paint.id then vehSecondaryColour = text.." "..paint.name end
+                    if vehPearlescentColour == paint.id then vehPearlescentColour = text.." "..paint.name end
+                    if vehWheelColour == paint.id then vehWheelColour = text.." "..paint.name end
+                    if interiorColor == paint.id then interiorColor = text.." "..paint.name end
+                    if dashboardColor == paint.id then dashboardColor = text.." "..paint.name end
+                end
+            end
+        end
+
+        if type(vehPrimaryColour) == "number" then vehPrimaryColour = locale("common", "stockLabel") end
+        if type(vehSecondaryColour) == "number" then vehSecondaryColour = locale("common", "stockLabel") end
+        if type(vehPearlescentColour) == "number" then vehPearlescentColour = locale("common", "stockLabel") end
+        if type(vehWheelColour) == "number" then vehWheelColour = locale("common", "stockLabel") end
+        if type(interiorColor) == "number" then interiorColor = locale("common", "stockLabel") end
+        if type(dashboardColor) == "number" then dashboardColor = locale("common", "stockLabel") end
+
+        local PaintMenu = {}
+        PaintMenu[#PaintMenu+1] = {
+            arrow   = true,
+            header  = locale("paintOptions", "primaryColor"),
+            txt     = locale("common", "currentInstalled")..": "..vehPrimaryColour,
+            onSelect= function()
+                adminCustoms.ChooseFinish(locale("paintOptions", "primaryColor"))
+            end,
+        }
+        PaintMenu[#PaintMenu+1] = {
+            arrow   = true,
+            header  = locale("paintOptions", "secondaryColor"),
+            txt     = locale("common", "currentInstalled")..": "..vehSecondaryColour,
+            onSelect= function()
+                adminCustoms.ChooseFinish(locale("paintOptions", "secondaryColor"))
+            end,
+        }
+        PaintMenu[#PaintMenu+1] = {
+            arrow   = true,
+            header  = locale("paintOptions", "pearlescent"),
+            txt     = locale("common", "currentInstalled")..": "..vehPearlescentColour,
+            onSelect= function()
+                adminCustoms.ChooseFinish(locale("paintOptions", "pearlescent"))
+            end,
+        }
+        PaintMenu[#PaintMenu+1] = {
+            arrow   = true,
+            header  = locale("paintOptions", "wheelColor"),
+            txt     = locale("common", "currentInstalled")..": "..vehWheelColour,
+            onSelect= function()
+                adminCustoms.ChooseFinish(locale("paintOptions", "wheelColor"))
+            end,
+        }
+        PaintMenu[#PaintMenu + 1] = {
+            arrow   = true,
+            header  = locale("paintOptions", "interiorColor"),
+            txt     = locale("common", "currentInstalled")..": "..br..interiorColor,
+            onSelect= function()
+                adminCustoms.ChooseFinish(locale("paintOptions", "interiorColor"))
+            end,
+        }
+        PaintMenu[#PaintMenu + 1] = {
+            arrow   = true,
+            header  = locale("paintOptions", "dashboardColor"),
+            txt     = locale("common", "currentInstalled")..": "..br..dashboardColor,
+            onSelect= function()
+                adminCustoms.ChooseFinish(locale("paintOptions", "dashboardColor"))
+            end,
+        }
+
+        openMenu(PaintMenu, {
+            header    = carMeta.search,
+            headertxt = locale("paintOptions", "menuHeader"),
+            onBack    = function()
+                adminCustoms.Menu()
+            end,
+        })
+    end
+end
+
+adminCustoms.ChooseFinish = function(data)
+    local Ped = PlayerPedId()
+    local vehicle = nil
+
+    if not IsPedInAnyVehicle(Ped, false) then
+        return
+    else
+        vehicle = GetVehiclePedIsIn(Ped, false)
+    end
+
+    if DoesEntityExist(vehicle) then
+        local Menu = {}
+
+        Menu[#Menu+1] = {
+            arrow   = true,
+            header  = locale("paintOptions", "classicFinish"),
+            onSelect= function()
+                adminCustoms.ChooseColour({ paint = data, finish = locale("paintOptions", "classicFinish") })
+            end,
+        }
+        Menu[#Menu+1] = {
+            arrow   = true,
+            header  = locale("paintOptions", "metallicFinish"),
+            onSelect= function()
+                adminCustoms.ChooseColour({ paint=data, finish=locale("paintOptions", "metallicFinish") })
+            end,
+        }
+        Menu[#Menu+1] = {
+            arrow   = true,
+            header  = locale("paintOptions", "matteFinish"),
+            onSelect= function()
+                adminCustoms.ChooseColour({ paint=data, finish=locale("paintOptions", "matteFinish") })
+            end,
+        }
+        Menu[#Menu+1] = {
+            arrow   = true,
+            header  = locale("paintOptions", "metalsFinish"),
+            onSelect= function()
+                adminCustoms.ChooseColour({ paint=data, finish=locale("paintOptions", "metalsFinish") })
+            end,
+        }
+        Menu[#Menu+1] = {
+            arrow   = true,
+            header  = locale("paintOptions", "chameleonFinish"),
+            onSelect= function()
+                adminCustoms.ChooseColour({ paint = data, finish = locale("paintOptions", "chameleonFinish") })
+            end,
+        }
+        openMenu(Menu, {
+            header    = carMeta.search,
+            headertxt = locale("paintOptions", "menuHeader")..br..(isOx() and br or "")..data,
+            onBack    = function()
+                adminCustoms.PaintMenu()
+            end,
+        })
+    end
+end
+
+adminCustoms.ChooseColour = function(data)
+    local Ped = PlayerPedId()
+    local vehicle = nil
+
+    if not IsPedInAnyVehicle(Ped, false) then
+        return
+    else
+        vehicle = GetVehiclePedIsIn(Ped, false)
+    end
+
+    local vehPrimaryColour, vehSecondaryColour = GetVehicleColours(vehicle)
+    local vehPearlescentColour, vehWheelColour = GetVehicleExtraColours(vehicle)
+    local colourCheck
+    if data.paint == locale("paintOptions", "primaryColor") then
+        colourCheck = vehPrimaryColour
+    end
+    if data.paint == locale("paintOptions", "secondaryColor") then
+        colourCheck = vehSecondaryColour
+    end
+    if data.paint == locale("paintOptions", "pearlescent") then
+        colourCheck = vehPearlescentColour
+    end
+
+    local PaintMenu = {}
+    local paintTable = {
+            [locale("paintOptions", "classicFinish")]   = Loc[Config.Lan].vehicleResprayOptionsClassic,
+            [locale("paintOptions", "metallicFinish")]  = Loc[Config.Lan].vehicleResprayOptionsClassic,
+            [locale("paintOptions", "matteFinish")]     = Loc[Config.Lan].vehicleResprayOptionsMatte,
+            [locale("paintOptions", "metalsFinish")]    = Loc[Config.Lan].vehicleResprayOptionsMetals,
+            [locale("paintOptions", "chameleonFinish")] = Loc[Config.Lan].vehicleResprayOptionsChameleon,
+    }
+
+    for k, v in pairs(paintTable[data.finish]) do
+        local current = (colourCheck == v.id)
+        PaintMenu[#PaintMenu+1] = {
+            icon        = current and "fas fa-check",
+            isMenuHeader= current,
+            header      = k.." - "..v.name,
+            txt         = current and locale("common", "stockLabel"),
+            onSelect    = function()
+                adminCustoms.applyPaint({
+                    paint  = data.paint,
+                    id     = v.id,
+                    name   = v.name,
+                    finish = data.finish
+                })
+            end,
+        }
+    end
+
+    openMenu(PaintMenu, {
+        header    = carMeta.search,
+        headertxt = locale("paintOptions", "menuHeader")..br..(isOx() and br or "")..data.finish.." "..data.paint,
+        onBack    = function()
+            adminCustoms.ChooseFinish(data.paint)
+        end,
+    })
+end
+
+adminCustoms.applyPaint = function(data)
+    local vehicle = GetVehiclePedIsIn(PlayerPedId(), false)
+    pushVehicle(vehicle)
+
+    local vehPrimaryColour, vehSecondaryColour = GetVehicleColours(vehicle)
+    local vehPearlescentColour, vehWheelColour = GetVehicleExtraColours(vehicle)
+
+    if data.paint == locale("paintOptions", "primaryColor") then
+        ClearVehicleCustomPrimaryColour(vehicle)
+        SetVehicleColours(vehicle, data.id, vehSecondaryColour)
+    elseif data.paint == locale("paintOptions", "secondaryColor") then
+        ClearVehicleCustomSecondaryColour(vehicle)
+        SetVehicleColours(vehicle, vehPrimaryColour, data.id)
+    elseif data.paint == locale("paintOptions", "interiorColor") then
+        SetVehicleInteriorColor(vehicle, data.id)
+    elseif data.paint == locale("paintOptions", "dashboardColor") then
+        SetVehicleDashboardColor(vehicle, data.id)
+    elseif data.paint == locale("paintOptions", "pearlescent") then
+        SetVehicleExtraColours(vehicle, data.id, vehWheelColour)
+    end
+
+    Helper.addCarToUpdateLoop(vehicle)
+    adminCustoms.ChooseColour(data)
+end
+
+--===================================================================
+-- Rims
+--===================================================================
+adminCustoms.applyRims = function(data)
+    local Ped = PlayerPedId()
+    local vehicle
+
+    if IsPedInAnyVehicle(Ped, false) then
+        vehicle = GetVehiclePedIsIn(Ped, false)
+    end
+
+   if progressBar({
+        label = locale("common", "actionInstalling")..": ",
+        time  = 1000,
+        cancel= true
+    }) then
+        SetVehicleWheelType(vehicle, tonumber(data.wheeltype))
+        if not data.bike then
+            SetVehicleMod(vehicle, 23, tonumber(data.mod), GetVehicleModVariation(vehicle, 23))
+        else
+            SetVehicleMod(vehicle, 24, tonumber(data.mod), false)
+        end
+    end
+
+    if data.mod == -1 then
+        adminCustoms.RimsMenu()
+    else
+        adminCustoms.RimsChoose(data)
+    end
+end
+
+adminCustoms.applyCustomTires = function()
+    local Ped = PlayerPedId()
+    local vehicle
+
+    if IsPedInAnyVehicle(Ped, false) then
+        vehicle = GetVehiclePedIsIn(Ped, false)
+    end
+
+    if progressBar({
+        label = locale("common", "actionInstalling")..": ",
+        time  = 1000,
+        cancel= true
+    }) then
+        SetVehicleMod(vehicle, 23, GetVehicleMod(vehicle, 23), not GetVehicleModVariation(vehicle, 23))
+    end
+
+    adminCustoms.RimsMenu()
+end
+
+adminCustoms.RimsMenu = function(data)
+    local Menu, Ped = {}, PlayerPedId()
+    local vehicle
+
+    if IsPedInAnyVehicle(Ped, false) then
+        vehicle = GetVehiclePedIsIn(Ped, false)
+    end
+
+    local cycle = IsThisModelABike(GetEntityModel(vehicle))
+
+    if not cycle then
+        Menu[#Menu+1] = {
+            icon        = (GetVehicleMod(vehicle, 23) ~= -1) and "fa-solid fa-rotate-left" or nil,
+            isMenuHeader= (GetVehicleMod(vehicle, 23) == -1),
+            header      = locale("common", "stockLabel"),
+            txt         = (GetVehicleMod(vehicle, 23) == -1) and locale("common", "stockLabel") or "",
+            onSelect    = function()
+                adminCustoms.applyRims({ mod=-1, wheeltype=0 })
+            end,
+        }
+        if GetVehicleMod(vehicle, 23) ~= -1 then
+            Menu[#Menu+1] = {
+                isMenuHeader= (GetVehicleMod(vehicle, 23) == -1 and GetVehicleMod(vehicle, 24) == -1),
+                header      = locale("rimsMod", "customTires"),
+                txt         = GetVehicleModVariation(vehicle, 23)
+                              and locale("common", "installedMsg"):gsub("%!", "")
+                              or locale("common", "notInstalled"),
+                onSelect    = function()
+                    adminCustoms.applyCustomTires()
+                end,
+            }
+        end
+
+        for k, v in pairs(wheelType) do
+            Menu[#Menu+1] = {
+                arrow   = true,
+                header  = v,
+                onSelect= function()
+                    adminCustoms.RimsChoose({ wheeltype=k, bike=false })
+                end,
+            }
+        end
+    end
+
+    if cycle then
+        Menu[#Menu+1] = {
+            arrow   = true,
+            header  = locale("rimsMod", "frontWheel"),
+            onSelect= function()
+                adminCustoms.RimsChoose({ wheeltype=6, bike=false })
+            end,
+        }
+        Menu[#Menu+1] = {
+            arrow   = true,
+            header  = locale("rimsMod", "backWheel"),
+            onSelect= function()
+                adminCustoms.RimsChoose({ wheeltype=6, bike=true })
+            end,
+        }
+    end
+
+	local headertxt =
+		(not cycle and br..locale("common", "currentInstalled")..": "..br..(isOx() and br or "")..
+		(GetVehicleMod(vehicle, 23) == -1 and locale("common", "stockLabel") or GetLabelText(GetModTextLabel(vehicle, 23, GetVehicleMod(vehicle, 23)))).." - ("..wheelType[(GetVehicleWheelType(vehicle))]..")" or "")
+
+    openMenu(Menu, {
+        header    = carMeta["search"],
+        headertxt = headertxt,
+        onBack    = function()
+            adminCustoms.Menu()
+        end,
+    })
+end
+
+adminCustoms.RimsChoose = function(data)
+    local vehicle, validMods, originalWheel, Menu, Ped = nil, {}, 0, {}, PlayerPedId()
+
+    if IsPedInAnyVehicle(Ped, false) then
+        vehicle = GetVehiclePedIsIn(Ped, false)
+    end
+
+    originalWheel = tonumber(GetVehicleWheelType(vehicle))
+    SetVehicleWheelType(vehicle, tonumber(data.wheeltype))
+
+    for i = 1, (GetNumVehicleMods(vehicle, 23) + 1) do
+        local modName = GetLabelText(GetModTextLabel(vehicle, 23, (i-1)))
+        if not validMods[modName] then
+            validMods[modName] = {}
+            validMods[modName][#validMods[modName] + 1] = { id = (i-1), name = modName }
+        else
+            if validMods[modName][1] then
+                local name = modName
+                if modName == "NULL" then
+                    name = modName.." ("..(i-1)..")"
+                end
+                validMods[modName][#validMods[modName]+1] = {
+                    id   = (i-1),
+                    name = name.." - Var "..(#validMods[modName]+1)
+                }
+            else
+                validMods[modName][#validMods[modName]+1] = {
+                    id   = validMods[modName].id,
+                    name = validMods[modName].name.." - Var 1"
+                }
+                validMods[modName][#validMods[modName]+1] = {
+                    id   = (i-1),
+                    name = modName.." - Var "..(#validMods[modName]+1)
+                }
+            end
+        end
+    end
+
+    if validMods["NULL"] then
+        validMods[locale("rimsMod", "customRims")] = validMods["NULL"]
+        validMods["NULL"] = nil
+    end
+
+    Menu = {}
+    if data.wheeltype == 6 then
+        Menu[#Menu + 1] = {
+            icon        = (GetVehicleMod(vehicle, (data.bike == true and 24 or 23)) ~= -1) and "fa-solid fa-rotate-left" or "",
+            isMenuHeader= (GetVehicleMod(vehicle, (data.bike == true and 24 or 23)) == -1),
+            header      = locale("common", "stockLabel"),
+            txt         = (GetVehicleMod(vehicle, (data.bike == true and 24 or 23)) == -1) and locale("common", "stockLabel"),
+            onSelect    = function()
+                adminCustoms.applyRims({ mod = -1, wheeltype = 6, bike = data.bike })
+            end,
+        }
+    end
+
+    for k, v in pairsByKeys(validMods) do
+        Menu[#Menu + 1] = {
+            arrow   = true,
+            header  = k,
+            txt     = locale("common", "optionsCount")..#validMods[k],
+            onSelect= function()
+                adminCustoms.RimsSubmenu({
+                    mod        = v.id,
+                    wheeltype  = data.wheeltype,
+                    wheeltable = validMods[k],
+                    bike       = data.bike,
+                    label      = wheelType[data.wheeltype]
+                })
+            end,
+        }
+    end
+
+    SetVehicleWheelType(vehicle, originalWheel)
+
+    local headertxt =
+        locale("rimsMod", "menuHeader")
+        ..br.."("..wheelType[data.wheeltype]..")"
+        ..br..(isOx() and br or "")
+        --..locale("common", "currentInstalled")..": "
+        --..br..(isOx() and br or "")
+        --..((GetVehicleMod(vehicle, 23) == -1)
+        --   and locale("common", "stockLabel")
+        --   or GetLabelText(GetModTextLabel(vehicle, 23, GetVehicleMod(vehicle, 23))))
+        --.." - ("..wheelType[(GetVehicleWheelType(vehicle))]..")"
+
+    openMenu(Menu, {
+        header    = carMeta["search"],
+        headertxt = headertxt,
+        onBack    = function()
+            adminCustoms.RimsMenu()
+        end,
+    })
+end
+
+adminCustoms.RimsSubmenu = function(data)
+   local Menu, Ped = {}, PlayerPedId()
+
+    if not IsPedInAnyVehicle(Ped, false) then
+        vehicle = Helper.getClosestVehicle(GetEntityCoords(Ped))
+        pushVehicle(vehicle)
+    end
+
+    for i = 1, #data.wheeltable do
+        Menu[#Menu + 1] = {
+            icon = ((GetVehicleMod(vehicle, (data.bike and 24 or 23)) == data.wheeltable[i].id)
+                    and (GetVehicleWheelType(vehicle) == data.wheeltype))
+                    and "fas fa-check"
+                    or "",
+            isMenuHeader = ((GetVehicleMod(vehicle, (data.bike and 24 or 23)) == data.wheeltable[i].id)
+                            and (GetVehicleWheelType(vehicle) == data.wheeltype)),
+            header = data.wheeltable[i].name,
+            txt    = ((GetVehicleMod(vehicle, (data.bike and 24 or 23)) == data.wheeltable[i].id)
+                      and (GetVehicleWheelType(vehicle) == data.wheeltype))
+                      and locale("common", "stockLabel")
+                      or "",
+            onSelect = function()
+                adminCustoms.applyRims({
+                    mod        = data.wheeltable[i].id,
+                    wheeltype  = data.wheeltype,
+                    wheeltable = data.wheeltable,
+                    bike       = data.bike,
+                    label      = data.label
+                })
+            end,
+        }
+    end
+
+    local headertxt =
+        locale("rimsMod", "menuHeader")
+        ..br.."("..string.upper(data.label)..")"
+        ..br..(isOx() and br or "")
+        ..locale("common", "optionsCount")..#data.wheeltable
+        --..br..(isOx() and br or "")
+        --..locale("common", "currentInstalled")..": "
+        --..br..(isOx() and br or "")
+        --..((GetVehicleMod(vehicle, 23) == -1)
+        --   and locale("common", "stockLabel")
+        --   or GetLabelText(GetModTextLabel(vehicle, 23, GetVehicleMod(vehicle, 23))))
+        --.." - ("..wheelType[(GetVehicleWheelType(vehicle))]..")"
+
+    openMenu(Menu, {
+        header    = carMeta["search"],
+        headertxt = headertxt,
+        onBack    = function()
+            adminCustoms.RimsChoose({ wheeltype = data.wheeltype, bike = data.bike })
+        end,
+    })
+end

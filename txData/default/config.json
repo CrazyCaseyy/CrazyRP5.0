@@ -4,11 +4,6 @@
     "serverName": "Crazy RP"
   },
   "server": {
-    "dataPath": "C:/CrazyRP5.0"
-  },
-  "restarter": {
-    "schedule": [
-      "00:00"
-    ]
+    "dataPath": "C:/Users/casey/Desktop/resources/"
   }
 }
