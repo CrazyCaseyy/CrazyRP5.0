@@ -137,13 +137,6 @@ local function prepareManageMenu()
                 prepareDoorbellMenu()
             end
         },
-        {
-            title = locale('menu.start_decorating'),
-            icon = 'shrimp',
-            onSelect = function()
-                ToggleDecorating()
-            end
-        }
     }
     if isPropertyRental then
         options[#options+1] = {
