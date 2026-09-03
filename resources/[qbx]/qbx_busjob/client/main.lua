@@ -248,16 +248,10 @@ local function spawnPed()
     }})
 end
 
--- Red ring at the return point - solid at the ground, fading to
--- transparent as it rises, so it reads as a beam rather than a flat
--- disc. Only shown while an active bus is out.
+-- Single red ring on the ground at the return point - only shown while
+-- an active bus is out.
 local function drawEndRing(coords)
-    local layers, maxHeight = 8, 2.0
-    for i = 0, layers - 1 do
-        local t = i / (layers - 1)
-        local alpha = math.floor(200 * (1 - t))
-        DrawMarker(1, coords.x, coords.y, coords.z + t * maxHeight, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 0.05, 220, 0, 0, alpha, false, false, 2, false, nil, nil, false)
-    end
+    DrawMarker(1, coords.x, coords.y, coords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 1.0, 220, 0, 0, 120, false, false, 2, false, nil, nil, false)
 end
 
 CreateThread(function()

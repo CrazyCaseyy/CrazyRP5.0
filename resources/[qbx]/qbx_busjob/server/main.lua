@@ -17,14 +17,17 @@ lib.callback.register('qbx_busjob:server:spawnBus', function(source, model, coor
     local src = source
     local spawnSource = coords or GetPlayerPed(src)
 
-    local netId = qbx.spawnVehicle({ model = model, spawnSource = spawnSource, warp = not coords and true or false })
+    -- warp needs the actual ped entity to do anything when spawnSource is
+    -- coords rather than a ped - a plain `true` only works when
+    -- spawnSource itself is a ped (qbx_core/modules/lib.lua).
+    local netId = qbx.spawnVehicle({ model = model, spawnSource = spawnSource, warp = GetPlayerPed(src) })
     if not netId or netId == 0 then return end
     local veh = NetworkGetEntityFromNetworkId(netId)
     if not veh or veh == 0 then return end
 
     local plate = locale('info.bus_plate') .. tostring(math.random(1000, 9999))
     SetVehicleNumberPlateText(veh, plate)
-    TriggerClientEvent('vehiclekeys:client:SetOwner', source, plate)
+    exports.qbx_vehiclekeys:GiveKeys(source, veh)
     return netId
 end)
 

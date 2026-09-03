@@ -29,7 +29,8 @@ dependencies {
     'qbx_core',
     'ox_lib',
     'crazy-reputation',
-    'ox_target'
+    'ox_target',
+    'qbx_vehiclekeys'
 }
 
 lua54 'yes'
