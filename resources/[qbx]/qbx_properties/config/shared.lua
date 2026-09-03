@@ -39,13 +39,12 @@ return {
             enter = vec3(-614.58, 46.52, 43.59)
         },
         {
-            -- Reuses the Richard Majestic interior shell (same interior/exit/
-            -- clothing/stash/logout points) but with its own exterior "door"
-            -- location. The interior isn't a separate instance/MLO — it's
-            -- the same real, always-loaded game interior every
-            -- RichardMajesticApt2 entry uses, per how isInteriorShell works
-            -- in server/property.lua.
-            interior = 'RichardMajesticApt2',
+            -- Its own dedicated interior (see interiors.AltaApartment below)
+            -- - no longer reuses Richard Majestic's. Like that one, this
+            -- isn't a separate instance/MLO - it's the same real,
+            -- always-loaded game interior every Alta Apartments entry uses,
+            -- per how isInteriorShell works in server/property.lua.
+            interior = 'AltaApartment',
             label = 'Alta Apartments',
             description = 'A quiet apartment complex away from downtown.',
             enter = vec3(-271.06, -957.83, 30.22)
@@ -53,6 +52,12 @@ return {
     },
 
     interiors = {
+        ['AltaApartment'] = {
+            exit = vec4(-270.98, -968.1, 76.23, 250.85),
+            clothing = vec4(-269.7, -960.37, 76.24, 259.58),
+            stash = vec4(-270.26, -957.53, 76.24, 338.78),
+            logout = vec4(-259.9, -948.78, 70.02, 274.47)
+        },
         [`furnitured_midapart`] = {
             exit = vec3(1.46, -10.33, 0.0),
             clothing = vec3(6.03, 9.3, 0.0),

@@ -480,7 +480,13 @@ RegisterNetEvent('qbx_properties:client:concealPlayers', function(playerIds)
                     NetworkConcealPlayer(players[i], true, false)
                 end
             end
-            Wait(3000)
+            -- Was 3000ms - anyone streaming in between passes (e.g. another
+            -- player entering their own instance of the same shared
+            -- interior shell right after you) stayed visible for up to
+            -- that whole gap before getting concealed. Both natives here
+            -- are cheap state toggles, not streaming calls, so polling
+            -- this often costs nothing noticeable.
+            Wait(250)
         end
     end
 end)

@@ -70,10 +70,9 @@ Config.NewCharacterSpawn = vector4(-540.58, -212.02, 37.65, 208.88)
 -- them inside the interior shell).
 --
 -- Currently a single entry (Alta Apartments) — the UI auto-selects it
--- since there's only one (see stepApartment in html/script.js). It
--- reuses the Richard Majestic interior shell but with its own door
--- location, matching the entry appended to qbx_properties'
--- Config.apartmentOptions.
+-- since there's only one (see stepApartment in html/script.js). It has
+-- its own dedicated interior (qbx_properties' interiors.AltaApartment),
+-- matching the entry appended to qbx_properties' Config.apartmentOptions.
 -- ===================================================================
 Config.Apartments = {
     {
