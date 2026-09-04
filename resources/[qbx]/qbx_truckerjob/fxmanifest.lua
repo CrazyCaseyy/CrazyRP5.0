@@ -27,7 +27,8 @@ files {
 
 dependencies {
 	'ox_lib',
-	'crazy-reputation'
+	'crazy-reputation',
+	'qbx_vehiclekeys'
 }
 
 provide 'qb-truckerjob'

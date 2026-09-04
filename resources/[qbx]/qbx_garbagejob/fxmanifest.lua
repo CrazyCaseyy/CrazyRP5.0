@@ -27,6 +27,7 @@ files {
 
 dependencies {
 	'crazy-reputation',
+	'qbx_vehiclekeys',
 }
 
 lua54 'yes'

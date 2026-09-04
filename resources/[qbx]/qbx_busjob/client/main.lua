@@ -353,6 +353,16 @@ RegisterNetEvent('qbx_busjob:client:DoBusNpc', function()
         SetModelAsNoLongerNeeded(model)
         PlaceObjectOnGroundProperly(NpcData.Npc)
         FreezeEntityPosition(NpcData.Npc, true)
+        -- Stops it panicking/turning hostile as the bus pulls up -
+        -- without these it can flee the pickup spot or, once the freeze
+        -- above is lifted for TaskEnterVehicle, yank the player out of
+        -- the driver seat.
+        SetEntityInvincible(NpcData.Npc, true)
+        SetBlockingOfNonTemporaryEvents(NpcData.Npc, true)
+        SetPedFleeAttributes(NpcData.Npc, 0, false)
+        SetPedCombatAttributes(NpcData.Npc, 46, false)
+        SetPedCanRagdoll(NpcData.Npc, false)
+        DisablePedPainAudio(NpcData.Npc, true)
         removeNPCBlip()
         NpcData.NpcBlip = AddBlipForCoord(sharedConfig.npcLocations.locations[route].x, sharedConfig.npcLocations.locations[route].y, sharedConfig.npcLocations.locations[route].z)
         SetBlipColour(NpcData.NpcBlip, 3)

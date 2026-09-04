@@ -147,7 +147,7 @@ lib.callback.register('qbx_truckerjob:server:spawnVehicle', function(source, mod
     if not veh or veh == 0 then return end
 
     lib.print.debug('spawn vehicle with plate: ', GetVehicleNumberPlateText(veh))
-    TriggerClientEvent('vehiclekeys:client:SetOwner', source, plate)
+    exports.qbx_vehiclekeys:GiveKeys(source, veh)
     return netId, plate
 end)
 

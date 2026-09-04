@@ -95,7 +95,7 @@ lib.callback.register('qb-taxi:server:spawnTaxi', function(source, model, coords
 
     local plate = 'TAXI' .. math.random(1000, 9999)
     SetVehicleNumberPlateText(veh, plate)
-    TriggerClientEvent('vehiclekeys:client:SetOwner', source, plate)
+    exports.qbx_vehiclekeys:GiveKeys(source, veh)
     return netId
 end)
 
