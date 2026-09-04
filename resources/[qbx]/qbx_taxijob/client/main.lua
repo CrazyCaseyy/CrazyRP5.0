@@ -475,7 +475,7 @@ CreateThread(function()
     local hubCoords = config.locations.main.coords
     while true do
         if #(GetEntityCoords(cache.ped) - hubCoords.xyz) < 30.0 then
-            DrawMarker(2, hubCoords.x, hubCoords.y, hubCoords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.2, 0.15, 200, 0, 0, 222, false, false, 0, true, false, false, false)
+            DrawMarker(1, hubCoords.x, hubCoords.y, hubCoords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 1.0, 220, 0, 0, 120, false, false, 2, false, nil, nil, false)
             Wait(0)
         else
             Wait(500)

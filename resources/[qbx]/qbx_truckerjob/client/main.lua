@@ -192,6 +192,17 @@ local function createVehicleZone()
         width = 0.3
     })
 
+    -- Red circle, matching qbx_busjob/qbx_towjob/qbx_taxijob/
+    -- qbx_garbagejob exactly - only drawn once there's actually a truck
+    -- to return (taking one out still uses the marker above).
+    local returnMarker = lib.marker.new({
+        coords = location.coords,
+        type = 1,
+        width = 3.0,
+        height = 1.0,
+        color = { r = 220, g = 0, b = 0, a = 120 },
+    })
+
     local function hideTextUI()
         local isOpen, currentText = lib.isTextUIOpen()
         if isOpen and (currentText == locale('info.store_vehicle') or currentText == locale('info.vehicles')) then
@@ -200,12 +211,16 @@ local function createVehicleZone()
     end
 
     function zone:inside()
-        marker:draw()
+        if cache.vehicle then
+            returnMarker:draw()
+        else
+            marker:draw()
+        end
     end
 
     function innerZone:onEnter()
         if not lib.isTextUIOpen() then
-            lib.showTextUI(locale(cache.vehicle and 'info.store_vehicle' or 'info.vehicles'))
+            lib.showTextUI(locale(cache.vehicle and 'info.store_vehicle' or 'info.vehicles'), cache.vehicle and { position = 'right-center' } or nil)
         end
     end
 
@@ -219,7 +234,7 @@ local function createVehicleZone()
                 isChangeTextAllowed = false
                 CreateThread(function()
                     Wait(1000)
-                    lib.showTextUI(locale(cache.vehicle and 'info.store_vehicle' or 'info.vehicles'))
+                    lib.showTextUI(locale(cache.vehicle and 'info.store_vehicle' or 'info.vehicles'), cache.vehicle and { position = 'right-center' } or nil)
                 end)
             end
         end

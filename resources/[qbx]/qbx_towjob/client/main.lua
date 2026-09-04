@@ -368,7 +368,7 @@ CreateThread(function()
             end
             Wait(500)
         else
-            DrawMarker(2, hubCoords.x, hubCoords.y, hubCoords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.2, 0.15, 200, 0, 0, 222, false, false, 0, true, false, false, false)
+            DrawMarker(1, hubCoords.x, hubCoords.y, hubCoords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 1.0, 220, 0, 0, 120, false, false, 2, false, nil, nil, false)
 
             if #(GetEntityCoords(cache.ped) - hubCoords.xyz) < 3.0 then
                 local flatbed = lib.getClosestVehicle(hubCoords.xyz, 5.0, true)

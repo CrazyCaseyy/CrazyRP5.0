@@ -774,11 +774,69 @@ end)
 
 AddEventHandler('qb-garbagejob:client:RequestPaycheck', function()
     if currentLobbyId then return end -- group shifts are paid out via the lobby menu instead
-    if garbageVehicle then
-        BringBackCar()
-        exports.qbx_core:Notify(locale('info.truck_returned'))
-    end
+    -- Returning the truck itself now happens at the red ring below, not
+    -- here - this is just the payslip.
     TriggerServerEvent('garbagejob:server:payShift')
+end)
+
+-- Red ring at the truck storage spots, matching qbx_busjob/qbx_towjob/
+-- qbx_taxijob exactly - only shown for a solo shift (a lobby's shared
+-- truck is only ever deleted server-side, at the group payout, so no one
+-- member can pull it out from under the others here).
+CreateThread(function()
+    local storageCoords = sharedConfig.locations["vehicle"].coords
+    local promptShown = false
+
+    while true do
+        if garbageVehicle and not currentLobbyId then
+            local nearestCoords, nearestDist
+            for _, c in pairs(storageCoords) do
+                local dist = #(GetEntityCoords(cache.ped) - c.xyz)
+                if not nearestDist or dist < nearestDist then
+                    nearestCoords, nearestDist = c, dist
+                end
+            end
+
+            DrawMarker(1, nearestCoords.x, nearestCoords.y, nearestCoords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 1.0, 220, 0, 0, 120, false, false, 2, false, nil, nil, false)
+            for _, c in pairs(storageCoords) do
+                if c ~= nearestCoords then
+                    DrawMarker(1, c.x, c.y, c.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 1.0, 220, 0, 0, 120, false, false, 2, false, nil, nil, false)
+                end
+            end
+
+            if nearestDist < 3.0 then
+                -- Already know exactly which vehicle this is (garbageVehicle
+                -- itself), just check it's actually parked here.
+                local truckNearby = DoesEntityExist(garbageVehicle) and #(GetEntityCoords(garbageVehicle) - nearestCoords.xyz) < 5.0
+                if truckNearby then
+                    if not promptShown then
+                        lib.showTextUI(locale('info.return_vehicle'), { position = 'right-center' })
+                        promptShown = true
+                    end
+                    if IsControlJustPressed(0, 38) then
+                        lib.hideTextUI()
+                        promptShown = false
+                        BringBackCar()
+                        exports.qbx_core:Notify(locale('info.truck_returned'))
+                    end
+                elseif promptShown then
+                    lib.hideTextUI()
+                    promptShown = false
+                end
+            elseif promptShown then
+                lib.hideTextUI()
+                promptShown = false
+            end
+
+            Wait(0)
+        else
+            if promptShown then
+                lib.hideTextUI()
+                promptShown = false
+            end
+            Wait(500)
+        end
+    end
 end)
 
 -- ===================================================================
