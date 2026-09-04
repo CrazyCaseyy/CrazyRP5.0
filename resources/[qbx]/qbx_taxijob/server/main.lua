@@ -129,9 +129,9 @@ RegisterNetEvent('qb-taxi:server:NpcPay', function(payment)
     local randomAmount = math.random(1, 5)
     local r1, r2 = math.random(1, 5), math.random(1, 5)
     if randomAmount == r1 or randomAmount == r2 then
-        paymentAmount = paymentAmount + math.random(10, 20)
+        paymentAmount = paymentAmount + math.random(50, 100) -- 5x
     end
-    paymentAmount = math.min(paymentAmount, config.maxFare + 20)
+    paymentAmount = math.min(paymentAmount, config.maxFare + 100) -- 5x
 
     local multiplier = exports['crazy-reputation']:GetPayoutMultiplier(src, 'taxi')
     paymentAmount = math.floor(paymentAmount * multiplier)

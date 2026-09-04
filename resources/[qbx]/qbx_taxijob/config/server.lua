@@ -2,7 +2,7 @@ return {
     allowedVehicleModels = {
         'taxi',
     },
-    maxFare = 2000,
+    maxFare = 10000, -- 5x - matches every other civilian job
     payCooldownSeconds = 5,
     cabSpawns = {
         vec4(899.0837, -180.4414, 73.4115, 238.7553),

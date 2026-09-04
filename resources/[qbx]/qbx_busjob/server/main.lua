@@ -40,9 +40,12 @@ lib.callback.register('qbx_busjob:server:NpcPay', function(source)
     if not player then return end
     if not isPlayerNearBus(src) then DropPlayer(src, locale('error.exploit_attempt')) return end
 
-    local payment = math.random(15, 25)
+    -- 5x the original 15-25 (+10-20 bonus) rate, matching every other
+    -- civilian job (bus/garbage/taxi/tow/trucker - crazy-reputation's
+    -- Config.IncludedJobs).
+    local payment = math.random(75, 125)
     if math.random(1, 100) < config.bonusChance then
-        payment = payment + math.random(10, 20)
+        payment = payment + math.random(50, 100)
     end
 
     local multiplier = exports['crazy-reputation']:GetPayoutMultiplier(src, 'bus')

@@ -1,5 +1,5 @@
 return {
-    truckPrice = 250,
+    truckPrice = 1250, -- 5x - stays proportional to the (also 5x'd) route earnings
     locations = {
         main = {
             label = 'Garbage Depot',

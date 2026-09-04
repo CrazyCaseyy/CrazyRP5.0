@@ -19,8 +19,9 @@ RegisterNetEvent('qb-tow:server:cashOut', function(drops)
 
     drops = tonumber(drops)
     if not drops or drops <= 0 then return end
+    -- 5x the original 150-170 rate, matching every other civilian job.
     local bonus = 0
-    local DropPrice = math.random(150, 170)
+    local DropPrice = math.random(750, 850)
     if drops > 5 then
         if drops > 20 then drops = 20 end
         bonus = math.ceil((DropPrice / 10) * ((3 * (drops / 5)) + 2))

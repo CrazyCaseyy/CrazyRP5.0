@@ -6,7 +6,7 @@ return {
         { model = 'taxi', label = locale('info.taxi_label_1') }
     },
     meter = {
-        defaultPrice = 125.0, -- price per mile
+        defaultPrice = 625.0, -- price per mile (5x - matches every other civilian job)
         startingPrice = 0,     -- static starting price
         useGpsPrice = true -- use GPS distance instead of driven distance
     },

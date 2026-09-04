@@ -94,16 +94,18 @@ RegisterNetEvent('qbx_truckerjob:server:getPaid', function()
         return notify(player, locale('error.no_work_done'), 'error')
     end
 
-    local dropPrice, bonus = math.random(100, 120), 0
+    -- 5x the original rate (100-120 base, 100/300/400/500 flat bonus
+    -- steps), matching every other civilian job.
+    local dropPrice, bonus = math.random(500, 600), 0
 
     if playerDrops >= 5 then
-        bonus = math.ceil((dropPrice / 10) * 5) + 100
+        bonus = math.ceil((dropPrice / 10) * 5) + 500
     elseif playerDrops >= 10 then
-        bonus = math.ceil((dropPrice / 10) * 7) + 300
+        bonus = math.ceil((dropPrice / 10) * 7) + 1500
     elseif playerDrops >= 15 then
-        bonus = math.ceil((dropPrice / 10) * 10) + 400
+        bonus = math.ceil((dropPrice / 10) * 10) + 2000
     elseif playerDrops >= 20 then
-        bonus = math.ceil((dropPrice / 10) * 12) + 500
+        bonus = math.ceil((dropPrice / 10) * 12) + 2500
     end
 
     local price = (dropPrice * playerDrops) + bonus

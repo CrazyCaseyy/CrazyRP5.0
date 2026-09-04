@@ -219,6 +219,16 @@ local function SpawnPed()
         distance = 1.5,
         onSelect = startJob,
     }})
+
+    local depotBlip = AddBlipForCoord(coords.x, coords.y, coords.z)
+    SetBlipSprite(depotBlip, 477)
+    SetBlipDisplay(depotBlip, 4)
+    SetBlipScale(depotBlip, 0.6)
+    SetBlipAsShortRange(depotBlip, true)
+    SetBlipColour(depotBlip, 15)
+    BeginTextCommandSetBlipName('STRING')
+    AddTextComponentSubstringPlayerName(sharedConfig.locations["start"].label)
+    EndTextCommandSetBlipName(depotBlip)
 end
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', SpawnPed)
