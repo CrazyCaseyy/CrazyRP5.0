@@ -74,9 +74,14 @@ local options = {
             DrawMarker(28, endCoords.x, endCoords.y, endCoords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06, 0.06, 0.06, 255, 30, 30, 200, false, false, 2, false, nil, nil, false)
 
             local x, y, z = qbx.math.round(endCoords.x, 2), qbx.math.round(endCoords.y, 2), qbx.math.round(endCoords.z, 2)
+            -- coords.x is always 1.0 here, same as every other qbx.drawText2d
+            -- call in this file - qbx.drawText2d's width/height default to
+            -- 1.0 and it offsets by half of that, so 1.0 is what actually
+            -- lands centered; 0.5 (the naive "half the screen" guess) would
+            -- render off to the left instead.
             qbx.drawText2d({
                 text = ('~r~LASER~s~  vec3(%s, %s, %s)  ~s~[E] Copy'):format(x, y, z),
-                coords = vec2(0.5, 0.93),
+                coords = vec2(1.0, 0.85),
                 scale = 0.4,
                 font = 6,
                 enableDropShadow = true,
