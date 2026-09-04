@@ -1,6 +1,6 @@
 Config = Config or {}
 
-Config.Debug = true -- Enables debug and send alerts when leo break the law.
+Config.Debug = false -- Enables debug and send alerts when leo break the law. Also draws the hunting/no-dispatch zone outlines - testing only, keep off in production.
 
 Config.RespondKeybind = 'E'
 Config.OpenDispatchMenu = 'O'
