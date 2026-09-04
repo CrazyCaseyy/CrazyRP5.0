@@ -142,6 +142,17 @@ function buildToggleTile(def) {
     <span class="tile-state">Off</span>
   `;
   tile.addEventListener('click', async () => {
+    // Flip immediately rather than waiting on the round trip - the Lua
+    // side's toggle fires inside a CreateThread (so the NUI callback that
+    // reports state back doesn't block on it forever), which races with
+    // that state report and used to leave the tile showing the old state
+    // until the menu was closed and reopened. These are simple booleans
+    // that always succeed, so flipping optimistically here is safe; the
+    // next real toggleState push (menu reopen, another toggle) still wins
+    // if it ever disagrees.
+    const nowOn = !tile.classList.contains('active');
+    tile.classList.toggle('active', nowOn);
+    tile.querySelector('.tile-state').textContent = nowOn ? 'On' : 'Off';
     tile.style.opacity = '0.6';
     await post('toggleSelf', { action: def.action });
     tile.style.opacity = '1';
