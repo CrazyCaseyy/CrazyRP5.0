@@ -261,7 +261,32 @@ local function openDealership(browseIndex)
     lib.showContext('qbx_vehiclesales_categories')
 end
 
+-- The game itself (not any of our scripts) bakes in a permanent "Premium
+-- Deluxe Motorsport" map blip at its vanilla dealership location - removing
+-- the shop from qbx_vehicleshop's config doesn't touch this, it's baked into
+-- the game's own blip list. Matched by proximity to that stock location
+-- (not sprite) so it can't ever clip the real blip added below, which sits
+-- at a completely different spot.
+local function removeStockPdmBlip()
+    local stockCoords = vector3(-45.67, -1098.34, 26.42)
+    local toRemove = {}
+    for category = 1, 10 do
+        local blip = GetFirstBlipInfoId(category)
+        while DoesBlipExist(blip) do
+            if #(GetBlipInfoIdCoord(blip) - stockCoords) < 10.0 then
+                toRemove[#toRemove + 1] = blip
+            end
+            blip = GetNextBlipInfoId(category)
+        end
+    end
+    for _, blip in ipairs(toRemove) do
+        RemoveBlip(blip)
+    end
+end
+
 CreateThread(function()
+    removeStockPdmBlip()
+
     local blipCoords = config.browsePoints[1]
     local blip = AddBlipForCoord(blipCoords.x, blipCoords.y, blipCoords.z)
     SetBlipSprite(blip, 326)
