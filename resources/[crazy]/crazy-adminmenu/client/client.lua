@@ -40,6 +40,7 @@ local function pushToggleState()
             blips = ok and adminState.blips or false,
             coords = ok2 and devState.coords or false,
             vehicleInfo = ok2 and devState.vehicleInfo or false,
+            laser = ok2 and devState.laser or false,
         }
     })
 end
@@ -166,6 +167,7 @@ local SELF_TOGGLES = {
     cuff = function() exports.qbx_adminmenu:ToggleCuff() end,
     coords = function() exports.qbx_adminmenu:ToggleCoordsDisplay() end,
     vehicleInfo = function() exports.qbx_adminmenu:ToggleVehicleInfoDisplay() end,
+    laser = function() exports.qbx_adminmenu:ToggleLaser() end,
 }
 
 RegisterNUICallback('toggleSelf', function(data, cb)

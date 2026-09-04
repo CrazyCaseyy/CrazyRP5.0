@@ -1,5 +1,6 @@
 local showCoords = false
 local vehicleDev = false
+local showLaser = false
 local vehicleTypes = {'Compacts', 'Sedans', 'SUVs', 'Coupes', 'Muscle', 'Sports Classics', 'Sports', 'Super', 'Motorcycles', 'Off-road', 'Industrial', 'Utility', 'Vans', 'Cycles', 'Boats', 'Helicopters', 'Planes', 'Service', 'Emergency', 'Military', 'Commercial', 'Trains', 'Open Wheel'}
 local options = {
     function() CopyToClipboard('coords2') lib.showMenu('qbx_adminmenu_dev_menu', MenuIndexes.qbx_adminmenu_dev_menu) end,
@@ -59,15 +60,44 @@ local options = {
             end
         end
     end,
+    function()
+        showLaser = not showLaser
+        while showLaser do
+            -- ox_lib's raycast already yields internally (GetShapeTestResult
+            -- is polled in a Wait(0) loop until it resolves), so this while
+            -- loop never spins without yielding even though there's no
+            -- explicit Wait(0) of our own below.
+            local hit, _, endCoords = lib.raycast.fromCamera(511, 4, 150.0)
+            local camCoords = GetFinalRenderedCamCoord()
+
+            DrawLine(camCoords.x, camCoords.y, camCoords.z, endCoords.x, endCoords.y, endCoords.z, 255, 30, 30, 220)
+            DrawMarker(28, endCoords.x, endCoords.y, endCoords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06, 0.06, 0.06, 255, 30, 30, 200, false, false, 2, false, nil, nil, false)
+
+            local x, y, z = qbx.math.round(endCoords.x, 2), qbx.math.round(endCoords.y, 2), qbx.math.round(endCoords.z, 2)
+            qbx.drawText2d({
+                text = ('~r~LASER~s~  vec3(%s, %s, %s)  ~s~[E] Copy'):format(x, y, z),
+                coords = vec2(0.5, 0.93),
+                scale = 0.4,
+                font = 6,
+                enableDropShadow = true,
+            })
+
+            if hit and IsControlJustReleased(0, 38) then
+                lib.setClipboard(('vec3(%s, %s, %s)'):format(x, y, z))
+                exports.qbx_core:Notify('Copied to clipboard', 'success')
+            end
+        end
+    end,
 }
 
 -- Exported so other UIs (crazy-adminmenu) can trigger the same
--- toggles this file already owns (showCoords/vehicleDev are local to
--- this closure and have no other command/event wrapper).
+-- toggles this file already owns (showCoords/vehicleDev/showLaser are
+-- local to this closure and have no other command/event wrapper).
 exports('ToggleCoordsDisplay', function() options[5]() end)
 exports('ToggleVehicleInfoDisplay', function() options[6]() end)
+exports('ToggleLaser', function() options[7]() end)
 exports('GetDevToggleState', function()
-    return { coords = showCoords, vehicleInfo = vehicleDev }
+    return { coords = showCoords, vehicleInfo = vehicleDev, laser = showLaser }
 end)
 
 lib.registerMenu({

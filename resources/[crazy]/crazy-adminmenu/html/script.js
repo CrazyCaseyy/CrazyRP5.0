@@ -126,6 +126,7 @@ const SELF_TOGGLE_TILES = [
 const DEV_TOGGLE_TILES = [
   { action: 'coords', label: 'Coords Overlay', icon: '\u{1F4D0}' },
   { action: 'vehicleInfo', label: 'Vehicle Info Overlay', icon: '\u{1F699}' },
+  { action: 'laser', label: 'Laser Pointer', icon: '\u{1F4A5}' },
 ];
 
 function buildToggleTile(def) {
