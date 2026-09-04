@@ -35,6 +35,11 @@ local NpcData = {
 
 local taxiPed = nil
 
+-- true from taking the cab out until it's returned - while true, the
+-- watcher thread below keeps the meter open and an NPC mission running
+-- on its own, without needing the radial menu.
+local taxiJobActive = false
+
 local function resetNpcTask()
     NpcData = {
         Active = false,
@@ -426,6 +431,10 @@ function setupTaxiParkingZone()
                         TriggerEvent('qb-taxi:client:toggleMeter')
                         meterActive = false
                     end
+                    taxiJobActive = false
+                    if NpcData.NpcBlip then RemoveBlip(NpcData.NpcBlip) end
+                    if NpcData.DeliveryBlip then RemoveBlip(NpcData.DeliveryBlip) end
+                    resetNpcTask()
                     DeleteVehicle(cache.vehicle)
                     exports.qbx_core:Notify(locale('info.taxi_returned'), 'success')
                 end
@@ -439,6 +448,26 @@ function setupTaxiParkingZone()
         end
     })
 end
+
+-- While the job's active, keeps the meter open and an NPC mission running
+-- on their own - no need to touch the radial menu. Getting the cab still
+-- requires actually taking it from the ped first (that's what flips
+-- taxiJobActive true), this just automates what happens after.
+CreateThread(function()
+    while true do
+        if taxiJobActive and cache.vehicle and whitelistedVehicle() and isDriver() then
+            if not meterIsOpen then
+                TriggerEvent('qb-taxi:client:toggleMeter')
+            end
+            if not NpcData.Active then
+                TriggerEvent('qb-taxi:client:DoTaxiNpc')
+            end
+            Wait(500)
+        else
+            Wait(1000)
+        end
+    end
+end)
 
 -- Red circle at the return zone so it's visible from a bit of a
 -- distance, not just once already standing in the (small) return box.
@@ -475,6 +504,7 @@ RegisterNetEvent('qb-taxi:client:TakeVehicle', function(data)
             local veh = NetToVeh(netId)
             SetVehicleFuelLevel(veh, 100.0)
             SetVehicleEngineOn(veh, true, true, false)
+            taxiJobActive = true
         else
             exports.qbx_core:Notify(locale('info.no_spawn_point'), 'error')
         end
