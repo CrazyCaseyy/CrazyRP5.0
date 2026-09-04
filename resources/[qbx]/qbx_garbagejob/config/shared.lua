@@ -9,7 +9,6 @@ return {
             label = 'Garbage Truck Storage',
             coords = {
                 [1] = vec4(-333.84, -1527.28, 27.28, 1.97),
-                [2] = vec4(-327.55, -1527.69, 27.25, 359.43),
             },
         },
         paycheck = {
