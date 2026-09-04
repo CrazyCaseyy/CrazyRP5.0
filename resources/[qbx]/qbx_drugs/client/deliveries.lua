@@ -359,7 +359,7 @@ RegisterNetEvent('qb-drugs:client:setLocation', function(locationData)
             coords = vec3(activeDelivery.coords.x, activeDelivery.coords.y, activeDelivery.coords.z),
             size = vec3(1.5, 1.5, 2.0),
             rotation = 0.0,
-            debug = true,
+            debug = false,
             options = {
                 {
                     icon = 'fas fa-user-secret',
