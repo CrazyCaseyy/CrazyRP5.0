@@ -174,18 +174,31 @@ RegisterNUICallback('toggleSelf', function(data, cb)
     local toggle = SELF_TOGGLES[data.action]
     if toggle then
         -- A few of these (invisible/vehicleGodmode/infiniteAmmo in
-        -- admin.lua, coords/vehicleInfo in dev.lua) run their "on" state
-        -- as a `while flag do ... Wait(0) end` loop directly in the
+        -- admin.lua, coords/vehicleInfo/laser in dev.lua) run their "on"
+        -- state as a `while flag do ... Wait(0) end` loop directly in the
         -- closure body rather than inside their own CreateThread. That's
         -- fine for ox_lib's menu (which isolates each selection in its
         -- own thread) but would hang this NUI callback's cb() forever if
-        -- called inline, so run it in a thread of our own instead. The
-        -- toggle's state flag flips before the loop/first Wait, so it's
-        -- already updated by the time pushToggleState() runs below.
+        -- called inline, so run it in a thread of our own instead.
+        --
+        -- CreateThread doesn't guarantee the flag flip (the closure's
+        -- first line) has actually run by the time control returns here -
+        -- a pushToggleState() call right after used to read the state
+        -- from before the flip and stomp the tile back to the wrong
+        -- value a moment after the click. The NUI side now flips its own
+        -- tile optimistically on click instead (these toggles are pure
+        -- client state and can't fail), so no push is needed here at
+        -- all - the next real sync happens naturally when the menu is
+        -- next opened (getToggleState).
         CreateThread(function() pcall(toggle) end)
     end
+    -- Let the scheduler actually hand control to the thread just created
+    -- above at least once before this callback returns - without this
+    -- yield, cb('ok') could resolve before the toggle's flip line has
+    -- run at all, and needed a second click to actually take effect (the
+    -- tile itself still looked right immediately either way, since that's
+    -- now driven by the optimistic click-time flip below, not this).
     Wait(0)
-    pushToggleState()
     cb('ok')
 end)
 
