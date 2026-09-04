@@ -67,10 +67,16 @@ local options = {
             -- is polled in a Wait(0) loop until it resolves), so this while
             -- loop never spins without yielding even though there's no
             -- explicit Wait(0) of our own below.
+            -- Raycast from the camera (matches where the crosshair/aim
+            -- direction actually points), but draw the beam from the ped's
+            -- own chest instead of the camera - in third-person the camera
+            -- floats behind/above the player, so a line drawn from it reads
+            -- as detached from their body rather than a laser they're
+            -- holding.
             local hit, _, endCoords = lib.raycast.fromCamera(511, 4, 150.0)
-            local camCoords = GetFinalRenderedCamCoord()
+            local originCoords = GetEntityCoords(cache.ped) + vec3(0.0, 0.0, 0.6)
 
-            DrawLine(camCoords.x, camCoords.y, camCoords.z, endCoords.x, endCoords.y, endCoords.z, 255, 30, 30, 220)
+            DrawLine(originCoords.x, originCoords.y, originCoords.z, endCoords.x, endCoords.y, endCoords.z, 255, 30, 30, 220)
             DrawMarker(28, endCoords.x, endCoords.y, endCoords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06, 0.06, 0.06, 255, 30, 30, 200, false, false, 2, false, nil, nil, false)
 
             local x, y, z = qbx.math.round(endCoords.x, 2), qbx.math.round(endCoords.y, 2), qbx.math.round(endCoords.z, 2)
