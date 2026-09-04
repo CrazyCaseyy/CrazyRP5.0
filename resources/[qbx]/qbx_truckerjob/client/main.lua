@@ -196,7 +196,7 @@ local function createVehicleZone()
     -- qbx_garbagejob exactly - only drawn once there's actually a truck
     -- to return (taking one out still uses the marker above).
     local returnMarker = lib.marker.new({
-        coords = location.coords,
+        coords = vec3(location.coords.x, location.coords.y, location.coords.z - 1.0),
         type = 1,
         width = 3.0,
         height = 1.0,

@@ -471,10 +471,12 @@ end)
 
 -- Red circle at the return zone so it's visible from a bit of a
 -- distance, not just once already standing in the (small) return box.
+-- Only while a cab's actually been taken out - matches bus/tow/garbage/
+-- trucker, which all gate their own ring on an active shift too.
 CreateThread(function()
     local hubCoords = config.locations.main.coords
     while true do
-        if #(GetEntityCoords(cache.ped) - hubCoords.xyz) < 30.0 then
+        if taxiJobActive and #(GetEntityCoords(cache.ped) - hubCoords.xyz) < 30.0 then
             DrawMarker(1, hubCoords.x, hubCoords.y, hubCoords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 1.0, 220, 0, 0, 120, false, false, 2, false, nil, nil, false)
             Wait(0)
         else

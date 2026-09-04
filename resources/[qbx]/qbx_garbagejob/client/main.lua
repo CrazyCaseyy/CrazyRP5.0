@@ -797,10 +797,10 @@ CreateThread(function()
                 end
             end
 
-            DrawMarker(1, nearestCoords.x, nearestCoords.y, nearestCoords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 1.0, 220, 0, 0, 120, false, false, 2, false, nil, nil, false)
+            DrawMarker(1, nearestCoords.x, nearestCoords.y, nearestCoords.z - 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 1.0, 220, 0, 0, 120, false, false, 2, false, nil, nil, false)
             for _, c in pairs(storageCoords) do
                 if c ~= nearestCoords then
-                    DrawMarker(1, c.x, c.y, c.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 1.0, 220, 0, 0, 120, false, false, 2, false, nil, nil, false)
+                    DrawMarker(1, c.x, c.y, c.z - 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 1.0, 220, 0, 0, 120, false, false, 2, false, nil, nil, false)
                 end
             end
 
