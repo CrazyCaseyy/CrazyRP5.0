@@ -22,13 +22,20 @@ end
 -- client/main.lua. That's the whole point of this table: it's what stops
 -- the item/cash showing up before the case has visually finished
 -- opening.
-local pendingRewards = {} -- [citizenid] = { reward = <Config.Rewards entry>, amount = number? }
+local pendingRewards = {} -- [citizenid] = { reward = <Config.Rewards entry>, amount = number?, count = number? }
+
+-- How many of an item-type reward to actually hand out - the entry's own
+-- `count` if it has one (non-stackable equipment pins this to 1),
+-- otherwise the rarity's default from Config.RarityItemAmount.
+local function itemCountFor(reward)
+    return reward.count or Config.RarityItemAmount[reward.rarity] or 1
+end
 
 local function grantPending(player, pending)
     if pending.reward.type == 'cash' then
         player.Functions.AddMoney('cash', pending.amount, 'case-opening-reward')
     else
-        exports.ox_inventory:AddItem(player.PlayerData.source, pending.reward.item, 1)
+        exports.ox_inventory:AddItem(player.PlayerData.source, pending.reward.item, pending.count or 1)
     end
 end
 
@@ -52,9 +59,10 @@ lib.callback.register('crazy-caseopening:server:roll', function(source)
 
     local reward = weightedRoll()
     local amount = reward.type == 'cash' and math.random(reward.amount[1], reward.amount[2]) or nil
-    pendingRewards[citizenid] = { reward = reward, amount = amount }
+    local count = reward.type == 'item' and itemCountFor(reward) or nil
+    pendingRewards[citizenid] = { reward = reward, amount = amount, count = count }
 
-    return { rewardId = reward.id, amount = amount }
+    return { rewardId = reward.id, amount = amount, count = count }
 end)
 
 -- Called once the reel actually lands (client/main.lua's 'reveal' NUI

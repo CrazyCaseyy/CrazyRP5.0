@@ -1,13 +1,13 @@
 // NUI contract with client/main.lua:
 //   inbound (SendNUIMessage): { action: 'open', rewards: Reward[] } |
-//     { action: 'spin', rewardId, result: { rewardId, amount? } } |
+//     { action: 'spin', rewardId, result: { rewardId, amount?, count? } } |
 //     { action: 'close' }
 //   outbound (RegisterNUICallback): 'close' | 'rollCase' | 'tick' |
 //     'reveal' ({ rarity })
 //
 // Reward shape (from config.lua): { id, type: 'cash'|'item', item?,
-//   label, rarity, icon? ('dollar'|'trophy'), image? (true = use the
-//   real ox_inventory icon for `item`) }
+//   label, rarity, amount? ([min,max], cash only), image? (true = use
+//   the real ox_inventory icon for `item`) }
 //
 // Flow: 'open' shows the case with an Open button - nothing is rolled or
 // removed yet. Clicking it posts 'rollCase', which is what actually
@@ -47,16 +47,44 @@ function escapeHtml(str) {
 }
 
 // No FontAwesome bundled into this page (only ox_lib's own NUI ships
-// that) - plain inline SVGs instead, same approach crazy-dailytasks uses.
+// that) - plain inline SVG, same approach crazy-dailytasks uses. Only
+// used as a last-resort fallback - every cash reward uses ox_inventory's
+// own money.png, and every item reward has its own real ox_inventory
+// image.
 const DOLLAR_ICON = '<svg viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
-const TROPHY_ICON = '<svg viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 5H5a3 3 0 0 0 3 4M16 5h3a3 3 0 0 1-3 4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 13v4M9 20h6M10 17h4v3h-4v-3z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
-const ICONS = { dollar: DOLLAR_ICON, trophy: TROPHY_ICON };
 
+function formatMoney(n) {
+  return `$${n.toLocaleString()}`;
+}
+
+// Picture only - the amount is shown as the card's label text instead
+// (see cardLabel below), not baked into this.
 function rewardIconHtml(reward) {
+  if (reward.type === 'cash') {
+    return `<img src="nui://ox_inventory/web/images/money.png" />`;
+  }
   if (reward.image) {
     return `<img src="nui://ox_inventory/web/images/${reward.item}.png" />`;
   }
-  return ICONS[reward.icon] || DOLLAR_ICON;
+  return DOLLAR_ICON;
+}
+
+// A specific-looking number for the reel's scrolling filler cards, which
+// aren't tied to any real roll - same idea as the filler item cards not
+// being the actual reward either, just visual variety.
+function randomCashAmount(reward) {
+  const [min, max] = reward.amount;
+  return Math.floor(min + Math.random() * (max - min));
+}
+
+// exactAmount is only known for the one card that's actually about to
+// win (see buildReel) - every other cash card just shows a plausible
+// random figure from its own range.
+function cardLabel(reward, exactAmount) {
+  if (reward.type === 'cash') {
+    return formatMoney(exactAmount != null ? exactAmount : randomCashAmount(reward));
+  }
+  return reward.label;
 }
 
 const CARD_WIDTH = 140;
@@ -70,10 +98,10 @@ let rewardPool = [];
 let lastTickIndex = -1;
 let tickInterval = null;
 
-function buildCard(reward) {
+function buildCard(reward, exactAmount) {
   const div = document.createElement('div');
   div.className = `reel-card rarity-${reward.rarity}`;
-  div.innerHTML = `${rewardIconHtml(reward)}<div class="reel-card-label">${escapeHtml(reward.label)}</div>`;
+  div.innerHTML = `${rewardIconHtml(reward)}<div class="reel-card-label">${escapeHtml(cardLabel(reward, exactAmount))}</div>`;
   return div;
 }
 
@@ -81,7 +109,7 @@ function randomReward() {
   return rewardPool[Math.floor(Math.random() * rewardPool.length)];
 }
 
-function buildReel(winningRewardId) {
+function buildReel(winningRewardId, result) {
   reelTrack.innerHTML = '';
   reelTrack.style.transition = 'none';
   reelTrack.style.transform = 'translateX(0px)';
@@ -93,8 +121,11 @@ function buildReel(winningRewardId) {
 
   const frag = document.createDocumentFragment();
   for (let i = 0; i < REEL_LENGTH; i++) {
-    const reward = i === WINNING_INDEX ? winning : randomReward();
-    frag.appendChild(buildCard(reward));
+    if (i === WINNING_INDEX) {
+      frag.appendChild(buildCard(winning, result.amount));
+    } else {
+      frag.appendChild(buildCard(randomReward()));
+    }
   }
   reelTrack.appendChild(frag);
 }
@@ -107,7 +138,7 @@ function currentTranslateX() {
 function spinTo(winningRewardId, result) {
   idleState.classList.add('hidden');
   resultPanel.classList.add('hidden');
-  buildReel(winningRewardId);
+  buildReel(winningRewardId, result);
   lastTickIndex = -1;
 
   // Small random offset within the winning card so it doesn't always
@@ -146,11 +177,13 @@ function showResult(result) {
   el('result-rarity').style.color = rarityColor;
   el('result-icon').innerHTML = rewardIconHtml(reward);
   el('result-icon').style.color = rarityColor;
-  el('result-label').textContent = reward.label;
+
+  let label = cardLabel(reward, result.amount);
+  if (reward.type === 'item' && result.count > 1) label = `${label} x${result.count}`;
+  el('result-label').textContent = label;
   el('result-label').style.color = rarityColor;
-  el('result-value').textContent = result.amount
-    ? `+$${result.amount.toLocaleString()} cash`
-    : 'Added to your inventory';
+
+  el('result-value').textContent = result.amount ? 'Added to your bank' : 'Added to your inventory';
 
   resultPanel.classList.remove('hidden');
   nuiPost('reveal', { rarity: reward.rarity });
@@ -206,16 +239,16 @@ window.addEventListener('message', ({ data }) => {
 // design review.
 if (typeof GetParentResourceName === 'undefined') {
   rewardPool = [
-    { id: 'cash_small', type: 'cash', label: 'Petty Cash', rarity: 'common', icon: 'dollar' },
-    { id: 'cash_small2', type: 'cash', label: 'Loose Change', rarity: 'common', icon: 'dollar' },
-    { id: 'cash_med', type: 'cash', label: 'Decent Stack', rarity: 'uncommon', icon: 'dollar' },
-    { id: 'cash_med2', type: 'cash', label: 'Fat Stack', rarity: 'uncommon', icon: 'dollar' },
-    { id: 'cash_big', type: 'cash', label: 'Big Money', rarity: 'rare', icon: 'dollar' },
+    { id: 'cash_small', type: 'cash', label: 'Petty Cash', rarity: 'common', amount: [50, 100] },
+    { id: 'cash_small2', type: 'cash', label: 'Loose Change', rarity: 'common', amount: [100, 150] },
+    { id: 'cash_med', type: 'cash', label: 'Decent Stack', rarity: 'uncommon', amount: [200, 350] },
+    { id: 'cash_med2', type: 'cash', label: 'Fat Stack', rarity: 'uncommon', amount: [350, 500] },
+    { id: 'cash_big', type: 'cash', label: 'Big Money', rarity: 'rare', amount: [750, 1200] },
     { id: 'diamond_ring', type: 'item', item: 'diamond_ring', label: 'Diamond', rarity: 'rare', image: true },
     { id: 'rolex', type: 'item', item: 'rolex', label: 'Golden Watch', rarity: 'rare', image: true },
     { id: 'goldchain', type: 'item', item: 'goldchain', label: 'Golden Chain', rarity: 'rare', image: true },
     { id: 'goldbar', type: 'item', item: 'goldbar', label: 'Gold Bar', rarity: 'epic', image: true },
-    { id: 'jackpot', type: 'cash', label: 'JACKPOT', rarity: 'legendary', icon: 'trophy' },
+    { id: 'jackpot', type: 'cash', label: 'JACKPOT', rarity: 'legendary', amount: [8500, 10000] },
   ];
 
   const realNuiPost = nuiPost;
