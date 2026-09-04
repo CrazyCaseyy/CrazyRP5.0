@@ -261,32 +261,27 @@ local function openDealership(browseIndex)
     lib.showContext('qbx_vehiclesales_categories')
 end
 
--- The game itself (not any of our scripts) bakes in a permanent "Premium
--- Deluxe Motorsport" map blip at its vanilla dealership location - removing
--- the shop from qbx_vehicleshop's config doesn't touch this, it's baked into
--- the game's own blip list. Matched by proximity to that stock location
--- (not sprite) so it can't ever clip the real blip added below, which sits
--- at a completely different spot.
-local function removeStockPdmBlip()
-    local stockCoords = vector3(-45.67, -1098.34, 26.42)
-    local toRemove = {}
-    for category = 1, 10 do
+-- The game itself (not any of our scripts) bakes in permanent vehicle-dealer
+-- map blips (sprite 326, the same icon vanilla PDM and this resource's own
+-- blip below both use) - removing the shop from qbx_vehicleshop's config
+-- doesn't touch these, they're part of the game's own default blip list, not
+-- resource-added. Matched by sprite rather than a guessed coordinate so it
+-- reliably strips every stock dealer icon; ourBlip is passed in and skipped
+-- so this can never eat our own blip on a later sweep.
+local function removeStockDealerBlips(ourBlip)
+    for category = 0, 10 do
         local blip = GetFirstBlipInfoId(category)
         while DoesBlipExist(blip) do
-            if #(GetBlipInfoIdCoord(blip) - stockCoords) < 10.0 then
-                toRemove[#toRemove + 1] = blip
+            local nextBlip = GetNextBlipInfoId(category)
+            if blip ~= ourBlip and GetBlipSprite(blip) == 326 then
+                RemoveBlip(blip)
             end
-            blip = GetNextBlipInfoId(category)
+            blip = nextBlip
         end
-    end
-    for _, blip in ipairs(toRemove) do
-        RemoveBlip(blip)
     end
 end
 
 CreateThread(function()
-    removeStockPdmBlip()
-
     local blipCoords = config.browsePoints[1]
     local blip = AddBlipForCoord(blipCoords.x, blipCoords.y, blipCoords.z)
     SetBlipSprite(blip, 326)
@@ -297,6 +292,16 @@ CreateThread(function()
     BeginTextCommandSetBlipName('STRING')
     AddTextComponentSubstringPlayerName('Premium Deluxe Motorsport')
     EndTextCommandSetBlipName(blip)
+
+    -- The game adds its default blips asynchronously as the world streams
+    -- in, sometimes after this resource has already started - sweep a few
+    -- times over the first several seconds rather than trusting a single
+    -- pass at t=0.
+    removeStockDealerBlips(blip)
+    for _ = 1, 5 do
+        Wait(1000)
+        removeStockDealerBlips(blip)
+    end
 
     for i, coords in ipairs(config.browsePoints) do
         exports.ox_target:addSphereZone({
