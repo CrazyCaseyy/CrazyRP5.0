@@ -64,7 +64,12 @@ function rewardIconHtml(reward) {
     return `<img src="nui://ox_inventory/web/images/money.png" />`;
   }
   if (reward.image) {
-    return `<img src="nui://ox_inventory/web/images/${reward.item}.png" />`;
+    // `image: true` = ox_inventory's default filename-equals-item-key
+    // convention; a string means items.lua's own client.image override
+    // doesn't match the item key (e.g. cash_band -> cashband.png), so
+    // config.lua spells out the real filename instead.
+    const file = reward.image === true ? `${reward.item}.png` : reward.image;
+    return `<img src="nui://ox_inventory/web/images/${file}" />`;
   }
   return DOLLAR_ICON;
 }
