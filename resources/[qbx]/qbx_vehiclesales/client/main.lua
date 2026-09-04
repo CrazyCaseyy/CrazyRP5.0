@@ -262,6 +262,17 @@ local function openDealership(browseIndex)
 end
 
 CreateThread(function()
+    local blipCoords = config.browsePoints[1]
+    local blip = AddBlipForCoord(blipCoords.x, blipCoords.y, blipCoords.z)
+    SetBlipSprite(blip, 326)
+    SetBlipDisplay(blip, 4)
+    SetBlipScale(blip, 0.85)
+    SetBlipAsShortRange(blip, true)
+    SetBlipColour(blip, 3)
+    BeginTextCommandSetBlipName('STRING')
+    AddTextComponentSubstringPlayerName('Premium Deluxe Motorsport')
+    EndTextCommandSetBlipName(blip)
+
     for i, coords in ipairs(config.browsePoints) do
         exports.ox_target:addSphereZone({
             coords = coords,
