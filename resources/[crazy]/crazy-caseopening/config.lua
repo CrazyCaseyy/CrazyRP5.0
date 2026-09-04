@@ -44,7 +44,7 @@ Config.RarityItemAmount = {
 -- doesn't match the item key (see cash_band below).
 Config.Rewards = {
     -- Common (42) - garbage/binoculars/firework1/toaster removed.
-    { id = 'cash_common', type = 'cash', amount = { 50, 150 }, label = 'Petty Cash', rarity = 'common', weight = 6 },
+    { id = 'cash_common', type = 'cash', amount = { 250, 750 }, label = 'Petty Cash', rarity = 'common', weight = 6 }, -- 5x
     { id = 'steel',       type = 'item', item = 'steel',       label = 'Steel',              rarity = 'common', weight = 6, image = true },
     { id = 'rubber',      type = 'item', item = 'rubber',      label = 'Rubber',             rarity = 'common', weight = 6, image = true },
     { id = 'metalscrap',  type = 'item', item = 'metalscrap',  label = 'Metal Scrap',        rarity = 'common', weight = 6, image = true },
@@ -52,20 +52,22 @@ Config.Rewards = {
     { id = 'copper',      type = 'item', item = 'copper',      label = 'Copper',             rarity = 'common', weight = 6, image = true },
     { id = 'plastic',     type = 'item', item = 'plastic',     label = 'Plastic',            rarity = 'common', weight = 6, image = true },
 
-    -- Uncommon (26) - first aid removed. armour/parachute are non-
-    -- stackable equipment, so they're pinned to count = 1 regardless of
-    -- the uncommon default (10 vests would just be wasted slots).
-    { id = 'cash_uncommon',   type = 'cash', amount = { 200, 500 }, label = 'Fat Stack', rarity = 'uncommon', weight = 4 },
+    -- Uncommon (26) - first aid removed. armour/parachute are pinned to
+    -- count = 1 since they're non-stackable equipment (10 vests would
+    -- just be wasted slots); electronickit/screwdriverset are pinned to
+    -- count = 1 too, by choice, capping how many of those specifically
+    -- get handed out despite the uncommon default being 10.
+    { id = 'cash_uncommon',   type = 'cash', amount = { 1000, 2500 }, label = 'Fat Stack', rarity = 'uncommon', weight = 4 }, -- 5x
     { id = 'armour',          type = 'item', item = 'armour',          label = 'Bulletproof Vest', rarity = 'uncommon', weight = 4, image = true, count = 1 },
     { id = 'parachute',       type = 'item', item = 'parachute',       label = 'Parachute',        rarity = 'uncommon', weight = 4, image = true, count = 1 },
-    { id = 'screwdriverset',  type = 'item', item = 'screwdriverset',  label = 'Screwdriver Set',  rarity = 'uncommon', weight = 4, image = true },
-    { id = 'electronickit',   type = 'item', item = 'electronickit',   label = 'Electronic Kit',   rarity = 'uncommon', weight = 4, image = true },
+    { id = 'screwdriverset',  type = 'item', item = 'screwdriverset',  label = 'Screwdriver Set',  rarity = 'uncommon', weight = 4, image = true, count = 1 },
+    { id = 'electronickit',   type = 'item', item = 'electronickit',   label = 'Electronic Kit',   rarity = 'uncommon', weight = 4, image = true, count = 1 },
     { id = 'cash_rolls',      type = 'item', item = 'cash_rolls',      label = 'Cash Rolls',       rarity = 'uncommon', weight = 3, image = true },
     { id = 'diving_gear',     type = 'item', item = 'diving_gear',     label = 'Diving Gear',      rarity = 'uncommon', weight = 3, image = true },
 
     -- Rare (8) - antipatharia_coral/dendrogyra_coral removed. Already
     -- had exactly one cash entry (cash_rare), so nothing to add here.
-    { id = 'cash_rare',    type = 'cash', amount = { 750, 1200 }, label = 'Big Money',    rarity = 'rare', weight = 3 },
+    { id = 'cash_rare',    type = 'cash', amount = { 3750, 6000 }, label = 'Big Money',    rarity = 'rare', weight = 3 }, -- 5x
     { id = 'diamond_ring', type = 'item', item = 'diamond_ring', label = 'Diamond',       rarity = 'rare', weight = 1.5, image = true },
     { id = 'rolex',        type = 'item', item = 'rolex',        label = 'Golden Watch',  rarity = 'rare', weight = 1.5, image = true },
     { id = 'goldchain',    type = 'item', item = 'goldchain',    label = 'Golden Chain',  rarity = 'rare', weight = 1.5, image = true },
@@ -74,13 +76,12 @@ Config.Rewards = {
     -- convention, so it needs the actual filename spelled out here too.
     { id = 'cash_band',    type = 'item', item = 'cash_band',    label = 'Cash Band',     rarity = 'rare', weight = 0.5, image = 'cashband.png' },
 
-    -- Epic (4) - just the one item now, no cash. Same overall weight
-    -- (4) the old 5-cash-entry epic tier had, so the odds of landing in
-    -- epic at all haven't changed - it just always lands on this now.
+    -- Epic (2) - the lockpick plus one cash entry, evenly weighted.
     { id = 'advancedlockpick', type = 'item', item = 'advancedlockpick', label = 'Advanced Lockpick', rarity = 'epic', weight = 4, image = true },
+    { id = 'cash_epic',        type = 'cash', amount = { 7500, 10000 },  label = 'High Roller',      rarity = 'epic', weight = 4 },
 
-    -- Legendary (1) - cash only, unchanged.
-    { id = 'legendary_cash1', type = 'cash', amount = { 5000, 6500 },  label = 'Lucky Break',  rarity = 'legendary', weight = 0.5 },
-    { id = 'legendary_cash2', type = 'cash', amount = { 6500, 8500 },  label = 'Grand Prize',  rarity = 'legendary', weight = 0.3 },
-    { id = 'jackpot',         type = 'cash', amount = { 8500, 10000 }, label = 'JACKPOT',      rarity = 'legendary', weight = 0.2 },
+    -- Legendary (1) - cash only, 2.5x.
+    { id = 'legendary_cash1', type = 'cash', amount = { 12500, 16250 }, label = 'Lucky Break',  rarity = 'legendary', weight = 0.5 },
+    { id = 'legendary_cash2', type = 'cash', amount = { 16250, 21250 }, label = 'Grand Prize',  rarity = 'legendary', weight = 0.3 },
+    { id = 'jackpot',         type = 'cash', amount = { 21250, 25000 }, label = 'JACKPOT',      rarity = 'legendary', weight = 0.2 },
 }
