@@ -99,7 +99,8 @@ function Reputation.GetPayoutMultiplier(source, job)
 end
 
 ---Adds reputation XP for completing `amount` job units (e.g. fares, drops,
----shifts) and persists it, notifying the player on a level-up.
+---shifts) and persists it, notifying the player every time XP is gained
+---(and again, separately, on a level-up).
 ---@param source number
 ---@param job string
 ---@param amount number
@@ -123,6 +124,19 @@ function Reputation.AddReputation(source, job, amount)
     PlayerReputation[citizenid][job] = after
 
     MySQL.query('INSERT INTO `player_reputation` (`citizenid`, `job`, `xp`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `xp` = ?', { citizenid, job, after, after })
+
+    local xpGained = after - before
+    if xpGained > 0 then
+        TriggerClientEvent('ox_lib:notify', source, {
+            id = 'crazy_reputation_gain',
+            title = 'Reputation',
+            description = ('+%d reputation (%s)'):format(xpGained, player.PlayerData.job.label or job),
+            showDuration = true,
+            position = 'center-right',
+            icon = 'star',
+            iconColor = '#3ddc84',
+        })
+    end
 
     local levelAfter = getLevelFromXP(after)
     if levelAfter > levelBefore then

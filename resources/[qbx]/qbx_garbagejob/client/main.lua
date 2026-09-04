@@ -900,7 +900,7 @@ RegisterNetEvent('garbagejob:client:lobbyEnded', function()
         currentStopNum = 0
     end
     applyLobbySnapshot(nil)
-    exports.qbx_core:Notify(locale('info.truck_returned'))
+    exports.qbx_core:Notify(locale('info.group_shift_ended'))
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
