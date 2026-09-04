@@ -1,3 +1,4 @@
 return {
-	{ name = 'weapon', coords = vec3(12.42198, -1105.82, 29.7854), price = 5000 }
+	-- Weapon license purchase point removed - it's only available at city
+	-- hall now (qbx_cityhall), not for sale at Ammunation.
 }
