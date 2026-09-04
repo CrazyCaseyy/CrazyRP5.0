@@ -261,26 +261,6 @@ local function openDealership(browseIndex)
     lib.showContext('qbx_vehiclesales_categories')
 end
 
--- The game itself (not any of our scripts) bakes in permanent vehicle-dealer
--- map blips (sprite 326, the same icon vanilla PDM and this resource's own
--- blip below both use) - removing the shop from qbx_vehicleshop's config
--- doesn't touch these, they're part of the game's own default blip list, not
--- resource-added. Matched by sprite rather than a guessed coordinate so it
--- reliably strips every stock dealer icon; ourBlip is passed in and skipped
--- so this can never eat our own blip on a later sweep.
-local function removeStockDealerBlips(ourBlip)
-    for category = 0, 10 do
-        local blip = GetFirstBlipInfoId(category)
-        while DoesBlipExist(blip) do
-            local nextBlip = GetNextBlipInfoId(category)
-            if blip ~= ourBlip and GetBlipSprite(blip) == 326 then
-                RemoveBlip(blip)
-            end
-            blip = nextBlip
-        end
-    end
-end
-
 CreateThread(function()
     local blipCoords = config.browsePoints[1]
     local blip = AddBlipForCoord(blipCoords.x, blipCoords.y, blipCoords.z)
@@ -292,16 +272,6 @@ CreateThread(function()
     BeginTextCommandSetBlipName('STRING')
     AddTextComponentSubstringPlayerName('Premium Deluxe Motorsport')
     EndTextCommandSetBlipName(blip)
-
-    -- The game adds its default blips asynchronously as the world streams
-    -- in, sometimes after this resource has already started - sweep a few
-    -- times over the first several seconds rather than trusting a single
-    -- pass at t=0.
-    removeStockDealerBlips(blip)
-    for _ = 1, 5 do
-        Wait(1000)
-        removeStockDealerBlips(blip)
-    end
 
     for i, coords in ipairs(config.browsePoints) do
         exports.ox_target:addSphereZone({
