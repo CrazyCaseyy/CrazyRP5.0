@@ -12,6 +12,18 @@
         "-Port", "8934"
       ],
       "port": 8934
+    },
+    {
+      "name": "crazy-caseopening-preview",
+      "runtimeExecutable": "powershell",
+      "runtimeArgs": [
+        "-NoProfile",
+        "-ExecutionPolicy", "Bypass",
+        "-File", "C:\\Users\\casey\\AppData\\Local\\Temp\\claude\\C--Users-casey-OneDrive-Desktop-CrazyRP5-0\\24871b76-8290-4624-a8a5-488f266e7470\\scratchpad\\static-serve.ps1",
+        "-Root", "C:\\Users\\casey\\OneDrive\\Desktop\\CrazyRP5.0\\resources\\[crazy]\\crazy-caseopening\\html",
+        "-Port", "8935"
+      ],
+      "port": 8935
     }
   ]
 }

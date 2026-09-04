@@ -16,13 +16,34 @@ local function weightedRoll()
     return Config.Rewards[#Config.Rewards]
 end
 
--- Called by the client once its NUI is up and ready to spin (see
--- client/main.lua). Removing the case and rolling the reward happen
--- here, together, so a case can't be duplicated or opened for free by
--- retrying the client side.
-lib.callback.register('crazy-caseopening:server:open', function(source)
+-- The roll happens as soon as they click "Open" (below), but the actual
+-- payout is held here until the reel's animation actually finishes and
+-- the client calls back to claim it - see the 'reveal' NUI callback in
+-- client/main.lua. That's the whole point of this table: it's what stops
+-- the item/cash showing up before the case has visually finished
+-- opening.
+local pendingRewards = {} -- [citizenid] = { reward = <Config.Rewards entry>, amount = number? }
+
+local function grantPending(player, pending)
+    if pending.reward.type == 'cash' then
+        player.Functions.AddMoney('cash', pending.amount, 'case-opening-reward')
+    else
+        exports.ox_inventory:AddItem(player.PlayerData.source, pending.reward.item, 1)
+    end
+end
+
+-- Called when the player clicks "Open" in the NUI. Removing the case and
+-- rolling the reward happen here, together, so a case can't be
+-- duplicated or opened for free by retrying the client side - but the
+-- reward itself isn't handed over yet.
+lib.callback.register('crazy-caseopening:server:roll', function(source)
     local player = exports.qbx_core:GetPlayer(source)
     if not player then return end
+
+    local citizenid = player.PlayerData.citizenid
+    if pendingRewards[citizenid] then
+        return { error = 'already_opening' }
+    end
 
     local removed = exports.ox_inventory:RemoveItem(source, Config.ItemName, 1)
     if not removed then
@@ -30,20 +51,42 @@ lib.callback.register('crazy-caseopening:server:open', function(source)
     end
 
     local reward = weightedRoll()
+    local amount = reward.type == 'cash' and math.random(reward.amount[1], reward.amount[2]) or nil
+    pendingRewards[citizenid] = { reward = reward, amount = amount }
 
-    if reward.type == 'cash' then
-        local amount = math.random(reward.amount[1], reward.amount[2])
-        player.Functions.AddMoney('cash', amount, 'case-opening-reward')
-        return { rewardId = reward.id, amount = amount }
-    end
-
-    exports.ox_inventory:AddItem(source, reward.item, 1)
-    return { rewardId = reward.id }
+    return { rewardId = reward.id, amount = amount }
 end)
 
--- The item itself isn't consumed by ox_inventory automatically (it has
--- no `consume` field set) - crazy-caseopening:server:open above is what
--- actually removes it, once the client's ready to show the result.
+-- Called once the reel actually lands (client/main.lua's 'reveal' NUI
+-- callback) - this is what actually puts the reward in their pocket.
+RegisterNetEvent('crazy-caseopening:server:claim', function()
+    local source = source
+    local player = exports.qbx_core:GetPlayer(source)
+    if not player then return end
+
+    local citizenid = player.PlayerData.citizenid
+    local pending = pendingRewards[citizenid]
+    if not pending then return end
+    pendingRewards[citizenid] = nil
+
+    grantPending(player, pending)
+end)
+
+-- Safety net: if they disconnect between rolling and the reel actually
+-- landing (a few seconds), grant the reward anyway rather than the case
+-- just being eaten for nothing.
+AddEventHandler('playerDropped', function()
+    local player = exports.qbx_core:GetPlayer(source)
+    if not player then return end
+
+    local citizenid = player.PlayerData.citizenid
+    local pending = pendingRewards[citizenid]
+    if not pending then return end
+    pendingRewards[citizenid] = nil
+
+    grantPending(player, pending)
+end)
+
 exports.qbx_core:CreateUseableItem(Config.ItemName, function(source)
     TriggerClientEvent('crazy-caseopening:client:open', source)
 end)

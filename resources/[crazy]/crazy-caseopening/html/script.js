@@ -2,11 +2,18 @@
 //   inbound (SendNUIMessage): { action: 'open', rewards: Reward[] } |
 //     { action: 'spin', rewardId, result: { rewardId, amount? } } |
 //     { action: 'close' }
-//   outbound (RegisterNUICallback): 'close' | 'tick' | 'reveal' ({ rarity })
+//   outbound (RegisterNUICallback): 'close' | 'rollCase' | 'tick' |
+//     'reveal' ({ rarity })
 //
 // Reward shape (from config.lua): { id, type: 'cash'|'item', item?,
 //   label, rarity, icon? ('dollar'|'trophy'), image? (true = use the
 //   real ox_inventory icon for `item`) }
+//
+// Flow: 'open' shows the case with an Open button - nothing is rolled or
+// removed yet. Clicking it posts 'rollCase', which is what actually
+// consumes the case and rolls a reward server-side; the reply comes back
+// as a 'spin' message with the predetermined winner. The reward itself
+// isn't granted until the reel actually lands and posts 'reveal'.
 
 const el = (id) => document.getElementById(id);
 
@@ -15,6 +22,7 @@ const reelTrack = el('reel-track');
 const idleState = el('idle-state');
 const resultPanel = el('result-panel');
 const btnClose = el('btn-close');
+const btnOpen = el('btn-open');
 
 function resourceName() {
   return window.GetParentResourceName ? GetParentResourceName() : 'crazy-caseopening';
@@ -161,8 +169,16 @@ function closeBox() {
 
 btnClose.addEventListener('click', closeBox);
 
+btnOpen.addEventListener('click', () => {
+  btnOpen.disabled = true;
+  nuiPost('rollCase');
+});
+
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && !resultPanel.classList.contains('hidden')) closeBox();
+  // Backing out before actually opening is free - nothing's been rolled
+  // or removed yet at this point.
+  if (e.key === 'Escape' && !idleState.classList.contains('hidden')) closeBox();
 });
 
 window.addEventListener('message', ({ data }) => {
@@ -170,6 +186,7 @@ window.addEventListener('message', ({ data }) => {
     case 'open':
       rewardPool = data.rewards;
       reelTrack.innerHTML = '';
+      btnOpen.disabled = false;
       idleState.classList.remove('hidden');
       resultPanel.classList.add('hidden');
       app.classList.remove('hidden');
@@ -183,9 +200,10 @@ window.addEventListener('message', ({ data }) => {
   }
 });
 
-// Standalone browser preview: outside the game there's no NUI
-// postMessage to open the box, so simulate one immediately for design
-// review.
+// Standalone browser preview: outside the game there's no real client.lua
+// on the other end of nuiPost, so fake just enough of a response to
+// exercise the real button/message flow (not a separate spin call) for
+// design review.
 if (typeof GetParentResourceName === 'undefined') {
   rewardPool = [
     { id: 'cash_small', type: 'cash', label: 'Petty Cash', rarity: 'common', icon: 'dollar' },
@@ -199,9 +217,15 @@ if (typeof GetParentResourceName === 'undefined') {
     { id: 'goldbar', type: 'item', item: 'goldbar', label: 'Gold Bar', rarity: 'epic', image: true },
     { id: 'jackpot', type: 'cash', label: 'JACKPOT', rarity: 'legendary', icon: 'trophy' },
   ];
-  idleState.classList.remove('hidden');
-  app.classList.remove('hidden');
-  setTimeout(() => {
-    spinTo('goldbar', { rewardId: 'goldbar' });
-  }, 400);
+
+  const realNuiPost = nuiPost;
+  nuiPost = async (name, data = {}) => {
+    if (name === 'rollCase') {
+      window.postMessage({ action: 'spin', rewardId: 'goldbar', result: { rewardId: 'goldbar' } }, '*');
+      return;
+    }
+    return realNuiPost(name, data);
+  };
+
+  window.postMessage({ action: 'open', rewards: rewardPool }, '*');
 }
