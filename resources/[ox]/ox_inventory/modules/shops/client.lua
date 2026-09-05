@@ -111,7 +111,12 @@ local function refreshShops()
 		local blip = shop.blip
 		local label = shop.label or locale('open_label', shop.name)
 
-		if shared.target then
+		-- Ammunation is special-cased out of target mode here even though
+		-- inventory:target is on server-wide - it uses the marker + "[E] -"
+		-- prompt (lib.points, same as the plain `shop.locations` branch
+		-- below) instead of an ox_target box zone, per request. Every other
+		-- shop is untouched.
+		if shared.target and type ~= 'Ammunation' then
 			if shop.model then
 				if not hasShopAccess(shop) then goto skipLoop end
 

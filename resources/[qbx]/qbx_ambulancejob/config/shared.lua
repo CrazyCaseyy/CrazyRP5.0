@@ -4,15 +4,15 @@ return {
 
     locations = { -- Various interaction points
         duty = {
-            vec3(311.18, -599.25, 43.29),
+            vec3(90.7, -412.09, 39.59),
             vec3(-254.88, 6324.5, 32.58),
         },
         vehicle = {
-            vec4(294.578, -574.761, 43.179, 35.79),
+            vec4(80.47, -430.88, 38.38, 70.83),
             vec4(-234.28, 6329.16, 32.15, 222.5),
         },
         helicopter = {
-            vec4(351.58, -587.45, 74.16, 160.5),
+            vec4(94.96, -421.48, 85.3, 65.99),
             vec4(-475.43, 5988.353, 31.716, 31.34),
         },
         armory = {
@@ -29,15 +29,19 @@ return {
                     { name = 'weapon_fireextinguisher', price = 0 },
                 },
                 locations = {
-                    vec3(309.93, -602.94, 43.29)
+                    vec3(112.26, -372.59, 39.52)
                 }
             }
         },
+        -- Not given a new coord with the rest of this hospital's move - the
+        -- new helicopter spawn is a ground-level garage (see `helicopter`
+        -- above), not a rooftop, so this may no longer apply. Left pointing
+        -- at the old Pillbox roof access until confirmed either way.
         roof = {
             vec3(338.54, -583.88, 74.17),
         },
         main = {
-            vec3(298.62, -599.66, 43.29),
+            vec3(88.33, -413.32, 39.53),
         },
         stash = {
             {
@@ -47,7 +51,7 @@ return {
                 slots = 30,
                 groups = { ambulance = 0 },
                 owner = true, -- Set to false for group stash
-                location = vec3(309.78, -596.6, 43.29)
+                location = vec3(87.25, -428.1, 39.75)
             }
         },
 
@@ -58,17 +62,21 @@ return {
         ---@type table<string, {coords: vector3, checkIn?: vector3|vector3[], beds: Bed[]}>
         hospitals = {
             pillbox = {
-                coords = vec3(350, -580, 43),
-                checkIn = vec3(308.19, -595.35, 43.29),
+                -- TODO: model hashes below are placeholders reused from the old
+                -- vanilla street beds (GetClosestObjectOfType only uses this to
+                -- freeze the underlying bed prop so it doesn't shift under the
+                -- player - low severity if wrong, but should be swapped for
+                -- whatever prop actually sits at each new bed coord).
+                coords = vec3(88.33, -413.32, 39.53),
+                checkIn = vec3(88.33, -413.32, 39.53),
                 beds = {
-                    {coords = vec4(353.1, -584.6, 43.11, 152.08), model = 1631638868},
-                    {coords = vec4(356.79, -585.86, 43.11, 152.08), model = 1631638868},
-                    {coords = vec4(354.12, -593.12, 43.1, 336.32), model = 2117668672},
-                    {coords = vec4(350.79, -591.8, 43.1, 336.32), model = 2117668672},
-                    {coords = vec4(346.99, -590.48, 43.1, 336.32), model = 2117668672},
-                    {coords = vec4(360.32, -587.19, 43.02, 152.08), model = -1091386327},
-                    {coords = vec4(349.82, -583.33, 43.02, 152.08), model = -1091386327},
-                    {coords = vec4(326.98, -576.17, 43.02, 152.08), model = -1091386327},
+                    {coords = vec4(100.5, -407.42, 39.25, 337.82), model = 1631638868},
+                    {coords = vec4(104.31, -408.68, 39.25, 339.21), model = 1631638868},
+                    {coords = vec4(105.72, -403.07, 39.25, 80.67), model = 2117668672},
+                    {coords = vec4(106.92, -399.68, 39.25, 66.69), model = 2117668672},
+                    {coords = vec4(108.08, -396.43, 39.25, 71.56), model = 2117668672},
+                    {coords = vec4(110.34, -392.43, 39.25, 164.63), model = -1091386327},
+                    {coords = vec4(106.38, -391.04, 39.25, 160.28), model = -1091386327},
                 },
             },
             paleto = {
@@ -92,7 +100,7 @@ return {
         },
 
         stations = {
-            {label = 'Pillbox Hospital', coords = vec4(304.27, -600.33, 43.28, 272.249)},
+            {label = 'Pillbox Hospital', coords = vec4(80.47, -430.88, 38.38, 70.83)},
         }
     },
 }

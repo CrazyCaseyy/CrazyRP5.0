@@ -82,25 +82,35 @@ return {
 			{ name = 'WEAPON_BAT', price = 100 },
 			{ name = 'WEAPON_PISTOL', price = 1000, metadata = { registered = true }, license = 'weapon' }
 		}, locations = {
-			vec3(-662.42, -934.92, 20.83),   -- Little Seoul
-			vec3(815.39, -2155.59, 27.93),   -- East Customs
-			vec3(1692.71, 3759.45, 33.71),   -- Sandy
-			vec3(-331.49, 6083.19, 30.45),   -- Paleto
-			vec3(252.86, -49.22, 68.94),     -- Vinewood
-			vec3(16.87, -1106.81, 28.11),    -- PDM
-			vec3(2568.89, 293.86, 107.73),   -- Palomino Fwy
-			vec3(-1118.72, 2698.17, 17.55),  -- Fort Zancudo
-			vec3(843.23, -1033.94, 27.19)    -- Vespucci Boulevard
+			-- +1 height per request. This array is what actually drives the
+			-- marker + "[E] - Ammunation" prompt now - see modules/shops/client.lua,
+			-- where Ammunation is special-cased to always use the lib.points
+			-- marker/prompt interaction this array feeds, instead of the plain
+			-- ox_target box zones every other shop still uses via `targets` below.
+			vec3(-662.42, -934.92, 21.83),   -- Little Seoul
+			vec3(815.39, -2155.59, 28.93),   -- East Customs
+			vec3(1692.71, 3759.45, 34.71),   -- Sandy
+			vec3(-331.49, 6083.19, 31.45),   -- Paleto
+			vec3(252.86, -49.22, 69.94),     -- Vinewood
+			vec3(16.87, -1106.81, 29.11),    -- PDM
+			vec3(2568.89, 293.86, 108.73),   -- Palomino Fwy
+			vec3(-1118.72, 2698.17, 18.55),  -- Fort Zancudo
+			vec3(843.23, -1033.94, 28.19)    -- Vespucci Boulevard
 		}, targets = {
-			{ loc = vec3(-662.42, -934.92, 20.83), length = 0.6, width = 0.5, heading = 180.0, minZ = 20.68, maxZ = 21.13, distance = 2.0 }, -- Little Seoul
-			{ loc = vec3(815.39, -2155.59, 27.93), length = 0.6, width = 0.5, heading = 360.0, minZ = 27.78, maxZ = 28.23, distance = 2.0 }, -- East Customs
-			{ loc = vec3(1692.71, 3759.45, 33.71), length = 0.6, width = 0.5, heading = 227.39, minZ = 33.56, maxZ = 34.01, distance = 2.0 }, -- Sandy
-			{ loc = vec3(-331.49, 6083.19, 30.45), length = 0.6, width = 0.5, heading = 225.0, minZ = 30.30, maxZ = 30.75, distance = 2.0 }, -- Paleto
-			{ loc = vec3(252.86, -49.22, 68.94), length = 0.6, width = 0.5, heading = 70.0, minZ = 68.79, maxZ = 69.24, distance = 2.0 }, -- Vinewood
-			{ loc = vec3(16.87, -1106.81, 28.11), length = 0.6, width = 0.5, heading = 160.0, minZ = 27.96, maxZ = 28.41, distance = 2.0 }, -- PDM
-			{ loc = vec3(2568.89, 293.86, 107.73), length = 0.6, width = 0.5, heading = 360.0, minZ = 107.58, maxZ = 108.03, distance = 2.0 }, -- Palomino Fwy
-			{ loc = vec3(-1118.72, 2698.17, 17.55), length = 0.6, width = 0.5, heading = 221.82, minZ = 17.40, maxZ = 17.85, distance = 2.0 }, -- Fort Zancudo
-			{ loc = vec3(843.23, -1033.94, 27.19), length = 0.6, width = 0.5, heading = 360.0, minZ = 27.04, maxZ = 27.49, distance = 2.0 } -- Vespucci Boulevard
+			-- Kept (not dead) even though the client no longer uses it for
+			-- Ammunation - modules/shops/server.lua's createShop() structurally
+			-- expects a `targets` table whenever the server-wide `inventory:target`
+			-- convar is on (which it is), regardless of what the client renders,
+			-- so removing this would leave the server with no valid shop coords.
+			{ loc = vec3(-662.42, -934.92, 21.83), length = 0.6, width = 0.5, heading = 180.0, minZ = 21.68, maxZ = 22.13, distance = 2.0 }, -- Little Seoul
+			{ loc = vec3(815.39, -2155.59, 28.93), length = 0.6, width = 0.5, heading = 360.0, minZ = 28.78, maxZ = 29.23, distance = 2.0 }, -- East Customs
+			{ loc = vec3(1692.71, 3759.45, 34.71), length = 0.6, width = 0.5, heading = 227.39, minZ = 34.56, maxZ = 35.01, distance = 2.0 }, -- Sandy
+			{ loc = vec3(-331.49, 6083.19, 31.45), length = 0.6, width = 0.5, heading = 225.0, minZ = 31.30, maxZ = 31.75, distance = 2.0 }, -- Paleto
+			{ loc = vec3(252.86, -49.22, 69.94), length = 0.6, width = 0.5, heading = 70.0, minZ = 69.79, maxZ = 70.24, distance = 2.0 }, -- Vinewood
+			{ loc = vec3(16.87, -1106.81, 29.11), length = 0.6, width = 0.5, heading = 160.0, minZ = 28.96, maxZ = 29.41, distance = 2.0 }, -- PDM
+			{ loc = vec3(2568.89, 293.86, 108.73), length = 0.6, width = 0.5, heading = 360.0, minZ = 108.58, maxZ = 109.03, distance = 2.0 }, -- Palomino Fwy
+			{ loc = vec3(-1118.72, 2698.17, 18.55), length = 0.6, width = 0.5, heading = 221.82, minZ = 18.40, maxZ = 18.85, distance = 2.0 }, -- Fort Zancudo
+			{ loc = vec3(843.23, -1033.94, 28.19), length = 0.6, width = 0.5, heading = 360.0, minZ = 28.04, maxZ = 28.49, distance = 2.0 } -- Vespucci Boulevard
 		}
 	},
 
