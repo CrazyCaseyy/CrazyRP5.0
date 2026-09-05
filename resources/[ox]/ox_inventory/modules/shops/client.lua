@@ -13,7 +13,13 @@ for shopType, shopData in pairs(lib.load('data.shops') or {} --[[@as table<strin
         icon = shopData.icon
 	}
 
-	if shared.target then
+	-- Ammunation is special-cased the same way refreshShops() below special-
+	-- cases it: it always needs shop.locations populated (for the marker +
+	-- "[E] -" prompt) regardless of the server-wide target convar, since
+	-- this loop is what actually puts .locations onto the shop object in
+	-- the first place - without this, shop.locations stayed nil for it and
+	-- neither branch in refreshShops() had anything to render.
+	if shared.target and shopType ~= 'Ammunation' then
 		shop.model = shopData.model
 		shop.targets = shopData.targets
 	else
