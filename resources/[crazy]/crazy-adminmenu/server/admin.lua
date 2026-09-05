@@ -1,4 +1,10 @@
-lib.versionCheck('Qbox-project/qbx_adminmenu')
+-- Core admin server logic: reports, player general/administration actions,
+-- character-data editing, weapon giving, radio lookups, and the player
+-- list/detail callbacks the Players tab reads. Moved over from the old
+-- qbx_adminmenu resource's server/main.lua once that resource's own
+-- ox_lib menu (the only other thing that used to call into this) was
+-- confirmed fully replaced by this NUI - client/client.lua and
+-- server/commands.lua are what call into everything below now.
 
 local config = require 'config.server'
 local isFrozen = {}
@@ -165,6 +171,9 @@ local playerDataOptions = {
     thirst = function(target, input) target.Functions.SetMetaData('thirst', input[1]) end,
     stress = function(target, input) target.Functions.SetMetaData('stress', input[1]) end,
     armor = function(target, input) target.Functions.SetMetaData('armor', input[1]) SetPedArmour(GetPlayerPed(target.PlayerData.source), input[1]) end,
+    -- Same 0-100 scale as the display value above - +100 to land back in
+    -- native health range (100 = dead, 200 = full).
+    health = function(target, input) SetEntityHealth(GetPlayerPed(target.PlayerData.source), math.max(0, input[1]) + 100) end,
     phone = function(target, input)
         target.PlayerData.charinfo.phone = input[1]
         target.Functions.SetPlayerData('charinfo', target.PlayerData.charinfo)
@@ -172,10 +181,10 @@ local playerDataOptions = {
     crafting = function(target, input) target.Functions.SetMetaData('craftingrep', input[1]) end,
     dealer = function(target, input) target.Functions.SetMetaData('dealerrep', input[1]) end,
     cash = function(target, input)
-        target.Functions.SetMoney('cash', input[1], 'qbx_adminmenu')
+        target.Functions.SetMoney('cash', input[1], 'crazy-adminmenu')
     end,
     bank = function(target, input)
-        target.Functions.SetMoney('bank', input[1], 'qbx_adminmenu')
+        target.Functions.SetMoney('bank', input[1], 'crazy-adminmenu')
     end,
     job = function(target, input)
         target.Functions.SetJob(input[1], input[2])
@@ -269,6 +278,10 @@ lib.callback.register('qbx_admin:server:getPlayer', function(source, playerToGet
         food = Player(playerData.source).state.hunger,
         water = Player(playerData.source).state.thirst,
         stress = Player(playerData.source).state.stress,
+        -- Native health is 0-200 with 100 as the "dead" floor - shown/edited
+        -- here on the same 0-100 scale the HUD and every other stat on this
+        -- panel already use (crazy-hud/client/main.lua does the same -100).
+        health = math.max(0, GetEntityHealth(GetPlayerPed(playerToGet)) - 100),
         armor = playerData.metadata.armor,
         phone = playerData.charinfo.phone,
         craftingrep = playerData.metadata.craftingrep,

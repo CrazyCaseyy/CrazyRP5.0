@@ -152,8 +152,6 @@ html, body {
   box-shadow: inset 2px 0 0 var(--ox-blue);
 }
 
-.nav-icon { width: 16px; text-align: center; opacity: 0.9; }
-
 .sidebar-footer {
   padding: 10px 12px 4px;
   border-top: 1px solid var(--ox-border);
@@ -164,16 +162,22 @@ html, body {
   width: 100%;
   padding: 9px 10px;
   border-radius: var(--ox-radius-sm);
-  background: transparent;
+  background: linear-gradient(180deg, var(--ox-panel-softer), transparent);
   border: 1px solid var(--ox-border);
   color: var(--ox-text-dim);
   font-family: var(--font-body);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.12s ease;
+  transition: transform 0.12s ease, border-color 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
 }
-.close-btn:hover { border-color: var(--ox-danger); color: var(--ox-danger-hover); }
+.close-btn:hover {
+  border-color: var(--ox-danger);
+  color: var(--ox-danger-hover);
+  box-shadow: 0 3px 10px rgba(229, 72, 77, 0.25);
+  transform: translateY(-1px);
+}
+.close-btn:active { transform: translateY(0) scale(0.98); }
 
 /* ===================================================================
    Main content
@@ -228,24 +232,47 @@ html, body {
 
 button { font-family: var(--font-body); cursor: pointer; }
 
+/* Shared "sleek" button treatment: a faint top-to-bottom gradient plus an
+   inset top highlight for a touch of depth instead of a flat fill, a
+   real lift on hover instead of just a border-color swap, and a press
+   state that pushes back down - applied to every clickable button-like
+   element in the dashboard (.btn and its variants, .close-btn, and the
+   chip buttons below), not just .btn, so nothing feels flatter than its
+   neighbors. */
 .btn {
   padding: 9px 14px;
   border-radius: var(--ox-radius-sm);
   border: 1px solid var(--ox-border);
-  background: var(--ox-panel-soft);
+  background: linear-gradient(180deg, var(--ox-panel-softer), var(--ox-panel-soft));
   color: var(--ox-text);
   font-size: 13.5px;
   font-weight: 600;
-  transition: all 0.12s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 1px 2px rgba(0, 0, 0, 0.25);
+  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
 }
-.btn:hover { border-color: var(--ox-badge-border); box-shadow: var(--ox-badge-glow); }
-.btn:active { transform: scale(0.98); }
-.btn.primary { background: var(--ox-blue); border-color: var(--ox-blue); }
-.btn.primary:hover { background: var(--ox-blue-hover); box-shadow: none; }
+.btn:hover {
+  border-color: var(--ox-badge-border);
+  box-shadow: var(--ox-badge-glow), 0 3px 10px rgba(0, 0, 0, 0.3);
+  transform: translateY(-1px);
+}
+.btn:active { transform: translateY(0) scale(0.97); box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.35); }
+.btn.primary {
+  background: linear-gradient(180deg, var(--ox-blue-hover), var(--ox-blue));
+  border-color: var(--ox-blue);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 2px 8px rgba(21, 115, 237, 0.35);
+}
+.btn.primary:hover {
+  background: linear-gradient(180deg, #4a9bf5, var(--ox-blue-hover));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 4px 14px rgba(21, 115, 237, 0.45);
+}
 .btn.danger { border-color: rgba(229, 72, 77, 0.5); }
-.btn.danger:hover { background: rgba(229, 72, 77, 0.18); border-color: var(--ox-danger); box-shadow: none; }
+.btn.danger:hover {
+  background: linear-gradient(180deg, rgba(229, 72, 77, 0.28), rgba(229, 72, 77, 0.14));
+  border-color: var(--ox-danger);
+  box-shadow: 0 3px 10px rgba(229, 72, 77, 0.3);
+}
 .btn.small { padding: 6px 10px; font-size: 12.5px; }
-.btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; transform: none; }
 .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
 
 input[type="text"], input[type="number"], select, textarea {
@@ -274,45 +301,89 @@ input::placeholder { color: var(--ox-text-faint); }
   box-shadow: var(--ox-glow);
 }
 
-/* Toggle tiles (self tools grid) */
-.toggle-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+/* Toggle tiles (self tools grid). auto-fill/1fr columns stretch to use
+   the full row width (rather than a fixed px basis that leaves a gap at
+   the end of the row), with a minimum width so each tile still has room
+   to breathe. No more dot + "Off"/"On" text for state - the tile itself
+   just turns blue when the toggle is on, like a pressed button. */
+.toggle-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 8px; }
 
 .toggle-tile {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 14px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 42px;
+  padding: 9px;
   border-radius: var(--ox-radius);
   border: 1px solid var(--ox-border);
-  background: var(--ox-panel-soft);
+  background: linear-gradient(180deg, var(--ox-panel-softer), var(--ox-panel-soft));
+  color: var(--ox-text);
+  text-align: center;
   cursor: pointer;
-  transition: all 0.12s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
 }
-.toggle-tile:hover { border-color: var(--ox-border-strong); }
-.toggle-tile.active { background: rgba(21, 115, 237, 0.15); border-color: var(--ox-badge-border); box-shadow: var(--ox-badge-glow); }
+.toggle-tile:hover { border-color: var(--ox-border-strong); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 3px 10px rgba(0, 0, 0, 0.3); transform: translateY(-1px); }
+.toggle-tile:active { transform: translateY(0) scale(0.98); }
+.toggle-tile.active {
+  background: linear-gradient(180deg, var(--ox-blue-hover), var(--ox-blue));
+  border-color: var(--ox-blue);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 2px 10px rgba(21, 115, 237, 0.4);
+}
+.toggle-tile.active:hover { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 4px 14px rgba(21, 115, 237, 0.5); }
 
-.toggle-tile .tile-top { display: flex; align-items: center; justify-content: space-between; }
-.toggle-tile .tile-icon { font-size: 16px; }
-.toggle-tile .tile-label { font-size: 13.5px; font-weight: 700; }
-.toggle-tile .tile-state { font-size: 11px; color: var(--ox-text-faint); text-transform: uppercase; letter-spacing: 0.06em; }
-.toggle-tile.active .tile-state { color: var(--ox-blue); }
-
-.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ox-text-faint); flex-shrink: 0; }
-.toggle-tile.active .dot { background: var(--ox-blue); box-shadow: 0 0 8px var(--ox-blue); }
+.toggle-tile .tile-label { font-size: 13px; font-weight: 700; }
 
 /* ===================================================================
    Players tab
    =================================================================== */
 
-.players-layout { display: flex; gap: 18px; height: 100%; min-height: 0; }
+.duty-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.duty-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  background: var(--ox-panel-soft);
+  border: 1px solid var(--ox-border);
+  border-radius: 999px;
+}
+
+.duty-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--ox-blue);
+  color: var(--ox-text);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.duty-label { font-size: 12.5px; font-weight: 600; color: var(--ox-text-dim); }
+
+.duty-empty { color: var(--ox-text-faint); font-size: 12.5px; padding: 4px 2px; }
+
+.players-layout { display: flex; gap: 18px; flex: 1; min-height: 0; }
 .players-list-col { width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }
 .players-detail-col { flex: 1; min-width: 0; }
 
 .player-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
+  gap: 12px;
+  padding: 11px 12px;
   border-radius: var(--ox-radius-sm);
   border: 1px solid transparent;
   cursor: pointer;
@@ -322,15 +393,29 @@ input::placeholder { color: var(--ox-text-faint); }
 .player-row.selected { background: rgba(21, 115, 237, 0.15); border-color: var(--ox-badge-border); }
 
 .player-avatar {
-  width: 30px; height: 30px; border-radius: 50%;
+  width: 34px; height: 34px; border-radius: 50%;
   background: linear-gradient(135deg, var(--ox-blue), #0a3f8f);
   display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 700; flex-shrink: 0;
+  font-size: 12.5px; font-weight: 700; flex-shrink: 0;
+  box-shadow: var(--ox-glow);
 }
 
-.player-row-text { min-width: 0; }
+.player-row-text { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.player-row-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .player-row-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.player-row-id { font-size: 11.5px; color: var(--ox-text-faint); }
+.player-row-id { flex-shrink: 0; font-size: 11px; color: var(--ox-text-faint); font-weight: 600; }
+.player-row-meta { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.player-row-job {
+  flex-shrink: 0;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ox-blue);
+  background: rgba(21, 115, 237, 0.14);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+.player-row-cid { font-size: 11px; color: var(--ox-text-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .players-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
 
@@ -345,16 +430,19 @@ input::placeholder { color: var(--ox-text-faint); }
 .stat-tile .stat-label { font-size: 10.5px; color: var(--ox-text-faint); text-transform: uppercase; letter-spacing: 0.05em; }
 .stat-tile .stat-value { font-size: 15px; font-weight: 700; margin-top: 2px; word-break: break-all; }
 
-.action-group { margin-bottom: 16px; }
+.action-group { margin-bottom: 16px; padding-top: 16px; border-top: 1px solid var(--ox-border); }
+.action-group:first-child { padding-top: 0; border-top: none; }
 .action-group-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ox-text-faint); margin-bottom: 8px; }
 
 .copy-chip {
   display: inline-flex; align-items: center; gap: 6px;
-  background: var(--ox-panel-softer); border-radius: var(--ox-radius-sm);
+  background: linear-gradient(180deg, var(--ox-panel-softer), var(--ox-panel-soft)); border-radius: var(--ox-radius-sm);
   padding: 6px 10px; font-size: 11.5px; cursor: pointer; margin-right: 6px; margin-bottom: 6px;
   border: 1px solid transparent;
+  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
 }
-.copy-chip:hover { border-color: var(--ox-border); }
+.copy-chip:hover { border-color: var(--ox-border); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25); transform: translateY(-1px); }
+.copy-chip:active { transform: translateY(0) scale(0.97); }
 
 /* ===================================================================
    Vehicles tab
@@ -377,10 +465,13 @@ input::placeholder { color: var(--ox-text-faint); }
 
 .vehicle-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; padding: 6px 4px 14px; }
 .vehicle-chip {
-  background: var(--ox-panel-soft); border: 1px solid var(--ox-border); border-radius: var(--ox-radius-sm);
+  background: linear-gradient(180deg, var(--ox-panel-softer), var(--ox-panel-soft)); border: 1px solid var(--ox-border); border-radius: var(--ox-radius-sm);
   padding: 9px 11px; font-size: 13px; text-align: left; color: var(--ox-text);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
 }
-.vehicle-chip:hover { border-color: var(--ox-badge-border); box-shadow: var(--ox-badge-glow); }
+.vehicle-chip:hover { border-color: var(--ox-badge-border); box-shadow: var(--ox-badge-glow), 0 3px 8px rgba(0, 0, 0, 0.3); transform: translateY(-1px); }
+.vehicle-chip:active { transform: translateY(0) scale(0.98); }
 .vehicle-chip .veh-model { display: block; font-size: 11px; color: var(--ox-text-faint); margin-top: 2px; }
 
 /* ===================================================================
@@ -388,12 +479,22 @@ input::placeholder { color: var(--ox-text-faint); }
    =================================================================== */
 
 .weather-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
-.weather-chip { background: var(--ox-panel-soft); border: 1px solid var(--ox-border); border-radius: var(--ox-radius-sm); padding: 9px; font-size: 13px; color: var(--ox-text); }
-.weather-chip:hover { border-color: var(--ox-badge-border); box-shadow: var(--ox-badge-glow); }
+.weather-chip {
+  background: linear-gradient(180deg, var(--ox-panel-softer), var(--ox-panel-soft)); border: 1px solid var(--ox-border); border-radius: var(--ox-radius-sm); padding: 9px; font-size: 13px; color: var(--ox-text);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.weather-chip:hover { border-color: var(--ox-badge-border); box-shadow: var(--ox-badge-glow), 0 3px 8px rgba(0, 0, 0, 0.3); transform: translateY(-1px); }
+.weather-chip:active { transform: translateY(0) scale(0.98); }
 
 .time-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 6px; }
-.time-chip { background: var(--ox-panel-soft); border: 1px solid var(--ox-border); border-radius: var(--ox-radius-sm); padding: 8px 4px; font-size: 13px; text-align: center; color: var(--ox-text); }
-.time-chip:hover { border-color: var(--ox-badge-border); box-shadow: var(--ox-badge-glow); }
+.time-chip {
+  background: linear-gradient(180deg, var(--ox-panel-softer), var(--ox-panel-soft)); border: 1px solid var(--ox-border); border-radius: var(--ox-radius-sm); padding: 8px 4px; font-size: 13px; text-align: center; color: var(--ox-text);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.time-chip:hover { border-color: var(--ox-badge-border); box-shadow: var(--ox-badge-glow), 0 3px 8px rgba(0, 0, 0, 0.3); transform: translateY(-1px); }
+.time-chip:active { transform: translateY(0) scale(0.98); }
 
 .radio-results { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
 .radio-result-row { font-size: 13px; padding: 6px 10px; background: var(--ox-panel-softer); border-radius: var(--ox-radius-sm); }

@@ -1,10 +1,12 @@
--- Ban log lookups and character (players table) search — the two things
--- qbx_adminmenu itself never had server logic for, so unlike client.lua
--- (which is a pure front-end reusing qbx_adminmenu's own events), this
--- talks to the database directly. Permission tiers ('mod'/'admin') match
--- the bare-ACE-object convention every other qbx_adminmenu check in this
--- server uses (see [qbx]/qbx_adminmenu/config/server.lua eventPerms) —
--- already granted correctly to group.admin via permissions.cfg.
+-- Ban log lookups, character (players table) search, and on-duty job
+-- counts — things the old qbx_adminmenu resource never had server logic
+-- for (it only had an ox_lib menu with no ban/character-lookup features
+-- at all), so this talks to the database directly instead of routing
+-- through server/admin.lua's qbx_admin:server:* events. Permission tiers
+-- ('mod'/'admin') match the bare-ACE-object convention every check in
+-- server/admin.lua and server/commands.lua uses (see config/server.lua's
+-- eventPerms/commandPerms) — already granted correctly to group.admin
+-- via permissions.cfg.
 
 local function checkPerm(source, tier)
     if not IsPlayerAceAllowed(source, tier) then
@@ -32,6 +34,41 @@ lib.callback.register('crazy_adminmenu:server:unban', function(source, id)
     if not id then return false end
     MySQL.query.await('DELETE FROM bans WHERE id = ?', { id })
     return true
+end)
+
+-- ===================================================================
+-- Players tab - on-duty job counts
+-- ===================================================================
+
+-- qbx_adminmenu's own getPlayers callback (server/main.lua) already
+-- formats job as a flattened "Label | Grade" string for its own list row,
+-- so counts are done here instead of trying to parse that back apart -
+-- this loops the same qbx_core player pool directly.
+lib.callback.register('crazy_adminmenu:server:getJobCounts', function(source)
+    if not checkPerm(source, 'mod') then return {} end
+
+    local counts = {}
+    for _, v in pairs(exports.qbx_core:GetQBPlayers()) do
+        local job = v.PlayerData.job
+        if job and job.onduty and job.name ~= 'unemployed' then
+            local entry = counts[job.name]
+            if not entry then
+                entry = { name = job.name, label = job.label, count = 0 }
+                counts[job.name] = entry
+            end
+            entry.count += 1
+        end
+    end
+
+    local list = {}
+    for _, entry in pairs(counts) do
+        list[#list + 1] = entry
+    end
+    table.sort(list, function(a, b)
+        if a.count ~= b.count then return a.count > b.count end
+        return a.label < b.label
+    end)
+    return list
 end)
 
 -- ===================================================================

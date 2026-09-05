@@ -17,29 +17,29 @@ Config = {
             coords = vector4(241.44, 227.19, 106.29, 170.43),
             createAccounts = true
         },
-        [2] = {
+        [2] = { -- Pink Cage
             model = 'ig_barry',
-            coords = vector4(313.84, -280.58, 54.16, 338.31)
+            coords = vector4(309.35, -278.66, 53.16, 247.62)
         },
-        [3] = {
+        [3] = { -- Legion
             model = 'ig_barry',
-            coords = vector4(149.46, -1042.09, 29.37, 335.43)
+            coords = vector4(145.05, -1040.21, 28.37, 252.36)
         },
         [4] = {
             model = 'ig_barry',
             coords = vector4(-351.23, -51.28, 49.04, 341.73)
         },
-        [5] = {
+        [5] = { -- Boulevard Del Perro / Hawic Ave (same coords given for both by request - one physical branch)
             model = 'ig_barry',
-            coords = vector4(-1211.9, -331.9, 37.78, 20.07)
+            coords = vector4(-1216.33, -333.85, 36.78, 295.82)
         },
-        [6] = {
+        [6] = { -- Great Ocean HWY
             model = 'ig_barry',
-            coords = vector4(-2961.14, 483.09, 15.7, 83.84)
+            coords = vector4(-2961.57, 478.18, 14.7, 358.98)
         },
-        [7] = {
+        [7] = { -- Route 68
             model = 'ig_barry',
-            coords = vector4(1174.8, 2708.2, 38.09, 178.52)
+            coords = vector4(1179.77, 2707.99, 37.09, 86.36)
         },
         [8] = { -- paleto
             model = 'u_m_m_bankman',

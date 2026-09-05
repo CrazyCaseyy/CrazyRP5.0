@@ -82,25 +82,25 @@ return {
 			{ name = 'WEAPON_BAT', price = 100 },
 			{ name = 'WEAPON_PISTOL', price = 1000, metadata = { registered = true }, license = 'weapon' }
 		}, locations = {
-			vec3(-662.180, -934.961, 21.829),
-			vec3(810.25, -2157.60, 29.62),
-			vec3(1693.44, 3760.16, 34.71),
-			vec3(-330.24, 6083.88, 31.45),
-			vec3(252.63, -50.00, 69.94),
-			vec3(22.56, -1109.89, 29.80),
-			vec3(2567.69, 294.38, 108.73),
-			vec3(-1117.58, 2698.61, 18.55),
-			vec3(842.44, -1033.42, 28.19)
+			vec3(-662.42, -934.92, 20.83),   -- Little Seoul
+			vec3(815.39, -2155.59, 27.93),   -- East Customs
+			vec3(1692.71, 3759.45, 33.71),   -- Sandy
+			vec3(-331.49, 6083.19, 30.45),   -- Paleto
+			vec3(252.86, -49.22, 68.94),     -- Vinewood
+			vec3(16.87, -1106.81, 28.11),    -- PDM
+			vec3(2568.89, 293.86, 107.73),   -- Palomino Fwy
+			vec3(-1118.72, 2698.17, 17.55),  -- Fort Zancudo
+			vec3(843.23, -1033.94, 27.19)    -- Vespucci Boulevard
 		}, targets = {
-			{ loc = vec3(-660.92, -934.10, 21.94), length = 0.6, width = 0.5, heading = 180.0, minZ = 21.8, maxZ = 22.2, distance = 2.0 },
-			{ loc = vec3(808.86, -2158.50, 29.73), length = 0.6, width = 0.5, heading = 360.0, minZ = 29.6, maxZ = 30.0, distance = 2.0 },
-			{ loc = vec3(1693.57, 3761.60, 34.82), length = 0.6, width = 0.5, heading = 227.39, minZ = 34.7, maxZ = 35.1, distance = 2.0 },
-			{ loc = vec3(-330.29, 6085.54, 31.57), length = 0.6, width = 0.5, heading = 225.0, minZ = 31.4, maxZ = 31.8, distance = 2.0 },
-			{ loc = vec3(252.85, -51.62, 70.0), length = 0.6, width = 0.5, heading = 70.0, minZ = 69.9, maxZ = 70.3, distance = 2.0 },
-			{ loc = vec3(23.68, -1106.46, 29.91), length = 0.6, width = 0.5, heading = 160.0, minZ = 29.8, maxZ = 30.2, distance = 2.0 },
-			{ loc = vec3(2566.59, 293.13, 108.85), length = 0.6, width = 0.5, heading = 360.0, minZ = 108.7, maxZ = 109.1, distance = 2.0 },
-			{ loc = vec3(-1117.61, 2700.26, 18.67), length = 0.6, width = 0.5, heading = 221.82, minZ = 18.5, maxZ = 18.9, distance = 2.0 },
-			{ loc = vec3(841.05, -1034.76, 28.31), length = 0.6, width = 0.5, heading = 360.0, minZ = 28.2, maxZ = 28.6, distance = 2.0 }
+			{ loc = vec3(-662.42, -934.92, 20.83), length = 0.6, width = 0.5, heading = 180.0, minZ = 20.68, maxZ = 21.13, distance = 2.0 }, -- Little Seoul
+			{ loc = vec3(815.39, -2155.59, 27.93), length = 0.6, width = 0.5, heading = 360.0, minZ = 27.78, maxZ = 28.23, distance = 2.0 }, -- East Customs
+			{ loc = vec3(1692.71, 3759.45, 33.71), length = 0.6, width = 0.5, heading = 227.39, minZ = 33.56, maxZ = 34.01, distance = 2.0 }, -- Sandy
+			{ loc = vec3(-331.49, 6083.19, 30.45), length = 0.6, width = 0.5, heading = 225.0, minZ = 30.30, maxZ = 30.75, distance = 2.0 }, -- Paleto
+			{ loc = vec3(252.86, -49.22, 68.94), length = 0.6, width = 0.5, heading = 70.0, minZ = 68.79, maxZ = 69.24, distance = 2.0 }, -- Vinewood
+			{ loc = vec3(16.87, -1106.81, 28.11), length = 0.6, width = 0.5, heading = 160.0, minZ = 27.96, maxZ = 28.41, distance = 2.0 }, -- PDM
+			{ loc = vec3(2568.89, 293.86, 107.73), length = 0.6, width = 0.5, heading = 360.0, minZ = 107.58, maxZ = 108.03, distance = 2.0 }, -- Palomino Fwy
+			{ loc = vec3(-1118.72, 2698.17, 17.55), length = 0.6, width = 0.5, heading = 221.82, minZ = 17.40, maxZ = 17.85, distance = 2.0 }, -- Fort Zancudo
+			{ loc = vec3(843.23, -1033.94, 27.19), length = 0.6, width = 0.5, heading = 360.0, minZ = 27.04, maxZ = 27.49, distance = 2.0 } -- Vespucci Boulevard
 		}
 	},
 

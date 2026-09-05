@@ -14,14 +14,14 @@
         <span>CRAZY ADMIN<span class="brand-sub">Control Panel</span></span>
       </div>
       <ul class="nav-list">
-        <li class="nav-item active" data-tab="players"><span class="nav-icon">&#128101;</span>Players</li>
-        <li class="nav-item" data-tab="self"><span class="nav-icon">&#9889;</span>Self Tools</li>
-        <li class="nav-item" data-tab="vehicles"><span class="nav-icon">&#128663;</span>Vehicles</li>
-        <li class="nav-item" data-tab="server"><span class="nav-icon">&#127760;</span>Server</li>
-        <li class="nav-item" data-tab="dev"><span class="nav-icon">&#128295;</span>Dev Tools</li>
-        <li class="nav-item" data-tab="reports"><span class="nav-icon">&#128220;</span>Reports</li>
-        <li class="nav-item" data-tab="bans"><span class="nav-icon">&#128683;</span>Ban Logs</li>
-        <li class="nav-item" data-tab="characters"><span class="nav-icon">&#128269;</span>Characters</li>
+        <li class="nav-item active" data-tab="players">Players</li>
+        <li class="nav-item" data-tab="self">Self Tools</li>
+        <li class="nav-item" data-tab="vehicles">Vehicles</li>
+        <li class="nav-item" data-tab="server">Server</li>
+        <li class="nav-item" data-tab="dev">Dev Tools</li>
+        <li class="nav-item" data-tab="reports">Reports</li>
+        <li class="nav-item" data-tab="bans">Ban Logs</li>
+        <li class="nav-item" data-tab="characters">Characters</li>
       </ul>
       <div class="sidebar-footer">
         <button class="close-btn" id="closeBtn">Close (ESC)</button>
@@ -37,6 +37,7 @@
 
         <!-- ============================ PLAYERS ============================ -->
         <section class="panel" data-panel="players">
+          <div class="duty-summary" id="dutySummary"></div>
           <div class="players-layout">
             <div class="players-list-col">
               <input type="text" id="playerSearch" placeholder="Search by name or ID...">
@@ -67,11 +68,6 @@
               <button class="btn primary" id="applyPedModelBtn">Apply</button>
               <button class="btn" id="resetPedModelBtn">Reset</button>
             </div>
-          </div>
-
-          <div class="card">
-            <div class="section-title" style="margin-bottom:12px">Give Yourself Weapons</div>
-            <div class="btn-row" id="selfWeaponRow"></div>
           </div>
         </section>
 

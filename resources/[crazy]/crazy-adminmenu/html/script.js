@@ -1,8 +1,8 @@
 // NUI contract with client.lua — see resources/[crazy]/crazy-adminmenu/client/client.lua
 // inbound (SendNUIMessage):  { action: 'open' | 'close' | 'toggleState' }
-// outbound (RegisterNUICallback): close, getPlayers, getPlayerDetail, playerGeneral,
+// outbound (RegisterNUICallback): close, getPlayers, getPlayerDetail, getJobCounts, playerGeneral,
 //   playerAdmin, changePlayerData, giveWeapons, clothingMenu, openInventory, giveItem,
-//   mutePlayer, toggleSelf, giveWeaponType, setPedModel, refreshPedModel, getToggleState,
+//   mutePlayer, toggleSelf, setPedModel, refreshPedModel, getToggleState,
 //   getVehicles, spawnVehicle, fixVehicle, deleteVehicle, adminCar, setPlate, setWeather,
 //   setTime, getRadioList, pullStash, copyToClipboard, copyText, getReports, replyReport,
 //   closeReport, getBans, unban, searchCharacters, getCharacterDetail, openCharacterInventory
@@ -68,7 +68,7 @@ function switchTab(tab) {
   el('topbarTitle').textContent = TAB_META[tab].title;
   el('topbarSubtitle').textContent = TAB_META[tab].subtitle;
 
-  if (tab === 'players') loadPlayers();
+  if (tab === 'players') { loadPlayers(); loadJobCounts(); }
   else if (tab === 'vehicles' && !vehicleData) loadVehicles();
   else if (tab === 'reports') loadReports();
   else if (tab === 'bans') loadBans();
@@ -114,33 +114,26 @@ window.addEventListener('message', (e) => {
 // ===================================================================
 
 const SELF_TOGGLE_TILES = [
-  { action: 'noclip', label: 'Noclip', icon: '\u{1F6F8}' },
-  { action: 'godmode', label: 'Godmode', icon: '\u{1F6E1}️' },
-  { action: 'invisible', label: 'Invisible', icon: '\u{1F47B}' },
-  { action: 'vehicleGodmode', label: 'Vehicle Godmode', icon: '\u{1F697}' },
-  { action: 'infiniteAmmo', label: 'Infinite Ammo', icon: '\u{1F3AF}' },
-  { action: 'names', label: 'Player Names', icon: '\u{1F3F7}️' },
-  { action: 'blips', label: 'Player Blips', icon: '\u{1F4CD}' },
+  { action: 'noclip', label: 'Noclip' },
+  { action: 'godmode', label: 'Godmode' },
+  { action: 'invisible', label: 'Invisible' },
+  { action: 'vehicleGodmode', label: 'Vehicle Godmode' },
+  { action: 'infiniteAmmo', label: 'Infinite Ammo' },
+  { action: 'names', label: 'Player Names' },
+  { action: 'blips', label: 'Player Blips' },
 ];
 
 const DEV_TOGGLE_TILES = [
-  { action: 'coords', label: 'Coords Overlay', icon: '\u{1F4D0}' },
-  { action: 'vehicleInfo', label: 'Vehicle Info Overlay', icon: '\u{1F699}' },
-  { action: 'laser', label: 'Laser Pointer', icon: '\u{1F4A5}' },
+  { action: 'coords', label: 'Coords Overlay' },
+  { action: 'vehicleInfo', label: 'Vehicle Info Overlay' },
+  { action: 'laser', label: 'Laser Pointer' },
 ];
 
 function buildToggleTile(def) {
   const tile = document.createElement('div');
   tile.className = 'toggle-tile';
   tile.dataset.action = def.action;
-  tile.innerHTML = `
-    <div class="tile-top">
-      <span class="tile-icon">${def.icon}</span>
-      <span class="dot"></span>
-    </div>
-    <span class="tile-label">${def.label}</span>
-    <span class="tile-state">Off</span>
-  `;
+  tile.innerHTML = `<span class="tile-label">${def.label}</span>`;
   tile.addEventListener('click', async () => {
     // Flip immediately rather than waiting on the round trip - the Lua
     // side's toggle fires inside a CreateThread (so the NUI callback that
@@ -150,9 +143,7 @@ function buildToggleTile(def) {
     // that always succeed, so flipping optimistically here is safe; the
     // next real toggleState push (menu reopen, another toggle) still wins
     // if it ever disagrees.
-    const nowOn = !tile.classList.contains('active');
-    tile.classList.toggle('active', nowOn);
-    tile.querySelector('.tile-state').textContent = nowOn ? 'On' : 'Off';
+    tile.classList.toggle('active');
     tile.style.opacity = '0.6';
     await post('toggleSelf', { action: def.action });
     tile.style.opacity = '1';
@@ -173,9 +164,7 @@ function applyToggleState(state) {
   // "Instant") that happen to reuse .toggle-tile for matching visuals,
   // not real tracked toggles state has a key for.
   document.querySelectorAll('.toggle-tile:not(.instant-tile)').forEach((tile) => {
-    const on = !!state[tile.dataset.action];
-    tile.classList.toggle('active', on);
-    tile.querySelector('.tile-state').textContent = on ? 'On' : 'Off';
+    tile.classList.toggle('active', !!state[tile.dataset.action]);
   });
 }
 
@@ -195,41 +184,19 @@ function initSelfExtras() {
     showToast('Ped model reset');
   });
 
-  const WEAPON_TYPES = [
-    { key: 'pistol', label: 'Pistols' },
-    { key: 'smg', label: 'SMGs' },
-    { key: 'shotgun', label: 'Shotguns' },
-    { key: 'assault', label: 'Assault Rifles' },
-    { key: 'lmg', label: 'LMGs' },
-    { key: 'sniper', label: 'Snipers' },
-    { key: 'heavy', label: 'Heavy' },
-  ];
-
-  const row = el('selfWeaponRow');
-  WEAPON_TYPES.forEach((w) => {
-    const btn = document.createElement('button');
-    btn.className = 'btn small';
-    btn.textContent = w.label;
-    btn.addEventListener('click', async () => {
-      await post('giveWeaponType', { weaponType: w.key });
-      showToast(`Gave yourself all ${w.label.toLowerCase()}`);
-    });
-    row.appendChild(btn);
-  });
-
   // Revive + cuff live in the self toggle grid area as plain action chips.
   const selfGrid = el('selfToggleGrid');
   const reviveBtn = document.createElement('button');
   reviveBtn.className = 'toggle-tile instant-tile';
   reviveBtn.style.cursor = 'pointer';
-  reviveBtn.innerHTML = `<div class="tile-top"><span class="tile-icon">❤️</span></div><span class="tile-label">Revive Yourself</span><span class="tile-state">Instant</span>`;
+  reviveBtn.innerHTML = `<span class="tile-label">Revive Yourself</span>`;
   reviveBtn.addEventListener('click', async () => { await post('toggleSelf', { action: 'revive' }); showToast('Revived'); });
   selfGrid.appendChild(reviveBtn);
 
   const cuffBtn = document.createElement('button');
   cuffBtn.className = 'toggle-tile instant-tile';
   cuffBtn.style.cursor = 'pointer';
-  cuffBtn.innerHTML = `<div class="tile-top"><span class="tile-icon">\u{1F517}</span></div><span class="tile-label">Cuff / Uncuff</span><span class="tile-state">Instant</span>`;
+  cuffBtn.innerHTML = `<span class="tile-label">Cuff / Uncuff</span>`;
   cuffBtn.addEventListener('click', async () => { await post('toggleSelf', { action: 'cuff' }); });
   selfGrid.appendChild(cuffBtn);
 
@@ -253,11 +220,34 @@ async function loadPlayers() {
   renderPlayersList(players);
 }
 
+// getPlayers' job field is qbx_adminmenu's own flattened "Label | Grade"
+// string (server/main.lua) - just the label half is useful as a quick
+// badge on each row, the grade number isn't meaningful without more
+// context than fits here.
+function jobLabelOf(p) {
+  return (p.job || '').split('|')[0].trim();
+}
+
+async function loadJobCounts() {
+  const container = el('dutySummary');
+  const counts = await post('getJobCounts');
+  if (!Array.isArray(counts) || !counts.length) {
+    container.innerHTML = '<div class="duty-empty">Nobody is on duty right now.</div>';
+    return;
+  }
+  container.innerHTML = counts.map((c) => `
+    <div class="duty-chip">
+      <span class="duty-count">${Number(c.count) || 0}</span>
+      <span class="duty-label">${escapeHtml(c.label)}</span>
+    </div>
+  `).join('');
+}
+
 function renderPlayersList(list) {
   const container = el('playersList');
   const query = el('playerSearch').value.trim().toLowerCase();
   const filtered = query
-    ? list.filter((p) => String(p.id).includes(query) || (p.name || '').toLowerCase().includes(query))
+    ? list.filter((p) => String(p.id).includes(query) || (p.name || '').toLowerCase().includes(query) || jobLabelOf(p).toLowerCase().includes(query))
     : list;
 
   if (!filtered.length) {
@@ -270,11 +260,18 @@ function renderPlayersList(list) {
     const row = document.createElement('div');
     row.className = 'player-row' + (String(p.id) === String(selectedPlayerId) ? ' selected' : '');
     const initials = (p.name || '?').trim().slice(0, 2).toUpperCase();
+    const job = jobLabelOf(p);
     row.innerHTML = `
       <div class="player-avatar">${initials}</div>
       <div class="player-row-text">
-        <div class="player-row-name">${escapeHtml(p.name || 'Unknown')}</div>
-        <div class="player-row-id">ID ${p.id} &middot; ${escapeHtml(p.cid || '')}</div>
+        <div class="player-row-top">
+          <span class="player-row-name">${escapeHtml(p.name || 'Unknown')}</span>
+          <span class="player-row-id">#${p.id}</span>
+        </div>
+        <div class="player-row-meta">
+          ${job ? `<span class="player-row-job">${escapeHtml(job)}</span>` : ''}
+          <span class="player-row-cid">${escapeHtml(p.cid || '')}</span>
+        </div>
       </div>
     `;
     row.addEventListener('click', () => selectPlayer(p.id));
@@ -309,6 +306,7 @@ const DATA_FIELDS = [
   { field: 'food', label: 'Hunger %', inputs: [{ type: 'number', placeholder: '0-100' }] },
   { field: 'thirst', label: 'Thirst %', inputs: [{ type: 'number', placeholder: '0-100' }] },
   { field: 'stress', label: 'Stress %', inputs: [{ type: 'number', placeholder: '0-100' }] },
+  { field: 'health', label: 'Health %', inputs: [{ type: 'number', placeholder: '0-100' }] },
   { field: 'armor', label: 'Armor %', inputs: [{ type: 'number', placeholder: '0-100' }] },
   { field: 'phone', label: 'Phone', inputs: [{ type: 'text', placeholder: 'Number' }] },
   { field: 'crafting', label: 'Crafting Rep', inputs: [{ type: 'number', placeholder: '0' }] },
@@ -354,7 +352,7 @@ function renderPlayerDetail(player) {
   const stats = document.createElement('div');
   stats.className = 'stat-grid';
   stats.innerHTML = [
-    statTile('Hunger', player.food), statTile('Thirst', player.water), statTile('Stress', player.stress),
+    statTile('Health', player.health), statTile('Hunger', player.food), statTile('Thirst', player.water), statTile('Stress', player.stress),
     statTile('Armor', player.armor), statTile('Job', player.job), statTile('Gang', player.gang),
     statTile('Cash', player.cash), statTile('Bank', player.bank), statTile('Phone', player.phone),
   ].join('');
@@ -377,24 +375,6 @@ function renderPlayerDetail(player) {
     generalRow.appendChild(btn);
   });
   generalGroup.appendChild(generalRow);
-
-  const routingRow = document.createElement('div');
-  routingRow.className = 'field-row';
-  routingRow.style.marginTop = '8px';
-  routingRow.innerHTML = `
-    <div class="field"><label>Routing Bucket</label><input type="number" id="routingInput" placeholder="25"></div>
-  `;
-  const routingBtn = document.createElement('button');
-  routingBtn.className = 'btn small';
-  routingBtn.textContent = 'Apply';
-  routingBtn.addEventListener('click', async () => {
-    const val = detail.querySelector('#routingInput').value;
-    if (val === '') return;
-    await post('playerGeneral', { id: player.id, action: 'routing', input: Number(val) });
-    showToast('Routing bucket set');
-  });
-  routingRow.appendChild(routingBtn);
-  generalGroup.appendChild(routingRow);
   detail.appendChild(generalGroup);
 
   // --- Administration ---

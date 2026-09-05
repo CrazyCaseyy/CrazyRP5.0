@@ -1,3 +1,17 @@
+-- All the client-local admin/dev toggles (noclip, godmode, invisible,
+-- vehicle godmode, infinite ammo, cuff, ped model, coords/vehicle-info
+-- overlays, laser pointer) that client.lua's NUI callbacks drive.
+--
+-- This is qbx_adminmenu's old client/admin.lua + client/dev.lua merged
+-- and trimmed: those files also carried an ox_lib lib.registerMenu-based
+-- menu (the original front-end, before this NUI dashboard replaced it) -
+-- that menu is gone since nothing opens it anymore, but the actual toggle
+-- logic underneath it is exactly what powers the Self Tools / Dev Tools
+-- tabs, so it moved over as-is. Previously reached via
+-- exports.qbx_adminmenu:ToggleX() since it lived in a separate resource;
+-- now that it's all one resource, client.lua just calls these functions
+-- directly.
+
 local VEHICLES_HASH = exports.qbx_core:GetVehiclesByHash()
 local optionInvisible = false
 local godmode = false
@@ -188,7 +202,7 @@ local function applyPedModel(model)
     ExecuteCommand('setmodel ' .. model)
 end
 
-local options = {
+local adminOptions = {
     function() toggleNoClipMode() end,
     function() TriggerEvent('qbx_medical:client:playerRevived') end,
     function()
@@ -250,55 +264,17 @@ local options = {
     function() TriggerEvent('police:client:GetCuffed', cache.serverId, true) end,
 }
 
--- Exported so other UIs (crazy-adminmenu) can trigger the exact same
--- toggles this file already owns, without duplicating the local state
--- (optionInvisible/godmode/vehicleGodmode/infiniteAmmo/noclipEnabled)
--- these closures read and mutate. Indices match the `options` table above.
-exports('ToggleNoclip', function() options[1]() end)
-exports('ToggleRevive', function() options[2]() end)
-exports('ToggleInvisible', function() options[3]() end)
-exports('ToggleGodmode', function() options[4]() end)
-exports('ToggleNames', function() options[5]() end)
-exports('ToggleBlips', function() options[6]() end)
-exports('ToggleVehicleGodmode', function() options[7]() end)
-exports('ApplyPedModel', applyPedModel)
-exports('RefreshPedModel', function() options[8](2) end)
-exports('ToggleInfiniteAmmo', function() options[9]() end)
-exports('GiveWeaponType', function(weaponType) options[10](weaponType) end)
-exports('ToggleCuff', function() options[11]() end)
-
-lib.registerMenu({
-    id = 'qbx_adminmenu_admin_menu',
-    title = locale('title.admin_menu'),
-    position = 'top-right',
-    onClose = function(keyPressed)
-        CloseMenu(false, keyPressed, 'qbx_adminmenu_main_menu')
-    end,
-    onSelected = function(selected)
-        MenuIndexes.qbx_adminmenu_admin_menu = selected
-    end,
-    options = {
-        {label = locale('admin_options.label1'), description = locale('admin_options.desc1'), icon = 'fab fa-fly', close = false},
-        {label = locale('admin_options.label2'), description = locale('admin_options.desc2'), icon = 'fas fa-hospital', close = false},
-        {label = locale('admin_options.label3'), description = locale('admin_options.desc3'), icon = 'fas fa-ghost', close = false},
-        {label = locale('admin_options.label4'), description = locale('admin_options.desc4'), icon = 'fas fa-bolt', close = false},
-        {label = locale('admin_options.label5'), description = locale('admin_options.desc5'), icon = 'fas fa-clipboard-list', close = false},
-        {label = locale('admin_options.label6'), description = locale('admin_options.desc6'), icon = 'fas fa-map-pin', close = false},
-        {label = locale('admin_options.label7'), description = locale('admin_options.desc7'), icon = 'fas fa-car-on', close = false},
-        {label = locale('admin_options.label8'), description = locale('admin_options.desc8'), icon = 'fas fa-person-half-dress', values = {locale('admin_options.value8_1'), locale('admin_options.value8_2')}},
-        {label = locale('admin_options.label9'), description = locale('admin_options.desc9'), icon = 'fas fa-bullseye', close = false},
-        {label = locale('admin_options.label10'), description = locale('admin_options.desc10'), icon = 'fas fa-gun', values = {locale('admin_options.value10_1'), locale('admin_options.value10_2'), locale('admin_options.value10_3'), locale('admin_options.value10_4'), locale('admin_options.value10_5'), locale('admin_options.value10_6'), locale('admin_options.value10_7')}, args = {'pistol', 'smg', 'shotgun', 'assault', 'lmg', 'sniper', 'heavy'}, close = false},
-        {label = locale('admin_options.label11'), description = locale('admin_options.desc11'), icon = 'fas fa-handcuffs', close = false},
-    }
-}, function(selected, scrollIndex, args)
-    if selected == 10 then
-        ---@diagnostic disable-next-line: redundant-parameter
-        options[selected](args[scrollIndex])
-    else
-        ---@diagnostic disable-next-line: redundant-parameter
-        options[selected](scrollIndex)
-    end
-end)
+function ToggleNoclip() adminOptions[1]() end
+function ToggleRevive() adminOptions[2]() end
+function ToggleInvisible() adminOptions[3]() end
+function ToggleGodmode() adminOptions[4]() end
+function ToggleNames() adminOptions[5]() end
+function ToggleBlips() adminOptions[6]() end
+function ToggleVehicleGodmode() adminOptions[7]() end
+function ApplyPedModel(model) applyPedModel(model) end
+function RefreshPedModel() adminOptions[8](2) end
+function ToggleInfiniteAmmo() adminOptions[9]() end
+function ToggleCuff() adminOptions[11]() end
 
 RegisterNetEvent('qbx_admin:client:ToggleNoClip', function()
     if GetInvokingResource() then return end
@@ -548,7 +524,7 @@ CreateThread(function()
     end
 end)
 
-exports('GetAdminToggleState', function()
+function GetAdminToggleState()
     return {
         noclip = noclipEnabled,
         invisible = optionInvisible,
@@ -558,4 +534,115 @@ exports('GetAdminToggleState', function()
         names = showNames,
         blips = showBlips,
     }
-end)
+end
+
+-- ===================================================================
+-- Dev tools (coords overlay, vehicle info overlay, laser pointer)
+-- ===================================================================
+
+local showCoords = false
+local vehicleDev = false
+local showLaser = false
+local vehicleTypes = {'Compacts', 'Sedans', 'SUVs', 'Coupes', 'Muscle', 'Sports Classics', 'Sports', 'Super', 'Motorcycles', 'Off-road', 'Industrial', 'Utility', 'Vans', 'Cycles', 'Boats', 'Helicopters', 'Planes', 'Service', 'Emergency', 'Military', 'Commercial', 'Trains', 'Open Wheel'}
+
+local devOptions = {
+    function()
+        showCoords = not showCoords
+        while showCoords do
+            local coords, heading = GetEntityCoords(cache.ped), GetEntityHeading(cache.ped)
+
+            qbx.drawText2d({
+                text = ('~o~vector4~w~(%s, %s, %s, %s)'):format(qbx.math.round(coords.x, 2), qbx.math.round(coords.y, 2), qbx.math.round(coords.z, 2), qbx.math.round(heading, 2)),
+                coords = vec2(1.0, 0.5),
+                scale = 0.5,
+                font = 6
+            })
+
+            Wait(0)
+        end
+    end,
+    function()
+        vehicleDev = not vehicleDev
+        while vehicleDev do
+            if cache.vehicle then
+                local clutch, gear, rpm, temperature = GetVehicleClutch(cache.vehicle), GetVehicleCurrentGear(cache.vehicle), GetVehicleCurrentRpm(cache.vehicle), GetVehicleEngineTemperature(cache.vehicle)
+                local oil, angle, body, class = GetVehicleOilLevel(cache.vehicle), GetVehicleSteeringAngle(cache.vehicle), GetVehicleBodyHealth(cache.vehicle), vehicleTypes[GetVehicleClass(cache.vehicle)]
+                local dirt, maxSpeed, netId, hash = GetVehicleDirtLevel(cache.vehicle), GetVehicleEstimatedMaxSpeed(cache.vehicle), VehToNet(cache.vehicle), GetEntityModel(cache.vehicle)
+                local name = GetLabelText(GetDisplayNameFromVehicleModel(hash))
+                qbx.drawText2d({
+                    text = ('~o~Clutch: ~w~ %s | ~o~Gear: ~w~ %s | ~o~Rpm: ~w~ %s | ~o~Temperature: ~w~ %s'):format(qbx.math.round(clutch, 4), gear, qbx.math.round(rpm, 4), temperature),
+                    coords = vec2(1.0, 0.575),
+                    scale = 0.45,
+                    font = 6
+                })
+                qbx.drawText2d({
+                    text = ('~o~Oil: ~w~ %s | ~o~Steering Angle: ~w~ %s | ~o~Body: ~w~ %s | ~o~Class: ~w~ %s'):format(qbx.math.round(oil, 4), qbx.math.round(angle, 4), qbx.math.round(body, 4), class),
+                    coords = vec2(1.0, 0.600),
+                    scale = 0.45,
+                    font = 6
+                })
+                qbx.drawText2d({
+                    text = ('~o~Dirt: ~w~ %s | ~o~Est Max Speed: ~w~ %s | ~o~Net ID: ~w~ %s | ~o~Hash: ~w~ %s'):format(qbx.math.round(dirt, 4), qbx.math.round(maxSpeed, 4) * 3.6, netId, hash),
+                    coords = vec2(1.0, 0.625),
+                    scale = 0.45,
+                    font = 6
+                })
+                qbx.drawText2d({
+                    text = ('~o~Vehicle Name: ~w~ %s'):format(name),
+                    coords = vec2(1.0, 0.650),
+                    scale = 0.45,
+                    font = 6
+                })
+                Wait(0)
+            else
+                Wait(800)
+            end
+        end
+    end,
+    function()
+        showLaser = not showLaser
+        while showLaser do
+            -- ox_lib's raycast already yields internally (GetShapeTestResult
+            -- is polled in a Wait(0) loop until it resolves), so this while
+            -- loop never spins without yielding even though there's no
+            -- explicit Wait(0) of our own below.
+            -- Raycast from the camera (matches where the crosshair/aim
+            -- direction actually points), but draw the beam from the ped's
+            -- own chest instead of the camera - in third-person the camera
+            -- floats behind/above the player, so a line drawn from it reads
+            -- as detached from their body rather than a laser they're
+            -- holding.
+            local hit, _, endCoords = lib.raycast.fromCamera(511, 4, 150.0)
+            local originCoords = GetEntityCoords(cache.ped) + vec3(0.0, 0.0, 0.6)
+
+            DrawLine(originCoords.x, originCoords.y, originCoords.z, endCoords.x, endCoords.y, endCoords.z, 255, 30, 30, 220)
+            DrawMarker(28, endCoords.x, endCoords.y, endCoords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06, 0.06, 0.06, 255, 30, 30, 200, false, false, 2, false, nil, nil, false)
+
+            local x, y, z = qbx.math.round(endCoords.x, 2), qbx.math.round(endCoords.y, 2), qbx.math.round(endCoords.z, 2)
+            -- coords.x is always 1.0 here, same as every other qbx.drawText2d
+            -- call in this file - qbx.drawText2d's width/height default to
+            -- 1.0 and it offsets by half of that, so 1.0 is what actually
+            -- lands centered; 0.5 (the naive "half the screen" guess) would
+            -- render off to the left instead.
+            qbx.drawText2d({
+                text = ('~r~LASER~s~  vec3(%s, %s, %s)  ~s~[E] Copy'):format(x, y, z),
+                coords = vec2(1.0, 0.85),
+                scale = 0.4,
+                font = 6,
+                enableDropShadow = true,
+            })
+
+            if hit and IsControlJustReleased(0, 38) then
+                lib.setClipboard(('vec3(%s, %s, %s)'):format(x, y, z))
+                exports.qbx_core:Notify('Copied to clipboard', 'success')
+            end
+        end
+    end,
+}
+
+function ToggleCoordsDisplay() devOptions[1]() end
+function ToggleVehicleInfoDisplay() devOptions[2]() end
+function ToggleLaser() devOptions[3]() end
+function GetDevToggleState()
+    return { coords = showCoords, vehicleInfo = vehicleDev, laser = showLaser }
+end

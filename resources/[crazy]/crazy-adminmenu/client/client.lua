@@ -1,20 +1,23 @@
--- NUI dashboard front-end for qbx_adminmenu. Every action below triggers
--- the exact same server events/callbacks qbx_adminmenu's own ox_lib menu
--- already used (see [qbx]/qbx_adminmenu/server/main.lua) — permission
--- checks (IsPlayerAceAllowed against config.eventPerms/commandPerms) and
--- the /optin gate happen there, unchanged. This resource only replaces
--- the front-end; qbx_adminmenu's server scripts must still be running.
+-- NUI dashboard for server administration. This used to be a thin
+-- front-end calling into a separate qbx_adminmenu resource's exports and
+-- events; that resource was merged in here (see client/toggles.lua,
+-- client/vectors.lua, client/events.lua, server/admin.lua,
+-- server/commands.lua) once its own original ox_lib menu was confirmed
+-- fully dead code with this NUI as the only front-end left.
 --
--- The handful of purely-client-local toggles qbx_adminmenu's admin.lua
--- and dev.lua own (noclip, godmode, invisible, vehicle godmode, infinite
--- ammo, cuff, ped model, coords/vehicle-info overlays) are reached
--- through exports added to those two files rather than being
--- reimplemented here — see the 'exports(...)' calls added to
--- [qbx]/qbx_adminmenu/client/admin.lua and client/dev.lua.
+-- The internal event/callback names (qbx_admin:server:*, qbx_admin:client:*)
+-- were kept as-is rather than renamed during the merge - they're just
+-- wire names now, harmless to leave, and renaming everything would have
+-- widened the diff for no real benefit.
 --
--- Ban logs and character lookup are the two things qbx_adminmenu never
--- had server logic for, so those NUI callbacks talk to this resource's
--- own server/server.lua instead (crazy_adminmenu:server:* events).
+-- The purely-client-local toggles (noclip, godmode, invisible, vehicle
+-- godmode, infinite ammo, cuff, ped model, coords/vehicle-info overlays,
+-- laser pointer) live in client/toggles.lua as plain global functions -
+-- same resource now, so no exports() indirection is needed to reach them.
+--
+-- Ban logs and character lookup never had qbx_adminmenu server logic to
+-- begin with, so those NUI callbacks talk to the crazy_adminmenu:server:*
+-- section of server/server.lua instead.
 
 local isOpen = false
 
@@ -26,8 +29,8 @@ local function close()
 end
 
 local function pushToggleState()
-    local ok, adminState = pcall(function() return exports.qbx_adminmenu:GetAdminToggleState() end)
-    local ok2, devState = pcall(function() return exports.qbx_adminmenu:GetDevToggleState() end)
+    local ok, adminState = pcall(GetAdminToggleState)
+    local ok2, devState = pcall(GetDevToggleState)
     SendNUIMessage({
         action = 'toggleState',
         state = {
@@ -85,10 +88,16 @@ RegisterNUICallback('getPlayerDetail', function(data, cb)
     cb(player)
 end)
 
+RegisterNUICallback('getJobCounts', function(_, cb)
+    local counts = lib.callback.await('crazy_adminmenu:server:getJobCounts', false)
+    cb(counts or {})
+end)
+
 -- Matches the index order qbx_adminmenu's generalOptions table uses
--- (server/main.lua) — kill/revive/freeze/goto/bring/sit/routing.
+-- (server/main.lua) — kill/revive/freeze/goto/bring/sit. Index 7 there is
+-- routing bucket, deliberately left out of this map - not exposed here.
 local GENERAL_ACTIONS = {
-    kill = 1, revive = 2, freeze = 3, goto_ = 4, bring = 5, sit = 6, routing = 7,
+    kill = 1, revive = 2, freeze = 3, goto_ = 4, bring = 5, sit = 6,
 }
 
 RegisterNUICallback('playerGeneral', function(data, cb)
@@ -155,19 +164,23 @@ end)
 -- Self tools (admin.lua / dev.lua toggles reached via exports)
 -- ===================================================================
 
+-- Wrapped in closures (rather than storing the global functions directly)
+-- so these resolve at call time, not at table-construction time here -
+-- that way this doesn't depend on client/toggles.lua having already run
+-- before this file does in the client_scripts load order.
 local SELF_TOGGLES = {
-    noclip = function() exports.qbx_adminmenu:ToggleNoclip() end,
-    revive = function() exports.qbx_adminmenu:ToggleRevive() end,
-    invisible = function() exports.qbx_adminmenu:ToggleInvisible() end,
-    godmode = function() exports.qbx_adminmenu:ToggleGodmode() end,
-    names = function() exports.qbx_adminmenu:ToggleNames() end,
-    blips = function() exports.qbx_adminmenu:ToggleBlips() end,
-    vehicleGodmode = function() exports.qbx_adminmenu:ToggleVehicleGodmode() end,
-    infiniteAmmo = function() exports.qbx_adminmenu:ToggleInfiniteAmmo() end,
-    cuff = function() exports.qbx_adminmenu:ToggleCuff() end,
-    coords = function() exports.qbx_adminmenu:ToggleCoordsDisplay() end,
-    vehicleInfo = function() exports.qbx_adminmenu:ToggleVehicleInfoDisplay() end,
-    laser = function() exports.qbx_adminmenu:ToggleLaser() end,
+    noclip = function() ToggleNoclip() end,
+    revive = function() ToggleRevive() end,
+    invisible = function() ToggleInvisible() end,
+    godmode = function() ToggleGodmode() end,
+    names = function() ToggleNames() end,
+    blips = function() ToggleBlips() end,
+    vehicleGodmode = function() ToggleVehicleGodmode() end,
+    infiniteAmmo = function() ToggleInfiniteAmmo() end,
+    cuff = function() ToggleCuff() end,
+    coords = function() ToggleCoordsDisplay() end,
+    vehicleInfo = function() ToggleVehicleInfoDisplay() end,
+    laser = function() ToggleLaser() end,
 }
 
 RegisterNUICallback('toggleSelf', function(data, cb)
@@ -202,20 +215,15 @@ RegisterNUICallback('toggleSelf', function(data, cb)
     cb('ok')
 end)
 
-RegisterNUICallback('giveWeaponType', function(data, cb)
-    pcall(function() exports.qbx_adminmenu:GiveWeaponType(data.weaponType) end)
-    cb('ok')
-end)
-
 RegisterNUICallback('setPedModel', function(data, cb)
     if data.model and data.model ~= '' then
-        pcall(function() exports.qbx_adminmenu:ApplyPedModel(data.model) end)
+        pcall(ApplyPedModel, data.model)
     end
     cb('ok')
 end)
 
 RegisterNUICallback('refreshPedModel', function(_, cb)
-    pcall(function() exports.qbx_adminmenu:RefreshPedModel() end)
+    pcall(RefreshPedModel)
     cb('ok')
 end)
 
@@ -338,30 +346,12 @@ end)
 -- Dev tools
 -- ===================================================================
 
--- Same math qbx_adminmenu's client/vectors.lua uses for its /vec2 /vec3
--- /vec4 /heading commands — that function is resource-local (a bare
--- global only qbx_adminmenu's own scripts can see), so reimplemented
--- here directly rather than via a cross-resource call.
+-- Same function the /vec2 /vec3 /vec4 /heading commands use
+-- (client/vectors.lua) - now a plain global in this same resource, so
+-- the NUI callback can just call it directly instead of duplicating its
+-- math.
 RegisterNUICallback('copyToClipboard', function(data, cb)
-    local coords = GetEntityCoords(cache.ped)
-    local x, y, z = qbx.math.round(coords.x, 2), qbx.math.round(coords.y, 2), qbx.math.round(coords.z, 2)
-    local h = qbx.math.round(GetEntityHeading(cache.ped), 2)
-
-    local value
-    if data.kind == 'coords2' then
-        value = ('vec2(%s, %s)'):format(x, y)
-    elseif data.kind == 'coords3' then
-        value = ('vec3(%s, %s, %s)'):format(x, y, z - 1.0)
-    elseif data.kind == 'coords4' then
-        value = ('vec4(%s, %s, %s, %s)'):format(x, y, z - 1.0, h)
-    elseif data.kind == 'heading' then
-        value = tostring(h)
-    end
-
-    if value then
-        lib.setClipboard(value)
-        exports.qbx_core:Notify('Copied to clipboard', 'success')
-    end
+    pcall(CopyToClipboard, data.kind)
     cb('ok')
 end)
 
