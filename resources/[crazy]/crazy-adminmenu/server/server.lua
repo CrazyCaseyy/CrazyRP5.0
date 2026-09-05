@@ -72,6 +72,107 @@ lib.callback.register('crazy_adminmenu:server:getJobCounts', function(source)
 end)
 
 -- ===================================================================
+-- Players tab - job/gang pickers (Edit Character Data)
+-- ===================================================================
+
+-- Grades are a 0-indexed table (grade 0 always exists), so the highest key
+-- present is the max grade that job/gang actually has - can't use #grades
+-- for this, Lua's length operator is undefined on a table starting at 0.
+local function maxGradeOf(data)
+    local max = 0
+    for gradeId in pairs(data.grades) do
+        if gradeId > max then max = gradeId end
+    end
+    return max
+end
+
+local function toGroupList(groups)
+    local list = {}
+    for name, data in pairs(groups) do
+        list[#list + 1] = { name = name, label = data.label, maxGrade = maxGradeOf(data) }
+    end
+    table.sort(list, function(a, b) return a.label < b.label end)
+    return list
+end
+
+lib.callback.register('crazy_adminmenu:server:getJobsAndGangs', function(source)
+    if not checkPerm(source, 'mod') then return { jobs = {}, gangs = {} } end
+    return {
+        jobs = toGroupList(exports.qbx_core:GetJobs()),
+        gangs = toGroupList(exports.qbx_core:GetGangs()),
+    }
+end)
+
+-- ===================================================================
+-- Players tab - inventory viewer
+-- ===================================================================
+
+-- One row per occupied slot (not merged by item name) - same convention
+-- getCharacterDetail below already uses for the offline inventory snapshot,
+-- kept consistent rather than aggregating counts across stacks here.
+lib.callback.register('crazy_adminmenu:server:getPlayerInventory', function(source, targetId)
+    if not checkPerm(source, 'mod') then return {} end
+    if not targetId then return {} end
+
+    local slots = exports.ox_inventory:GetInventoryItems(targetId)
+    if not slots then return {} end
+
+    local itemDefs = exports.ox_inventory:Items()
+    local items = {}
+    for _, slot in pairs(slots) do
+        if slot and slot.name then
+            local def = itemDefs and itemDefs[slot.name]
+            items[#items + 1] = {
+                name = slot.name,
+                label = def and def.label or slot.name,
+                count = slot.count,
+            }
+        end
+    end
+    table.sort(items, function(a, b) return a.label < b.label end)
+    return items
+end)
+
+-- ===================================================================
+-- Dashboard - player count history (last 48h line chart)
+-- ===================================================================
+
+-- Self-installing table - no manual SQL import needed, same reasoning as
+-- every other crazy- resource that owns its own data: CREATE TABLE IF NOT
+-- EXISTS is idempotent, so this is safe to run on every resource start.
+CreateThread(function()
+    MySQL.query.await([[
+        CREATE TABLE IF NOT EXISTS crazy_adminmenu_player_history (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            player_count INT NOT NULL,
+            recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ]])
+
+    local function sample()
+        MySQL.insert('INSERT INTO crazy_adminmenu_player_history (player_count) VALUES (?)', { #GetPlayers() })
+        -- Prune anything older than the 48h window this chart shows so the
+        -- table doesn't grow forever - a little slack (49h) so a sample
+        -- doesn't get pruned out from under the query below mid-request.
+        MySQL.query('DELETE FROM crazy_adminmenu_player_history WHERE recorded_at < (NOW() - INTERVAL 49 HOUR)')
+    end
+
+    sample() -- once immediately so the chart isn't empty for the first
+              -- interval after every resource restart
+    while true do
+        Wait(15 * 60 * 1000) -- 15 minutes - ~192 samples across 48h
+        sample()
+    end
+end)
+
+lib.callback.register('crazy_adminmenu:server:getPlayerHistory', function(source)
+    if not checkPerm(source, 'mod') then return {} end
+    return MySQL.query.await(
+        'SELECT player_count, recorded_at FROM crazy_adminmenu_player_history WHERE recorded_at >= (NOW() - INTERVAL 48 HOUR) ORDER BY recorded_at ASC'
+    ) or {}
+end)
+
+-- ===================================================================
 -- Character lookup
 -- ===================================================================
 

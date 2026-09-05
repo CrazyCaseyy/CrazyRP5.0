@@ -126,10 +126,12 @@ else
         scale = { 0.5, 0.5, 0.5 }
     }
 
+    -- type 29 renders as a floating dollar sign - swapped for 2 (a chevron
+    -- arrow) in this project's accent blue instead, per request.
     client.shopmarker = json.decode(GetConvar('inventory:shopmarker', [[
         {
-            "type": 29,
-            "colour": [30, 150, 30],
+            "type": 2,
+            "colour": [21, 115, 237],
             "scale": [0.5, 0.5, 0.5]
         }
     ]])) or fallbackmarker

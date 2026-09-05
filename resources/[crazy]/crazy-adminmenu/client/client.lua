@@ -93,6 +93,16 @@ RegisterNUICallback('getJobCounts', function(_, cb)
     cb(counts or {})
 end)
 
+RegisterNUICallback('getPlayerHistory', function(_, cb)
+    local rows = lib.callback.await('crazy_adminmenu:server:getPlayerHistory', false)
+    cb(rows or {})
+end)
+
+RegisterNUICallback('getJobsAndGangs', function(_, cb)
+    local data = lib.callback.await('crazy_adminmenu:server:getJobsAndGangs', false)
+    cb(data or { jobs = {}, gangs = {} })
+end)
+
 -- Matches the index order qbx_adminmenu's generalOptions table uses
 -- (server/main.lua) — kill/revive/freeze/goto/bring/sit. Index 7 there is
 -- routing bucket, deliberately left out of this map - not exposed here.
@@ -122,20 +132,9 @@ RegisterNUICallback('changePlayerData', function(data, cb)
     cb('ok')
 end)
 
-RegisterNUICallback('giveWeapons', function(data, cb)
-    TriggerServerEvent('qbx_admin:server:giveAllWeapons', data.weaponType, data.id)
-    cb('ok')
-end)
-
 RegisterNUICallback('clothingMenu', function(data, cb)
     local ok = lib.callback.await('qbx_admin:server:clothingMenu', false, data.id)
     cb(ok or false)
-end)
-
-RegisterNUICallback('openInventory', function(data, cb)
-    pcall(function() exports.ox_inventory:openInventory('player', data.id) end)
-    close()
-    cb('ok')
 end)
 
 RegisterNUICallback('giveItem', function(data, cb)
@@ -145,9 +144,19 @@ RegisterNUICallback('giveItem', function(data, cb)
     cb('ok')
 end)
 
-RegisterNUICallback('mutePlayer', function(data, cb)
-    pcall(function() exports['pma-voice']:toggleMutePlayer(data.id) end)
+-- Mirrors giveItem above but for ox_inventory's own /removeitem command -
+-- same admin-restricted command the give side already leans on, just the
+-- remove half of the same pair.
+RegisterNUICallback('removePlayerItem', function(data, cb)
+    if data.item and data.item ~= '' and tonumber(data.amount) and tonumber(data.amount) > 0 then
+        ExecuteCommand(('removeitem %s %s %s'):format(data.id, data.item, data.amount))
+    end
     cb('ok')
+end)
+
+RegisterNUICallback('getPlayerInventory', function(data, cb)
+    local items = lib.callback.await('crazy_adminmenu:server:getPlayerInventory', false, data.id)
+    cb(items or {})
 end)
 
 -- CEF's clipboard access from JS is unreliable without a real user

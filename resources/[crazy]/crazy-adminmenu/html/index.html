@@ -14,7 +14,8 @@
         <span>CRAZY ADMIN<span class="brand-sub">Control Panel</span></span>
       </div>
       <ul class="nav-list">
-        <li class="nav-item active" data-tab="players">Players</li>
+        <li class="nav-item active" data-tab="dashboard">Dashboard</li>
+        <li class="nav-item" data-tab="players">Players</li>
         <li class="nav-item" data-tab="self">Self Tools</li>
         <li class="nav-item" data-tab="vehicles">Vehicles</li>
         <li class="nav-item" data-tab="server">Server</li>
@@ -30,23 +31,65 @@
 
     <main id="main">
       <div id="topbar">
-        <h1 id="topbarTitle">Players</h1>
-        <span class="subtitle" id="topbarSubtitle">Manage the current online playerbase</span>
+        <h1 id="topbarTitle">Dashboard</h1>
+        <span class="subtitle" id="topbarSubtitle">Server overview</span>
       </div>
       <div id="content">
 
+        <!-- ============================ DASHBOARD ============================ -->
+        <section class="panel" data-panel="dashboard">
+          <div class="stat-grid">
+            <div class="stat-tile stat-tile-big">
+              <div class="stat-label">Players Online</div>
+              <div class="stat-value stat-value-big" id="dashboardPlayerCount">—</div>
+            </div>
+          </div>
+
+          <div class="section-title" style="margin-top:18px">On Duty</div>
+          <div class="duty-summary" id="dashboardDutySummary"></div>
+
+          <div class="section-title" style="margin-top:6px">Players Online — Last 48h</div>
+          <div class="chart-card">
+            <svg id="playerHistoryChart" viewBox="0 0 600 160" preserveAspectRatio="none"></svg>
+            <div class="empty-state hidden" id="playerHistoryEmpty">Not enough data yet — check back in a bit.</div>
+            <div class="chart-axis">
+              <span>48h ago</span>
+              <span>24h ago</span>
+              <span>Now</span>
+            </div>
+          </div>
+        </section>
+
         <!-- ============================ PLAYERS ============================ -->
-        <section class="panel" data-panel="players">
+        <section class="panel hidden" data-panel="players">
           <div class="duty-summary" id="dutySummary"></div>
-          <div class="players-layout">
-            <div class="players-list-col">
-              <input type="text" id="playerSearch" placeholder="Search by name or ID...">
-              <div class="players-list" id="playersList">
-                <div class="empty-state">Loading players...</div>
+
+          <div class="players-list-view" id="playersListView">
+            <input type="text" id="playerSearch" placeholder="Search by name or ID...">
+            <div class="players-list players-list-full" id="playersList">
+              <div class="empty-state">Loading players...</div>
+            </div>
+          </div>
+
+          <div class="players-detail-view hidden" id="playersDetailView">
+            <button class="btn small" id="playerBackBtn">&larr; Back to Players</button>
+            <div class="card" id="playerDetail"></div>
+          </div>
+
+          <div class="players-detail-view hidden" id="playerInventoryView">
+            <button class="btn small" id="inventoryBackBtn">&larr; Back to <span id="inventoryPlayerName"></span></button>
+            <div class="card">
+              <div class="section-title" style="margin-bottom:12px">Add / Remove Item</div>
+              <div class="field-row">
+                <div class="field"><label>Item</label><input type="text" id="invItemName" placeholder="phone"></div>
+                <div class="field" style="max-width:90px"><label>Amount</label><input type="number" id="invItemAmount" placeholder="1" value="1"></div>
+                <button class="btn primary small" id="invAddBtn">Add</button>
+                <button class="btn danger small" id="invRemoveBtn">Remove</button>
               </div>
             </div>
-            <div class="players-detail-col card" id="playerDetail">
-              <div class="empty-state">Select a player to view details and actions.</div>
+            <div class="card">
+              <div class="section-title" id="inventoryTitle" style="margin-bottom:12px">Inventory</div>
+              <div class="item-grid" id="playerInventoryGrid"></div>
             </div>
           </div>
         </section>

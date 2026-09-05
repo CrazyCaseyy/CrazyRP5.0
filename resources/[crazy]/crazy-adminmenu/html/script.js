@@ -1,8 +1,8 @@
 // NUI contract with client.lua — see resources/[crazy]/crazy-adminmenu/client/client.lua
 // inbound (SendNUIMessage):  { action: 'open' | 'close' | 'toggleState' }
-// outbound (RegisterNUICallback): close, getPlayers, getPlayerDetail, getJobCounts, playerGeneral,
-//   playerAdmin, changePlayerData, giveWeapons, clothingMenu, openInventory, giveItem,
-//   mutePlayer, toggleSelf, setPedModel, refreshPedModel, getToggleState,
+// outbound (RegisterNUICallback): close, getPlayers, getPlayerDetail, getJobCounts, getPlayerHistory,
+//   getJobsAndGangs, playerGeneral, playerAdmin, changePlayerData, clothingMenu, giveItem, removePlayerItem,
+//   getPlayerInventory, toggleSelf, setPedModel, refreshPedModel, getToggleState,
 //   getVehicles, spawnVehicle, fixVehicle, deleteVehicle, adminCar, setPlate, setWeather,
 //   setTime, getRadioList, pullStash, copyToClipboard, copyText, getReports, replyReport,
 //   closeReport, getBans, unban, searchCharacters, getCharacterDetail, openCharacterInventory
@@ -49,6 +49,7 @@ function showToast(message, kind = 'success') {
 // ===================================================================
 
 const TAB_META = {
+  dashboard: { title: 'Dashboard', subtitle: 'Server overview' },
   players: { title: 'Players', subtitle: 'Manage the current online playerbase' },
   self: { title: 'Self Tools', subtitle: 'Options that only affect you' },
   vehicles: { title: 'Vehicles', subtitle: 'Spawn, fix, delete and manage vehicles' },
@@ -59,7 +60,7 @@ const TAB_META = {
   characters: { title: 'Characters', subtitle: 'Look up any character in the database, online or not' },
 };
 
-let currentTab = 'players';
+let currentTab = 'dashboard';
 
 function switchTab(tab) {
   currentTab = tab;
@@ -68,7 +69,8 @@ function switchTab(tab) {
   el('topbarTitle').textContent = TAB_META[tab].title;
   el('topbarSubtitle').textContent = TAB_META[tab].subtitle;
 
-  if (tab === 'players') { loadPlayers(); loadJobCounts(); }
+  if (tab === 'dashboard') loadDashboard();
+  else if (tab === 'players') { showPlayersList(); loadPlayers(); loadJobCounts(); }
   else if (tab === 'vehicles' && !vehicleData) loadVehicles();
   else if (tab === 'reports') loadReports();
   else if (tab === 'bans') loadBans();
@@ -84,7 +86,7 @@ document.querySelectorAll('.nav-item').forEach((item) => {
 
 function openApp() {
   app.classList.add('open');
-  switchTab('players');
+  switchTab('dashboard');
   post('getToggleState');
 }
 
@@ -228,8 +230,8 @@ function jobLabelOf(p) {
   return (p.job || '').split('|')[0].trim();
 }
 
-async function loadJobCounts() {
-  const container = el('dutySummary');
+async function loadJobCounts(containerId = 'dutySummary') {
+  const container = el(containerId);
   const counts = await post('getJobCounts');
   if (!Array.isArray(counts) || !counts.length) {
     container.innerHTML = '<div class="duty-empty">Nobody is on duty right now.</div>';
@@ -241,6 +243,63 @@ async function loadJobCounts() {
       <span class="duty-label">${escapeHtml(c.label)}</span>
     </div>
   `).join('');
+}
+
+// ===================================================================
+// Dashboard (landing screen)
+// ===================================================================
+
+async function loadDashboard() {
+  const countEl = el('dashboardPlayerCount');
+  countEl.textContent = '—';
+  const list = await post('getPlayers');
+  countEl.textContent = Array.isArray(list) ? list.length : '0';
+  loadJobCounts('dashboardDutySummary');
+  loadPlayerHistoryChart();
+}
+
+// Server samples the online player count every 15 minutes (see
+// server/server.lua) and keeps the last 48h - plotted here by index rather
+// than by parsing each row's actual timestamp, since the samples are
+// already evenly spaced across that fixed window (the axis labels below
+// the chart are static text for the same reason: 48h ago / 24h ago / now
+// always lines up with the first/middle/last point).
+async function loadPlayerHistoryChart() {
+  const svg = el('playerHistoryChart');
+  const emptyState = el('playerHistoryEmpty');
+  const rows = await post('getPlayerHistory');
+
+  if (!Array.isArray(rows) || rows.length < 2) {
+    svg.innerHTML = '';
+    emptyState.classList.remove('hidden');
+    return;
+  }
+  emptyState.classList.add('hidden');
+
+  const width = 600, height = 160, padX = 6, padY = 10;
+  const counts = rows.map((r) => Number(r.player_count) || 0);
+  const maxCount = Math.max(...counts, 1);
+  const stepX = (width - padX * 2) / (rows.length - 1);
+
+  const points = counts.map((c, i) => [
+    padX + i * stepX,
+    height - padY - (c / maxCount) * (height - padY * 2),
+  ]);
+
+  const linePath = points.map(([x, y], i) => `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`).join(' ');
+  const floorY = (height - padY).toFixed(1);
+  const areaPath = `${linePath} L ${points[points.length - 1][0].toFixed(1)} ${floorY} L ${points[0][0].toFixed(1)} ${floorY} Z`;
+
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="rgba(21, 115, 237, 0.35)" />
+        <stop offset="100%" stop-color="rgba(21, 115, 237, 0)" />
+      </linearGradient>
+    </defs>
+    <path d="${areaPath}" fill="url(#chartFill)" stroke="none"></path>
+    <path d="${linePath}" fill="none" stroke="#1573ed" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+  `;
 }
 
 function renderPlayersList(list) {
@@ -301,34 +360,90 @@ const ADMIN_PERM_VALUES = [
   { value: 'god', label: 'God' },
 ];
 
+// Jobs/gangs list (name/label/maxGrade per entry) - fetched once and
+// cached, since it's static config data that only changes on a resource
+// restart. Lets the job/gang fields below be real <select> dropdowns
+// (populated with every job/gang that actually exists) instead of a
+// free-text box, with the grade input capped to however many grades that
+// specific job/gang has.
+let JOBS_LIST = [];
+let GANGS_LIST = [];
+let jobsGangsPromise = null;
+
+function ensureJobsGangsLoaded() {
+  if (!jobsGangsPromise) {
+    jobsGangsPromise = post('getJobsAndGangs').then((data) => {
+      JOBS_LIST = (data && data.jobs) || [];
+      GANGS_LIST = (data && data.gangs) || [];
+    });
+  }
+  return jobsGangsPromise;
+}
+
+// getValue pre-fills each input with the player's actual current value -
+// safe to resubmit unchanged, since it's already in the exact shape
+// changePlayerData expects (job/gang resolve the display label back to
+// the real job/gang key via JOBS_LIST/GANGS_LIST so the dropdown can
+// select the right option, rather than showing the label as if it were
+// the key).
 const DATA_FIELDS = [
-  { field: 'name', label: 'Name', inputs: [{ type: 'text', placeholder: 'First' }, { type: 'text', placeholder: 'Last' }] },
-  { field: 'food', label: 'Hunger %', inputs: [{ type: 'number', placeholder: '0-100' }] },
-  { field: 'thirst', label: 'Thirst %', inputs: [{ type: 'number', placeholder: '0-100' }] },
-  { field: 'stress', label: 'Stress %', inputs: [{ type: 'number', placeholder: '0-100' }] },
-  { field: 'health', label: 'Health %', inputs: [{ type: 'number', placeholder: '0-100' }] },
-  { field: 'armor', label: 'Armor %', inputs: [{ type: 'number', placeholder: '0-100' }] },
-  { field: 'phone', label: 'Phone', inputs: [{ type: 'text', placeholder: 'Number' }] },
-  { field: 'crafting', label: 'Crafting Rep', inputs: [{ type: 'number', placeholder: '0' }] },
-  { field: 'dealer', label: 'Dealer Rep', inputs: [{ type: 'number', placeholder: '0' }] },
-  { field: 'cash', label: 'Cash', inputs: [{ type: 'number', placeholder: '0' }] },
-  { field: 'bank', label: 'Bank', inputs: [{ type: 'number', placeholder: '0' }] },
-  { field: 'job', label: 'Job', inputs: [{ type: 'text', placeholder: 'Name' }, { type: 'number', placeholder: 'Grade' }] },
-  { field: 'gang', label: 'Gang', inputs: [{ type: 'text', placeholder: 'Name' }, { type: 'number', placeholder: 'Grade' }] },
+  {
+    field: 'name', label: 'Name', inputs: [{ type: 'text', placeholder: 'First' }, { type: 'text', placeholder: 'Last' }],
+    getValue: (p) => {
+      const [first, ...rest] = (p.name || '').split(' | (')[0].split(' ');
+      return [first || '', rest.join(' ')];
+    },
+  },
+  { field: 'food', label: 'Hunger %', inputs: [{ type: 'number', placeholder: '0-100' }], getValue: (p) => [p.food] },
+  { field: 'thirst', label: 'Thirst %', inputs: [{ type: 'number', placeholder: '0-100' }], getValue: (p) => [p.water] },
+  { field: 'stress', label: 'Stress %', inputs: [{ type: 'number', placeholder: '0-100' }], getValue: (p) => [p.stress] },
+  { field: 'health', label: 'Health %', inputs: [{ type: 'number', placeholder: '0-100' }], getValue: (p) => [p.health] },
+  { field: 'armor', label: 'Armor %', inputs: [{ type: 'number', placeholder: '0-100' }], getValue: (p) => [p.armor] },
+  { field: 'phone', label: 'Phone', inputs: [{ type: 'text', placeholder: 'Number' }], getValue: (p) => [p.phone] },
+  { field: 'crafting', label: 'Crafting Rep', inputs: [{ type: 'number', placeholder: '0' }], getValue: (p) => [p.craftingrep] },
+  { field: 'dealer', label: 'Dealer Rep', inputs: [{ type: 'number', placeholder: '0' }], getValue: (p) => [p.dealerrep] },
+  { field: 'cash', label: 'Cash', inputs: [{ type: 'number', placeholder: '0' }], getValue: (p) => [p.cash] },
+  { field: 'bank', label: 'Bank', inputs: [{ type: 'number', placeholder: '0' }], getValue: (p) => [p.bank] },
+  {
+    field: 'job', label: 'Job', group: () => JOBS_LIST,
+    inputs: [{ type: 'select' }, { type: 'number', placeholder: 'Grade' }],
+    getValue: (p) => {
+      const currentLabel = (p.job || '').split(' | ')[0].trim();
+      const match = JOBS_LIST.find((j) => j.label === currentLabel);
+      const grade = (p.job || '').split(' | ')[1];
+      return [match ? match.name : '', grade || ''];
+    },
+  },
+  {
+    field: 'gang', label: 'Gang', group: () => GANGS_LIST,
+    inputs: [{ type: 'select' }, { type: 'number', placeholder: 'Grade' }],
+    getValue: (p) => {
+      const match = GANGS_LIST.find((g) => g.label === (p.gang || '').trim());
+      return [match ? match.name : '', ''];
+    },
+  },
   { field: 'radio', label: 'Radio Channel', inputs: [{ type: 'number', placeholder: 'Freq' }] },
 ];
 
-const WEAPON_TYPES_SHORT = [
-  { key: 'pistol', label: 'Pistols' }, { key: 'smg', label: 'SMGs' }, { key: 'shotgun', label: 'Shotguns' },
-  { key: 'assault', label: 'Assault' }, { key: 'lmg', label: 'LMGs' }, { key: 'sniper', label: 'Snipers' }, { key: 'heavy', label: 'Heavy' },
-];
+function showPlayersList() {
+  selectedPlayerId = null;
+  el('playersDetailView').classList.add('hidden');
+  el('playersListView').classList.remove('hidden');
+}
+
+function showPlayersDetail() {
+  el('playersListView').classList.add('hidden');
+  el('playersDetailView').classList.remove('hidden');
+}
+
+el('playerBackBtn').addEventListener('click', showPlayersList);
 
 async function selectPlayer(id) {
   selectedPlayerId = id;
-  renderPlayersList(players);
+  showPlayersDetail();
   const detail = el('playerDetail');
   detail.innerHTML = '<div class="empty-state">Loading...</div>';
-  const player = await post('getPlayerDetail', { id });
+  const [player] = await Promise.all([post('getPlayerDetail', { id }), ensureJobsGangsLoaded()]);
   if (!player) {
     detail.innerHTML = '<div class="empty-state">Could not load this player (they may have disconnected).</div>';
     return;
@@ -340,23 +455,66 @@ function statTile(label, value) {
   return `<div class="stat-tile"><div class="stat-label">${label}</div><div class="stat-value">${escapeHtml(value)}</div></div>`;
 }
 
+// ===================================================================
+// Player inventory viewer (add/remove + live stack list)
+// ===================================================================
+
+let inventoryPlayer = null;
+
+async function refreshPlayerInventory() {
+  const grid = el('playerInventoryGrid');
+  grid.innerHTML = '<div class="empty-state">Loading...</div>';
+  const items = await post('getPlayerInventory', { id: inventoryPlayer.id });
+  el('inventoryTitle').textContent = `Inventory (${(items || []).length} stacks)`;
+  if (!items || !items.length) {
+    grid.innerHTML = '<div class="empty-state">Empty inventory.</div>';
+    return;
+  }
+  grid.innerHTML = '';
+  items.forEach((item) => {
+    const chip = document.createElement('div');
+    chip.className = 'item-chip';
+    chip.innerHTML = `<span>${escapeHtml(item.label)}</span><span class="item-count">${item.count}x</span>`;
+    grid.appendChild(chip);
+  });
+}
+
+function showPlayerInventory(player) {
+  inventoryPlayer = player;
+  el('inventoryPlayerName').textContent = player.name;
+  el('invItemName').value = '';
+  el('invItemAmount').value = 1;
+  el('playersDetailView').classList.add('hidden');
+  el('playerInventoryView').classList.remove('hidden');
+  refreshPlayerInventory();
+}
+
+el('inventoryBackBtn').addEventListener('click', () => {
+  el('playerInventoryView').classList.add('hidden');
+  el('playersDetailView').classList.remove('hidden');
+});
+
+el('invAddBtn').addEventListener('click', async () => {
+  const item = el('invItemName').value.trim();
+  const amount = Number(el('invItemAmount').value) || 1;
+  if (!item) return;
+  await post('giveItem', { id: inventoryPlayer.id, item, amount });
+  showToast(`Gave ${amount}x ${item}`);
+  refreshPlayerInventory();
+});
+
+el('invRemoveBtn').addEventListener('click', async () => {
+  const item = el('invItemName').value.trim();
+  const amount = Number(el('invItemAmount').value) || 1;
+  if (!item) return;
+  await post('removePlayerItem', { id: inventoryPlayer.id, item, amount });
+  showToast(`Removed ${amount}x ${item}`);
+  refreshPlayerInventory();
+});
+
 function renderPlayerDetail(player) {
   const detail = el('playerDetail');
   detail.innerHTML = '';
-
-  const header = document.createElement('div');
-  header.className = 'detail-header';
-  header.innerHTML = `<div><h2>${escapeHtml(player.name)}</h2><div class="cid">CID: ${escapeHtml(player.cid || '')} &middot; ID: ${player.id}</div></div>`;
-  detail.appendChild(header);
-
-  const stats = document.createElement('div');
-  stats.className = 'stat-grid';
-  stats.innerHTML = [
-    statTile('Health', player.health), statTile('Hunger', player.food), statTile('Thirst', player.water), statTile('Stress', player.stress),
-    statTile('Armor', player.armor), statTile('Job', player.job), statTile('Gang', player.gang),
-    statTile('Cash', player.cash), statTile('Bank', player.bank), statTile('Phone', player.phone),
-  ].join('');
-  detail.appendChild(stats);
 
   // --- General actions ---
   const generalGroup = document.createElement('div');
@@ -454,17 +612,52 @@ function renderPlayerDetail(player) {
     row.className = 'field-row';
     row.style.marginBottom = '8px';
     const inputEls = [];
+    const current = f.getValue ? f.getValue(player) : [];
     f.inputs.forEach((inputDef, i) => {
       const wrap = document.createElement('div');
       wrap.className = 'field';
       if (i === 0) wrap.innerHTML = `<label>${f.label}</label>`;
-      const input = document.createElement('input');
-      input.type = inputDef.type;
-      input.placeholder = inputDef.placeholder;
+      let input;
+      if (inputDef.type === 'select') {
+        input = document.createElement('select');
+        (f.group ? f.group() : []).forEach((opt) => {
+          const option = document.createElement('option');
+          option.value = opt.name;
+          option.textContent = opt.label;
+          input.appendChild(option);
+        });
+        if (current[i]) input.value = current[i];
+      } else {
+        input = document.createElement('input');
+        input.type = inputDef.type;
+        input.placeholder = inputDef.placeholder;
+        const value = current[i];
+        if (value !== undefined && value !== null && value !== '') input.value = value;
+      }
       wrap.appendChild(input);
       inputEls.push(input);
       row.appendChild(wrap);
     });
+
+    // Job/gang: cap the grade input to however many grades the currently
+    // selected job/gang actually has, and re-cap whenever the dropdown
+    // changes - a grade that doesn't exist on that job would just get
+    // rejected/ignored server-side, so keep the input from offering it at all.
+    if (f.group) {
+      const groupSelect = inputEls[0];
+      const gradeInput = inputEls[1];
+      const applyGradeCap = () => {
+        const match = f.group().find((g) => g.name === groupSelect.value);
+        const maxGrade = match ? match.maxGrade : 0;
+        gradeInput.min = 0;
+        gradeInput.max = maxGrade;
+        gradeInput.placeholder = `0-${maxGrade}`;
+        if (gradeInput.value !== '' && Number(gradeInput.value) > maxGrade) gradeInput.value = maxGrade;
+      };
+      groupSelect.addEventListener('change', applyGradeCap);
+      applyGradeCap();
+    }
+
     const applyBtn = document.createElement('button');
     applyBtn.className = 'btn small';
     applyBtn.textContent = 'Set';
@@ -479,25 +672,6 @@ function renderPlayerDetail(player) {
   });
   detail.appendChild(dataGroup);
 
-  // --- Weapons ---
-  const weaponGroup = document.createElement('div');
-  weaponGroup.className = 'action-group';
-  weaponGroup.innerHTML = '<div class="action-group-title">Give All Weapons</div>';
-  const weaponRow = document.createElement('div');
-  weaponRow.className = 'btn-row';
-  WEAPON_TYPES_SHORT.forEach((w) => {
-    const btn = document.createElement('button');
-    btn.className = 'btn small';
-    btn.textContent = w.label;
-    btn.addEventListener('click', async () => {
-      await post('giveWeapons', { id: player.id, weaponType: w.key });
-      showToast(`Gave ${player.name} all ${w.label.toLowerCase()}`);
-    });
-    weaponRow.appendChild(btn);
-  });
-  weaponGroup.appendChild(weaponRow);
-  detail.appendChild(weaponGroup);
-
   // --- Extra ---
   const extraGroup = document.createElement('div');
   extraGroup.className = 'action-group';
@@ -505,17 +679,11 @@ function renderPlayerDetail(player) {
   const extraRow = document.createElement('div');
   extraRow.className = 'btn-row';
 
-  const invBtn = document.createElement('button');
-  invBtn.className = 'btn small';
-  invBtn.textContent = 'Open Inventory';
-  invBtn.addEventListener('click', async () => { await post('openInventory', { id: player.id }); });
-  extraRow.appendChild(invBtn);
-
-  const muteBtn = document.createElement('button');
-  muteBtn.className = 'btn small';
-  muteBtn.textContent = 'Toggle Mute';
-  muteBtn.addEventListener('click', async () => { await post('mutePlayer', { id: player.id }); showToast('Mute toggled'); });
-  extraRow.appendChild(muteBtn);
+  const showInvBtn = document.createElement('button');
+  showInvBtn.className = 'btn small';
+  showInvBtn.textContent = 'Show Inventory';
+  showInvBtn.addEventListener('click', () => showPlayerInventory(player));
+  extraRow.appendChild(showInvBtn);
 
   const clothingBtn = document.createElement('button');
   clothingBtn.className = 'btn small';
@@ -527,26 +695,6 @@ function renderPlayerDetail(player) {
   extraRow.appendChild(clothingBtn);
 
   extraGroup.appendChild(extraRow);
-
-  const giveItemRow = document.createElement('div');
-  giveItemRow.className = 'field-row';
-  giveItemRow.style.marginTop = '8px';
-  giveItemRow.innerHTML = `
-    <div class="field"><label>Item</label><input type="text" id="giveItemName" placeholder="phone"></div>
-    <div class="field" style="max-width:90px"><label>Amount</label><input type="number" id="giveItemAmount" placeholder="1" value="1"></div>
-  `;
-  const giveItemBtn = document.createElement('button');
-  giveItemBtn.className = 'btn small';
-  giveItemBtn.textContent = 'Give Item';
-  giveItemBtn.addEventListener('click', async () => {
-    const item = detail.querySelector('#giveItemName').value.trim();
-    const amount = detail.querySelector('#giveItemAmount').value || 1;
-    if (!item) return;
-    await post('giveItem', { id: player.id, item, amount });
-    showToast(`Gave ${player.name} ${amount}x ${item}`);
-  });
-  giveItemRow.appendChild(giveItemBtn);
-  extraGroup.appendChild(giveItemRow);
   detail.appendChild(extraGroup);
 
   // --- Identifiers ---

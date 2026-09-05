@@ -25,11 +25,16 @@ return {
                     { name = 'bandage', price = 0 },
                     { name = 'painkillers', price = 0 },
                     { name = 'firstaid', price = 0 },
+                    -- Was missing despite server/main.lua already registering
+                    -- a CreateUseableItem handler for it (hospital:client:UseIfaks) -
+                    -- nowhere to actually get one before this.
+                    { name = 'ifaks', price = 0 },
+                    { name = 'armour', price = 0 },
                     { name = 'weapon_flashlight', price = 0 },
                     { name = 'weapon_fireextinguisher', price = 0 },
                 },
                 locations = {
-                    vec3(112.26, -372.59, 39.52)
+                    vec3(112.29, -372.6, 39.52)
                 }
             }
         },
