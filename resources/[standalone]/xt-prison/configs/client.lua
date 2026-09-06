@@ -3,17 +3,13 @@ return {
     Freedom = vec4(1840.65, 2586.05, 45.89, 263.19), -- Freedom spawn coords
     RemoveJob = true,          -- Remove player jobs when send to jail
 
-    -- Create Target Zones to Check Time (if XTPrisonJobs is false) --
-    -- A list now (one circle zone per counter spot) instead of a single
-    -- box, same shape as prisonbreak.lua's HackZones - see
-    -- client/modules/prison.lua's createCheckoutLocation/removeCheckoutLocation.
+    -- Create Target Zone(s) to Check Time (if XTPrisonJobs is false) --
+    -- A list (one circle zone per entry) instead of a single box, same
+    -- shape as prisonbreak.lua's HackZones - see client/modules/prison.lua's
+    -- createCheckoutLocation/removeCheckoutLocation. Down to a single spot
+    -- for now; add more entries here if more check-in points are needed.
     CheckOut = {
-        { coords = vec3(1779.04, 2576.82, 46.39), radius = 0.5 },
-        { coords = vec3(1779.04, 2577.63, 46.41), radius = 0.5 },
-        { coords = vec3(1779.04, 2578.5, 46.43),  radius = 0.5 },
-        { coords = vec3(1779.04, 2579.37, 46.4),  radius = 0.5 },
-        { coords = vec3(1779.04, 2580.19, 46.4),  radius = 0.5 },
-        { coords = vec3(1779.04, 2581.06, 46.42), radius = 0.5 },
+        { coords = vec3(1766.3, 2575.41, 45.0), radius = 0.5 },
     },
 
     -- Alert When Entering Prison --
