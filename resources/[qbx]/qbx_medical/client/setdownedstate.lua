@@ -4,6 +4,14 @@ local vehicleAnim = 'sit'
 local LastStandCuffedDict = 'dead'
 local LastStandCuffedAnim = 'dead_f'
 
+-- Tracks whether the last time the crawl anim was (re)applied it was
+-- looping or held still, so a change in IsCrawling (laststand.lua) always
+-- re-issues the anim with the right flag even though IsEntityPlayingAnim
+-- already says "yes" for either flag (it only checks dict+clip, not which
+-- flags started it) - without this, switching from moving to idle (or
+-- back) would never actually take effect below.
+local lastAppliedIsCrawling = nil
+
 local function playUnescortedLastStandAnimation()
     if cache.vehicle then
         if not IsEntityPlayingAnim(cache.ped, vehicleDict, vehicleAnim, 3) then
@@ -23,16 +31,20 @@ local function playUnescortedLastStandAnimation()
             -- an earlier attempt swapped to a different anim (dead_a) while
             -- idle, but blending between that (lying on the back) and this
             -- (prone on the front) is such a different pose that it visibly
-            -- glitched the character switching between them. Plain
-            -- animFlags 1 (LOOPING), same as this server's own "/e crawl",
-            -- so the ped is actually down on the ground rather than the
-            -- UPPERBODY|SECONDARY overlay a previous attempt used to let
-            -- GTA's own locomotion drive movement, which let normal
-            -- (standing) locomotion take over the moment [W] was pressed.
-            -- Movement itself is handled entirely separately (laststand.lua's
-            -- updateCrawlMovement) - this anim doesn't change based on it.
-            if not IsEntityPlayingAnim(cache.ped, LastStandDict, LastStandAnim, 3) then
-                lib.playAnim(cache.ped, LastStandDict, LastStandAnim, 1.0, 1.0, -1, 1, 0, false, false, false)
+            -- glitched the character switching between them. What changes
+            -- instead is the anim flag: 1 (LOOPING) while IsCrawling
+            -- (laststand.lua) is true, so the limbs actively cycle through
+            -- the crawl motion; 2 (HOLD_LAST_FRAME, no loop) while it's
+            -- false, freezing the pose on a single still frame instead of
+            -- endlessly playing the crawl cycle in place - which is what
+            -- would otherwise look wrong/desynced to anyone else watching,
+            -- since the limbs would keep moving with no matching
+            -- translation. Movement itself is handled entirely separately
+            -- (laststand.lua's updateCrawlMovement).
+            local animFlags = IsCrawling and 1 or 2
+            if lastAppliedIsCrawling ~= IsCrawling or not IsEntityPlayingAnim(cache.ped, LastStandDict, LastStandAnim, 3) then
+                lib.playAnim(cache.ped, LastStandDict, LastStandAnim, 1.0, 1.0, -1, animFlags, 0, false, false, false)
+                lastAppliedIsCrawling = IsCrawling
             end
         end
     end
