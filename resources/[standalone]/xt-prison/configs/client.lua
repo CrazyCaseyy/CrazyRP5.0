@@ -3,11 +3,17 @@ return {
     Freedom = vec4(1842.58, 2573.43, 45.89, 357.77), -- Freedom spawn coords
     RemoveJob = true,          -- Remove player jobs when send to jail
 
-    -- Create Target Zone to Check Time (if XTPrisonJobs is false) --
+    -- Create Target Zones to Check Time (if XTPrisonJobs is false) --
+    -- A list now (one circle zone per counter spot) instead of a single
+    -- box, same shape as prisonbreak.lua's HackZones - see
+    -- client/modules/prison.lua's createCheckoutLocation/removeCheckoutLocation.
     CheckOut = {
-        coords = vec3(1836.5, 2592.05, 46.35),
-        size = vec3(0.9, 7.8, 1.45),
-        rotation = 0.5,
+        { coords = vec3(1779.04, 2576.82, 46.39), radius = 0.5 },
+        { coords = vec3(1779.04, 2577.63, 46.41), radius = 0.5 },
+        { coords = vec3(1779.04, 2578.5, 46.43),  radius = 0.5 },
+        { coords = vec3(1779.04, 2579.37, 46.4),  radius = 0.5 },
+        { coords = vec3(1779.04, 2580.19, 46.4),  radius = 0.5 },
+        { coords = vec3(1779.04, 2581.06, 46.42), radius = 0.5 },
     },
 
     -- Alert When Entering Prison --
@@ -17,18 +23,40 @@ return {
         content = 'To reduce your time in prison, get a job from the guard in the cells. Get your ass to work and maybe you\'ll learn a thing or two.',
     },
 
-    -- Enter Prison Spawn Location & Emotes --
+    -- Enter Prison Spawn Location & Emotes (Cells) --
+    -- NOTE: entries 6 and 7 below are the exact same coords
+    -- (vec4(1626.41, 2463.04, 47.8, 46.96), given twice) - left both in as
+    -- given rather than dropped, but worth double-checking that wasn't a
+    -- copy-paste duplicate.
     Spawns = {
-        { coords = vec4(1770.7249755859, 2479.9802246094, 45.74076461792, 31.66007232666),   emote = 'pushup' },
-        { coords = vec4(1761.0710449219, 2474.9235839844, 49.693054199219, 33.123195648193), emote = 'pushup' },
-        { coords = vec4(1745.0281982422, 2479.2116699219, 45.740684509277, 323.06579589844), emote = 'weights' },
-        { coords = vec4(1768.1342773438, 2481.6772460938, 45.740734100342, 33.281074523926), emote = 'lean' },
+        { coords = vec4(1622.81, 2481.97, 44.65, 137.96), emote = 'pushup' },
+        { coords = vec4(1625.72, 2479.56, 44.65, 142.87), emote = 'weights' },
+        { coords = vec4(1628.86, 2477.77, 44.65, 136.08), emote = 'lean' },
+        { coords = vec4(1630.93, 2468.39, 44.65, 51.38),  emote = 'pushup' },
+        { coords = vec4(1628.51, 2465.65, 44.65, 45.89),  emote = 'weights' },
+        { coords = vec4(1626.41, 2463.04, 47.8, 46.96),   emote = 'lean' },
+        { coords = vec4(1626.41, 2463.04, 47.8, 46.96),   emote = 'pushup' },
+        { coords = vec4(1616.98, 2459.9, 47.8, 319.0),    emote = 'weights' },
+        { coords = vec4(1614.25, 2461.9, 47.8, 318.0),    emote = 'lean' },
+        { coords = vec4(1611.48, 2464.26, 47.8, 316.57),  emote = 'pushup' },
+        { coords = vec4(1608.83, 2466.61, 47.8, 315.47),  emote = 'weights' },
+        { coords = vec4(1603.74, 2471.18, 47.8, 318.37),  emote = 'lean' },
+        { coords = vec4(1600.97, 2473.49, 47.8, 317.13),  emote = 'pushup' },
+        { coords = vec4(1598.55, 2476.12, 47.8, 319.24),  emote = 'weights' },
+        { coords = vec4(1595.54, 2478.04, 47.8, 315.98),  emote = 'lean' },
+        { coords = vec4(1596.27, 2484.81, 47.8, 232.69),  emote = 'pushup' },
+        { coords = vec4(1598.22, 2487.62, 47.8, 228.86),  emote = 'weights' },
+        { coords = vec4(1600.39, 2490.41, 44.65, 233.03), emote = 'lean' },
+        { coords = vec4(1602.53, 2492.89, 44.65, 226.49), emote = 'pushup' },
+        { coords = vec4(1612.31, 2491.43, 44.65, 136.53), emote = 'weights' },
+        { coords = vec4(1615.02, 2489.05, 44.65, 136.68), emote = 'lean' },
+        { coords = vec4(1617.6, 2486.98, 44.65, 137.46),  emote = 'pushup' },
     },
 
     -- Canteen Ped --
     CanteenPed = {
         model = 's_m_m_linecook',
-        coords = vector4(1778.31, 2560.56, 45.62, 181.13),
+        coords = vector4(1739.03, 2587.22, 44.42, 169.36),
         scenario = 'PROP_HUMAN_BBQ',
         mealLength = 2
     },
@@ -36,14 +64,14 @@ return {
     -- Prison Doctor --
     PrisonDoctor = {
         model = 's_m_m_doctor_01',
-        coords = vector4(1746.37, 2467.26, 45.85, 354.14),
+        coords = vector4(1766.45, 2577.03, 45.0, 180.12),
         scenario = 'WORLD_HUMAN_CLIPBOARD',
         healLength = 5
     },
 
     -- Roster Location --
     RosterLocation = {
-        coords = vec3(1837.45, 2592.95, 45.85),
+        coords = vec3(1783.37, 2574.34, 45.88),
         radius = 0.3,
     },
 
