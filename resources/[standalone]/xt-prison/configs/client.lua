@@ -1,6 +1,6 @@
 return {
     DebugPoly = false,
-    Freedom = vec4(1842.58, 2573.43, 45.89, 357.77), -- Freedom spawn coords
+    Freedom = vec4(1840.65, 2586.05, 45.89, 263.19), -- Freedom spawn coords
     RemoveJob = true,          -- Remove player jobs when send to jail
 
     -- Create Target Zones to Check Time (if XTPrisonJobs is false) --
@@ -8,12 +8,12 @@ return {
     -- box, same shape as prisonbreak.lua's HackZones - see
     -- client/modules/prison.lua's createCheckoutLocation/removeCheckoutLocation.
     CheckOut = {
-        { coords = vec3(1779.04, 2576.82, 46.39), radius = 0.5 },
-        { coords = vec3(1779.04, 2577.63, 46.41), radius = 0.5 },
-        { coords = vec3(1779.04, 2578.5, 46.43),  radius = 0.5 },
-        { coords = vec3(1779.04, 2579.37, 46.4),  radius = 0.5 },
-        { coords = vec3(1779.04, 2580.19, 46.4),  radius = 0.5 },
-        { coords = vec3(1779.04, 2581.06, 46.42), radius = 0.5 },
+        { coords = vec3(1779.04, 2576.82, 47.39), radius = 0.5 },
+        { coords = vec3(1779.04, 2577.63, 47.41), radius = 0.5 },
+        { coords = vec3(1779.04, 2578.5, 47.43),  radius = 0.5 },
+        { coords = vec3(1779.04, 2579.37, 47.4),  radius = 0.5 },
+        { coords = vec3(1779.04, 2580.19, 47.4),  radius = 0.5 },
+        { coords = vec3(1779.04, 2581.06, 47.42), radius = 0.5 },
     },
 
     -- Alert When Entering Prison --
@@ -25,38 +25,38 @@ return {
 
     -- Enter Prison Spawn Location & Emotes (Cells) --
     -- NOTE: entries 6 and 7 below are the exact same coords
-    -- (vec4(1626.41, 2463.04, 47.8, 46.96), given twice) - left both in as
+    -- (vec4(1626.41, 2463.04, 48.8, 46.96), given twice) - left both in as
     -- given rather than dropped, but worth double-checking that wasn't a
     -- copy-paste duplicate.
     Spawns = {
-        { coords = vec4(1622.81, 2481.97, 44.65, 137.96), emote = 'pushup' },
-        { coords = vec4(1625.72, 2479.56, 44.65, 142.87), emote = 'weights' },
-        { coords = vec4(1628.86, 2477.77, 44.65, 136.08), emote = 'lean' },
-        { coords = vec4(1630.93, 2468.39, 44.65, 51.38),  emote = 'pushup' },
-        { coords = vec4(1628.51, 2465.65, 44.65, 45.89),  emote = 'weights' },
-        { coords = vec4(1626.41, 2463.04, 47.8, 46.96),   emote = 'lean' },
-        { coords = vec4(1626.41, 2463.04, 47.8, 46.96),   emote = 'pushup' },
-        { coords = vec4(1616.98, 2459.9, 47.8, 319.0),    emote = 'weights' },
-        { coords = vec4(1614.25, 2461.9, 47.8, 318.0),    emote = 'lean' },
-        { coords = vec4(1611.48, 2464.26, 47.8, 316.57),  emote = 'pushup' },
-        { coords = vec4(1608.83, 2466.61, 47.8, 315.47),  emote = 'weights' },
-        { coords = vec4(1603.74, 2471.18, 47.8, 318.37),  emote = 'lean' },
-        { coords = vec4(1600.97, 2473.49, 47.8, 317.13),  emote = 'pushup' },
-        { coords = vec4(1598.55, 2476.12, 47.8, 319.24),  emote = 'weights' },
-        { coords = vec4(1595.54, 2478.04, 47.8, 315.98),  emote = 'lean' },
-        { coords = vec4(1596.27, 2484.81, 47.8, 232.69),  emote = 'pushup' },
-        { coords = vec4(1598.22, 2487.62, 47.8, 228.86),  emote = 'weights' },
-        { coords = vec4(1600.39, 2490.41, 44.65, 233.03), emote = 'lean' },
-        { coords = vec4(1602.53, 2492.89, 44.65, 226.49), emote = 'pushup' },
-        { coords = vec4(1612.31, 2491.43, 44.65, 136.53), emote = 'weights' },
-        { coords = vec4(1615.02, 2489.05, 44.65, 136.68), emote = 'lean' },
-        { coords = vec4(1617.6, 2486.98, 44.65, 137.46),  emote = 'pushup' },
+        { coords = vec4(1622.81, 2481.97, 45.65, 137.96), emote = 'pushup' },
+        { coords = vec4(1625.72, 2479.56, 45.65, 142.87), emote = 'weights' },
+        { coords = vec4(1628.86, 2477.77, 45.65, 136.08), emote = 'lean' },
+        { coords = vec4(1630.93, 2468.39, 45.65, 51.38),  emote = 'pushup' },
+        { coords = vec4(1628.51, 2465.65, 45.65, 45.89),  emote = 'weights' },
+        { coords = vec4(1626.41, 2463.04, 48.8, 46.96),   emote = 'lean' },
+        { coords = vec4(1626.41, 2463.04, 48.8, 46.96),   emote = 'pushup' },
+        { coords = vec4(1616.98, 2459.9, 48.8, 319.0),    emote = 'weights' },
+        { coords = vec4(1614.25, 2461.9, 48.8, 318.0),    emote = 'lean' },
+        { coords = vec4(1611.48, 2464.26, 48.8, 316.57),  emote = 'pushup' },
+        { coords = vec4(1608.83, 2466.61, 48.8, 315.47),  emote = 'weights' },
+        { coords = vec4(1603.74, 2471.18, 48.8, 318.37),  emote = 'lean' },
+        { coords = vec4(1600.97, 2473.49, 48.8, 317.13),  emote = 'pushup' },
+        { coords = vec4(1598.55, 2476.12, 48.8, 319.24),  emote = 'weights' },
+        { coords = vec4(1595.54, 2478.04, 48.8, 315.98),  emote = 'lean' },
+        { coords = vec4(1596.27, 2484.81, 48.8, 232.69),  emote = 'pushup' },
+        { coords = vec4(1598.22, 2487.62, 48.8, 228.86),  emote = 'weights' },
+        { coords = vec4(1600.39, 2490.41, 45.65, 233.03), emote = 'lean' },
+        { coords = vec4(1602.53, 2492.89, 45.65, 226.49), emote = 'pushup' },
+        { coords = vec4(1612.31, 2491.43, 45.65, 136.53), emote = 'weights' },
+        { coords = vec4(1615.02, 2489.05, 45.65, 136.68), emote = 'lean' },
+        { coords = vec4(1617.6, 2486.98, 45.65, 137.46),  emote = 'pushup' },
     },
 
     -- Canteen Ped --
     CanteenPed = {
         model = 's_m_m_linecook',
-        coords = vector4(1739.03, 2587.22, 44.42, 169.36),
+        coords = vector4(1739.03, 2587.22, 45.42, 169.36),
         scenario = 'PROP_HUMAN_BBQ',
         mealLength = 2
     },
@@ -64,14 +64,14 @@ return {
     -- Prison Doctor --
     PrisonDoctor = {
         model = 's_m_m_doctor_01',
-        coords = vector4(1766.45, 2577.03, 45.0, 180.12),
+        coords = vector4(1766.45, 2577.03, 46.0, 180.12),
         scenario = 'WORLD_HUMAN_CLIPBOARD',
         healLength = 5
     },
 
     -- Roster Location --
     RosterLocation = {
-        coords = vec3(1783.37, 2574.34, 45.88),
+        coords = vec3(1783.37, 2574.34, 46.88),
         radius = 0.3,
     },
 
