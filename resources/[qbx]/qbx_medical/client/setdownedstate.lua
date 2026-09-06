@@ -3,17 +3,6 @@ local vehicleDict = 'veh@low@front_ps@idle_duck'
 local vehicleAnim = 'sit'
 local LastStandCuffedDict = 'dead'
 local LastStandCuffedAnim = 'dead_f'
--- Stationary pose for whenever IsCrawling (laststand.lua) is false - reuses
--- the exact same lying-still anim as the "Dead" stage (dead.lua's
--- playDeadAnimation), which is confirmed to actually hold still. The
--- earlier idle choice here, 'combat@damage@writhe'/'writhe_loop' (Rockstar's
--- "wounded ped" anim), has its own squirming/dragging motion baked into the
--- clip itself - freezing the ped's world position (laststand.lua's
--- updateCrawlMovement) stops it from actually traveling anywhere, but the
--- animation's own built-in motion still reads as "crawling in place" even
--- while stationary. This pose doesn't have that problem.
-local LastStandIdleDict = 'dead'
-local LastStandIdleAnim = 'dead_a'
 
 local function playUnescortedLastStandAnimation()
     if cache.vehicle then
@@ -30,19 +19,20 @@ local function playUnescortedLastStandAnimation()
                 lib.playAnim(cache.ped, LastStandCuffedDict, LastStandCuffedAnim, 1.0, 1.0, -1, 1, 0, false, false, false)
             end
         else
-            -- Plain animFlags 1 (LOOPING) on both - same as this server's
-            -- own "/e crawl" - so the ped is actually down on the ground
-            -- rather than the UPPERBODY|SECONDARY overlay a previous
-            -- attempt used to let GTA's own locomotion drive movement,
-            -- which let normal (standing) locomotion take over the moment
-            -- [W] was pressed. Movement is handled manually instead
-            -- (laststand.lua's updateCrawlMovement, independent of this
-            -- anim) - IsCrawling there just says which pose to show:
-            -- actively crawling toward something, or lying still.
-            local dict = IsCrawling and LastStandDict or LastStandIdleDict
-            local anim = IsCrawling and LastStandAnim or LastStandIdleAnim
-            if not IsEntityPlayingAnim(cache.ped, dict, anim, 3) then
-                lib.playAnim(cache.ped, dict, anim, 1.0, 1.0, -1, 1, 0, false, false, false)
+            -- Always the same crawl pose whether actually moving or not -
+            -- an earlier attempt swapped to a different anim (dead_a) while
+            -- idle, but blending between that (lying on the back) and this
+            -- (prone on the front) is such a different pose that it visibly
+            -- glitched the character switching between them. Plain
+            -- animFlags 1 (LOOPING), same as this server's own "/e crawl",
+            -- so the ped is actually down on the ground rather than the
+            -- UPPERBODY|SECONDARY overlay a previous attempt used to let
+            -- GTA's own locomotion drive movement, which let normal
+            -- (standing) locomotion take over the moment [W] was pressed.
+            -- Movement itself is handled entirely separately (laststand.lua's
+            -- updateCrawlMovement) - this anim doesn't change based on it.
+            if not IsEntityPlayingAnim(cache.ped, LastStandDict, LastStandAnim, 3) then
+                lib.playAnim(cache.ped, LastStandDict, LastStandAnim, 1.0, 1.0, -1, 1, 0, false, false, false)
             end
         end
     end
