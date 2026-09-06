@@ -67,24 +67,44 @@ local CRAWL_SPEED = 0.65 -- ground units/second while dragging themselves forwar
 -- a real "stay down and crawl" movement needs a movement clipset built for
 -- it, and this project doesn't have one that's confirmed to actually exist
 -- (a wrong guess here previously broke last stand outright - see the pcall
--- comment below), and simply re-enabling the movement control let normal
--- standing locomotion take over the instant [W] was pressed. This instead
--- keeps every control disabled (so GTA's own movement never engages, and
--- the crawl anim in setdownedstate.lua never gets interrupted) and drags
--- the ped forward relative to wherever the camera is currently facing -
--- matching normal on-foot movement's camera-relative feel - while [W] is
--- physically held. IsDisabledControlPressed (not IsControlPressed) is
--- needed here since the control is deliberately kept disabled above.
+-- comment below), and simply re-enabling movement controls let normal
+-- standing locomotion take over the instant a movement key was pressed.
+-- This instead keeps every control disabled (so GTA's own movement never
+-- engages, and the crawl anim in setdownedstate.lua never gets interrupted)
+-- and only drags the ped when one of WASD is actually held, in whatever
+-- direction that key means relative to wherever the camera is currently
+-- facing - matching normal on-foot movement's camera-relative feel.
+-- IsDisabledControlPressed (not IsControlPressed) is needed here since
+-- these controls are deliberately kept disabled above.
 local function updateCrawlMovement()
-    if not IsDisabledControlPressed(0, 32) then return end -- INPUT_MOVE_UP_ONLY (W)
+    local moveForward = IsDisabledControlPressed(0, 32) -- INPUT_MOVE_UP_ONLY (W)
+    local moveBack = IsDisabledControlPressed(0, 33) -- INPUT_MOVE_DOWN_ONLY (S)
+    local moveLeft = IsDisabledControlPressed(0, 34) -- INPUT_MOVE_LEFT_ONLY (A)
+    local moveRight = IsDisabledControlPressed(0, 35) -- INPUT_MOVE_RIGHT_ONLY (D)
 
-    local heading = GetGameplayCamRot(2).z
-    local rad = math.rad(heading)
-    local forward = vector3(-math.sin(rad), math.cos(rad), 0.0)
+    if not (moveForward or moveBack or moveLeft or moveRight) then return end
+
+    local camHeadingRad = math.rad(GetGameplayCamRot(2).z)
+    local forward = vector3(-math.sin(camHeadingRad), math.cos(camHeadingRad), 0.0)
+    local right = vector3(math.cos(camHeadingRad), math.sin(camHeadingRad), 0.0)
+
+    local dir = vector3(0.0, 0.0, 0.0)
+    if moveForward then dir += forward end
+    if moveBack then dir -= forward end
+    if moveRight then dir += right end
+    if moveLeft then dir -= right end
+
+    if #dir == 0.0 then return end -- opposing keys held together (e.g. W+S) cancel out
+
+    dir = dir / #dir -- normalize so diagonal (e.g. W+D) isn't faster than a straight direction
+
     local coords = GetEntityCoords(cache.ped)
-    local newCoords = coords + forward * (CRAWL_SPEED * GetFrameTime())
+    local newCoords = coords + dir * (CRAWL_SPEED * GetFrameTime())
 
-    SetEntityHeading(cache.ped, heading)
+    -- Face the direction actually being crawled toward, not just wherever
+    -- the camera points, so moving backward/sideways turns them to face it
+    -- instead of sliding around while still facing the camera's forward.
+    SetEntityHeading(cache.ped, math.deg(math.atan(-dir.x, dir.y)))
     SetEntityCoordsNoOffset(cache.ped, newCoords.x, newCoords.y, newCoords.z, true, true, true)
 end
 
