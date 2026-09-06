@@ -127,32 +127,40 @@ local function updateCrawlMovement()
         crawlWindupStarted = GetGameTimer()
     end
 
-    if GetGameTimer() - crawlWindupStarted < CRAWL_WINDUP_MS then
-        return -- still settling into the crawl pose - don't start sliding yet
-    end
-
-    local camHeadingRad = math.rad(GetGameplayCamRot(2).z)
-    local forward = vector3(-math.sin(camHeadingRad), math.cos(camHeadingRad), 0.0)
-    local right = vector3(math.cos(camHeadingRad), math.sin(camHeadingRad), 0.0)
+    local settlingIntoPose = GetGameTimer() - crawlWindupStarted < CRAWL_WINDUP_MS
 
     local dir = vector3(0.0, 0.0, 0.0)
-    if moveForward then dir += forward end
-    if moveBack then dir -= forward end
-    if moveRight then dir += right end
-    if moveLeft then dir -= right end
+    if not settlingIntoPose then
+        local camHeadingRad = math.rad(GetGameplayCamRot(2).z)
+        local forward = vector3(-math.sin(camHeadingRad), math.cos(camHeadingRad), 0.0)
+        local right = vector3(math.cos(camHeadingRad), math.sin(camHeadingRad), 0.0)
 
-    if #dir == 0.0 then return end -- opposing keys held together (e.g. W+S) cancel out
+        if moveForward then dir += forward end
+        if moveBack then dir -= forward end
+        if moveRight then dir += right end
+        if moveLeft then dir -= right end
 
-    dir = dir / #dir -- normalize so diagonal (e.g. W+D) isn't faster than a straight direction
+        if #dir ~= 0.0 then
+            dir = dir / #dir -- normalize so diagonal (e.g. W+D) isn't faster than a straight direction
+            -- Face the direction actually being crawled toward, not just
+            -- wherever the camera points, so moving backward/sideways turns
+            -- them to face it instead of sliding around while still facing
+            -- the camera's forward.
+            SetEntityHeading(cache.ped, math.deg(math.atan(-dir.x, dir.y)))
+        end
+    end
 
-    local coords = GetEntityCoords(cache.ped)
-    local newCoords = coords + dir * (CRAWL_SPEED * GetFrameTime())
-
-    -- Face the direction actually being crawled toward, not just wherever
-    -- the camera points, so moving backward/sideways turns them to face it
-    -- instead of sliding around while still facing the camera's forward.
-    SetEntityHeading(cache.ped, math.deg(math.atan(-dir.x, dir.y)))
-    SetEntityCoordsNoOffset(cache.ped, newCoords.x, newCoords.y, newCoords.z, true, true, true)
+    -- Velocity, not a per-frame teleport (SetEntityCoordsNoOffset) - other
+    -- players' clients interpolate/extrapolate a networked ped's movement
+    -- from its synced velocity between position updates, not from raw
+    -- position jumps, so a teleport-based crawl looked frozen on their
+    -- screen until the next full sync packet caught them up all at once
+    -- (the "stops, then teleports" symptom). Setting actual velocity here
+    -- is what the sync system expects, so it can interpolate the same
+    -- motion everyone else sees smoothly. Z is left alone (not overridden
+    -- to 0) so gravity still settles them naturally over uneven ground.
+    local currentZVelocity = GetEntityVelocity(cache.ped).z
+    SetEntityVelocity(cache.ped, dir.x * CRAWL_SPEED, dir.y * CRAWL_SPEED, currentZVelocity)
 end
 
 ---put player in last stand mode and notify EMS.
