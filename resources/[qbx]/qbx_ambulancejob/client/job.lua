@@ -225,16 +225,6 @@ local function teleportPlayerWithFade(coords)
     DoScreenFadeIn(1000)
 end
 
----Teleports the player to main elevator
-local function teleportToMainElevator()
-    teleportPlayerWithFade(sharedConfig.locations.main[1])
-end
-
----Teleports the player to roof elevator
-local function teleportToRoofElevator()
-    teleportPlayerWithFade(sharedConfig.locations.roof[1])
-end
-
 ---Toggles the on duty status of the player.
 local function toggleDuty()
     TriggerServerEvent('QBCore:ToggleDuty')
@@ -357,39 +347,6 @@ if config.useTarget then
             end
         end
 
-        exports.ox_target:addBoxZone({
-            name = 'roof1',
-            coords = sharedConfig.locations.roof[1],
-            size = vec3(1, 2, 2),
-            rotation = -20,
-            debug = config.debugPoly,
-            options = {
-                {
-                    icon = 'fas fa-hand-point-down',
-                    label = locale('text.el_main'),
-                    onSelect = teleportToMainElevator,
-                    distance = 1.5,
-                    groups = 'ambulance',
-                }
-            }
-        })
-
-        exports.ox_target:addBoxZone({
-            name = 'main1',
-            coords = sharedConfig.locations.main[1],
-            size = vec3(2, 1, 2),
-            rotation = -20,
-            debug = config.debugPoly,
-            options = {
-                {
-                    icon = 'fas fa-hand-point-up',
-                    label = locale('text.el_roof'),
-                    onSelect = teleportToRoofElevator,
-                    distance = 1.5,
-                    groups = 'ambulance',
-                }
-            }
-        })
     end)
 else
     CreateThread(function()
@@ -463,40 +420,5 @@ else
             end
         end
 
-        lib.zones.box({
-            coords = sharedConfig.locations.roof[1],
-            size = vec3(1, 1, 2),
-            rotation = -20,
-            debug = config.debugPoly,
-            onEnter = function()
-                local label = QBX.PlayerData.job.onduty and locale('text.elevator_main') or locale('error.not_ems')
-                lib.showTextUI(label)
-            end,
-            onExit = function()
-                local _, text = lib.isTextUIOpen()
-                if text == locale('text.elevator_main') or text == locale('error.not_ems') then lib.hideTextUI() end
-            end,
-            inside = function()
-                OnKeyPress(teleportToMainElevator)
-            end,
-        })
-
-        lib.zones.box({
-            coords = sharedConfig.locations.main[1],
-            size = vec3(1, 1, 2),
-            rotation = -20,
-            debug = config.debugPoly,
-            onEnter = function()
-                local label = QBX.PlayerData.job.onduty and locale('text.elevator_roof') or locale('error.not_ems')
-                lib.showTextUI(label)
-            end,
-            onExit = function()
-                local _, text = lib.isTextUIOpen()
-                if text == locale('text.elevator_roof') or text == locale('error.not_ems') then lib.hideTextUI() end
-            end,
-            inside = function()
-                OnKeyPress(teleportToRoofElevator)
-            end,
-        })
     end)
 end

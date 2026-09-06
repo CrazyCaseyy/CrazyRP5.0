@@ -23,6 +23,7 @@
         <li class="nav-item" data-tab="reports">Reports</li>
         <li class="nav-item" data-tab="bans">Ban Logs</li>
         <li class="nav-item" data-tab="characters">Characters</li>
+        <li class="nav-item hidden" data-tab="admins" id="adminsNavItem">Admins</li>
       </ul>
       <div class="sidebar-footer">
         <button class="close-btn" id="closeBtn">Close (ESC)</button>
@@ -92,6 +93,15 @@
               <div class="item-grid" id="playerInventoryGrid"></div>
             </div>
           </div>
+
+          <!-- Owner-only: per-player permission checkboxes, opened via the
+               Owner Tools section on a player's detail page. -->
+          <div class="players-detail-view hidden" id="playerPermissionsView">
+            <button class="btn small" id="permissionsBackBtn">&larr; Back to <span id="permissionsPlayerName"></span></button>
+            <div class="empty-state" style="padding:0 0 12px">On = this player can currently do this. Toggling always sets an explicit override for them, on top of whatever their Support/Mod/Admin tier would normally allow.</div>
+            <input type="text" class="perm-search" id="playerPermissionsSearch" placeholder="Filter permissions...">
+            <div id="playerPermissionsList"></div>
+          </div>
         </section>
 
         <!-- ============================ SELF TOOLS ============================ -->
@@ -101,7 +111,7 @@
             <div class="toggle-grid" id="selfToggleGrid"></div>
           </div>
 
-          <div class="card">
+          <div class="card" id="pedModelCard">
             <div class="section-title" style="margin-bottom:12px">Ped Model</div>
             <div class="field-row">
               <div class="field">
@@ -216,6 +226,34 @@
             <div class="players-detail-col card" id="characterDetail">
               <div class="empty-state">Select a character to view their record.</div>
             </div>
+          </div>
+        </section>
+
+        <!-- ==================== ADMINS (owner, or a staff member granted the Admins > Grant/Edit Staff Tiers action) ==================== -->
+        <section class="panel hidden" data-panel="admins">
+          <div class="card" style="margin-bottom:16px">
+            <div class="section-title" style="margin-bottom:8px">Owner status</div>
+            <div class="empty-state" style="padding:0">'Owner' itself can only be granted in server.cfg (add_principal identifier.xxx group.owner) - not from here. Support, Mod, and Admin can be managed below by an owner, or by any staff member specifically granted the "Grant/Edit Staff Tiers" action.</div>
+          </div>
+          <div class="section-title" style="margin-bottom:8px">Staff</div>
+          <div class="btn-row" style="margin-bottom:12px">
+            <button class="btn primary small" id="refreshStaffBtn">Refresh</button>
+          </div>
+          <div id="staffList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:24px;"></div>
+
+          <!-- Owner-only surface: viewing/editing every action's required
+               tier and any individual player's action overrides is a
+               broader power than just granting staff tiers, and isn't
+               delegable through the Grant/Edit Staff Tiers action - hidden
+               entirely (via JS) for a non-owner who only has that. -->
+          <div id="ownerOnlySection">
+            <div class="section-title" style="margin-bottom:8px">Action Permissions</div>
+            <div class="empty-state" style="padding:0 0 12px">The tier required for every individual action in this menu - player actions, self tools, dev tools, vehicles, and more. Changes apply immediately, no restart needed.</div>
+            <div class="btn-row" style="margin-bottom:12px">
+              <button class="btn primary small" id="refreshActionPermsBtn">Refresh</button>
+            </div>
+            <input type="text" class="perm-search" id="actionPermsSearch" placeholder="Filter actions...">
+            <div id="actionPermsList"></div>
           </div>
         </section>
 

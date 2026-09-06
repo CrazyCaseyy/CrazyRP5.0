@@ -557,6 +557,11 @@ input::placeholder { color: var(--ox-text-faint); }
 .ban-card-header .expiry { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
 .ban-card-header .expiry.active { color: var(--ox-danger-hover); }
 .ban-card-header .expiry.expired { color: var(--ox-text-faint); }
+/* Staff online/offline badge (Admins tab) reuses .expiry's sizing but not
+   its ban-specific red-for-active meaning - green reads as "online" much
+   more naturally than red would. */
+.ban-card-header .expiry.online { color: var(--ox-success); }
+.ban-card-header .expiry.offline { color: var(--ox-text-faint); }
 .ban-reason { font-size: 14px; color: var(--ox-text-dim); background: var(--ox-panel-softer); border-radius: var(--ox-radius-sm); padding: 10px 12px; }
 .ban-meta { font-size: 11.5px; color: var(--ox-text-faint); }
 
@@ -581,3 +586,183 @@ input::placeholder { color: var(--ox-text-faint); }
 .toast.show { opacity: 1; transform: translateY(0); }
 .toast.success { border-color: rgba(61, 220, 132, 0.6); }
 .toast.error { border-color: rgba(229, 72, 77, 0.6); }
+
+/* ===================================================================
+   Per-player permission checkboxes (Owner Tools -> Edit Permissions)
+   =================================================================== */
+
+.permission-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 4px;
+  font-size: 13px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--ox-border);
+}
+.permission-checkbox-row:last-child { border-bottom: none; }
+.permission-checkbox-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--ox-blue);
+  cursor: pointer;
+  flex: none;
+}
+.permission-checkbox-row span:not(.override-badge) { flex: 1; color: var(--ox-text); }
+.override-badge {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ox-warning);
+  border: 1px solid rgba(245, 166, 35, 0.5);
+  border-radius: var(--ox-radius-sm);
+  padding: 2px 6px;
+}
+
+/* ===================================================================
+   Permission editors (Owner Tools -> Edit Permissions, and the Admins
+   tab's Staff / Action Permissions lists) - a shared, more polished look
+   than a plain field-row: accented category cards with a live count,
+   sliding toggle switches instead of checkboxes, and a segmented button
+   group instead of a bare <select> for picking a tier.
+   =================================================================== */
+
+.perm-category {
+  background: var(--ox-panel-soft);
+  border: 1px solid var(--ox-border);
+  border-left: 3px solid var(--ox-blue);
+  border-radius: var(--ox-radius);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+
+.perm-category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.perm-category-title {
+  font-family: var(--font-display);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ox-text-dim);
+}
+
+.perm-category-count {
+  font-size: 11px;
+  color: var(--ox-text-faint);
+  background: var(--ox-panel-softer);
+  border-radius: 999px;
+  padding: 2px 9px;
+}
+
+.perm-category-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.perm-mini-btn {
+  font-size: 10.5px;
+  color: var(--ox-text-faint);
+  background: transparent;
+  border: 1px solid var(--ox-border);
+  border-radius: var(--ox-radius-sm);
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: color 0.12s ease, border-color 0.12s ease;
+}
+.perm-mini-btn:hover { color: var(--ox-text); border-color: var(--ox-border-strong); }
+
+.perm-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 2px;
+  border-bottom: 1px solid var(--ox-border);
+  transition: background 0.12s ease;
+}
+.perm-row:last-child { border-bottom: none; }
+.perm-row:hover { background: rgba(255, 255, 255, 0.02); }
+
+.perm-row-label {
+  flex: 1;
+  font-size: 13px;
+  color: var(--ox-text);
+}
+
+/* Sliding toggle switch - replaces a plain checkbox for the per-player box */
+.perm-switch {
+  position: relative;
+  width: 38px;
+  height: 21px;
+  flex: none;
+  cursor: pointer;
+}
+.perm-switch input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+.perm-switch .track {
+  position: absolute;
+  inset: 0;
+  background: var(--ox-panel-softer);
+  border: 1px solid var(--ox-border-strong);
+  border-radius: 999px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.perm-switch .track::before {
+  content: '';
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  left: 2px;
+  top: 2px;
+  background: var(--ox-text-faint);
+  border-radius: 50%;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.perm-switch input:checked + .track { background: rgba(21, 115, 237, 0.28); border-color: var(--ox-blue); }
+.perm-switch input:checked + .track::before { transform: translateX(17px); background: var(--ox-blue); box-shadow: 0 0 6px rgba(21, 115, 237, 0.6); }
+.perm-switch input:focus-visible + .track { box-shadow: 0 0 0 2px rgba(21, 115, 237, 0.4); }
+
+/* Segmented tier picker - replaces a bare <select> for Support/Mod/Admin(/None) */
+.tier-segmented {
+  display: inline-flex;
+  background: var(--ox-panel-softer);
+  border: 1px solid var(--ox-border);
+  border-radius: var(--ox-radius-sm);
+  padding: 2px;
+  gap: 2px;
+  flex: none;
+}
+.tier-segment {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ox-text-faint);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.tier-segment:hover { color: var(--ox-text-dim); }
+.tier-segment.active {
+  background: var(--ox-blue);
+  color: #fff;
+  box-shadow: 0 0 8px rgba(21, 115, 237, 0.4);
+}
+.tier-segment.active.tier-none { background: var(--ox-danger); box-shadow: 0 0 8px rgba(229, 72, 77, 0.35); }
+
+.perm-search {
+  width: 100%;
+  margin-bottom: 14px;
+}

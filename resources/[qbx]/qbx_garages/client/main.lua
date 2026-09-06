@@ -2,6 +2,16 @@ local config = require 'config.client'
 if not config.enableClient then return end
 local VEHICLES = exports.qbx_core:GetVehiclesByName()
 
+-- Display-only mirror of server/spawn-vehicle.lua's TRANSFER_FEE - the
+-- server is what actually charges it and re-validates independently, this
+-- is just what shows up on the "Take Out" option's price tag.
+local TRANSFER_FEE = 500
+
+-- name -> GarageConfig, populated as garages are (re)created below - used
+-- by displayVehicleInfo to show a vehicle's current garage by its actual
+-- label instead of its internal config key.
+local KnownGarages = {}
+
 ---@enum ProgressColor
 local ProgressColor = {
     GREEN = 'green.5',
@@ -91,6 +101,55 @@ local function takeOutOfGarage(vehicleId, garageName, accessPoint)
     assert(success, result)
 end
 
+local transferLock = false
+
+-- The vehicle previewed at the current garage's spawn point (see
+-- createVehiclePreview/destroyVehiclePreview) while the vehicle info menu
+-- is open - a local, non-networked ghost so nothing but the viewing player
+-- ever sees it and nothing needs cleaning up server-side.
+local previewVehicle = nil
+
+---Spawns a non-networked, non-solid "ghost" of the vehicle at its would-be
+---take-out spot so the player can look it over before committing to
+---actually taking it out - frozen, invincible and collision-free so it
+---can't be entered, damaged, or block anyone's movement.
+---@param vehicle PlayerVehicle
+---@param coords vector4
+local function createVehiclePreview(vehicle, coords)
+    local model = lib.requestModel(vehicle.modelName)
+    local veh = CreateVehicle(model, coords.x, coords.y, coords.z, coords.w, false, false)
+    SetModelAsNoLongerNeeded(model)
+
+    lib.setVehicleProperties(veh, vehicle.props)
+
+    SetEntityAlpha(veh, 200, false)
+    SetEntityCollision(veh, false, false)
+    FreezeEntityPosition(veh, true)
+    SetEntityInvincible(veh, true)
+    SetVehicleDoorsLocked(veh, 2)
+    SetVehicleEngineOn(veh, false, true, true)
+    SetVehicleUndriveable(veh, true)
+
+    return veh
+end
+
+local function destroyVehiclePreview()
+    if previewVehicle and DoesEntityExist(previewVehicle) then
+        DeleteEntity(previewVehicle)
+    end
+    previewVehicle = nil
+end
+
+AddEventHandler('onResourceStop', function(resource)
+    if resource ~= cache.resource then return end
+    destroyVehiclePreview()
+end)
+
+-- Forward-declared (assigned below, after openGarageMenu exists) -
+-- displayVehicleInfo needs to reference this before openGarageMenu itself
+-- is defined further down the file.
+local transferVehicleToGarage
+
 ---@param vehicle PlayerVehicle
 ---@param garageName string
 ---@param garageInfo GarageConfig
@@ -103,11 +162,26 @@ local function displayVehicleInfo(vehicle, garageName, garageInfo, accessPoint)
     local fuelColor = getProgressColor(vehicle.props.fuelLevel)
     local vehicleLabel = ('%s %s'):format(VEHICLES[vehicle.modelName].brand, VEHICLES[vehicle.modelName].name)
 
+    -- Only preview a vehicle that isn't already sitting out in the world -
+    -- there's a real one to go look at in that case, a ghost copy would
+    -- just be confusing standing next to it.
+    destroyVehiclePreview()
+    if vehicle.state ~= VehicleState.OUT then
+        local previewCoords = garageInfo.accessPoints[accessPoint].spawn or garageInfo.accessPoints[accessPoint].coords
+        previewVehicle = createVehiclePreview(vehicle, previewCoords)
+    end
+
     local options = {
         {
             title = locale('menu.information'),
             icon = 'circle-info',
-            description = locale('menu.description', vehicleLabel, vehicle.props.plate, lib.math.groupdigits(vehicle.depotPrice)),
+            description = locale('menu.description', vehicleLabel, vehicle.props.plate),
+            readOnly = true,
+        },
+        {
+            title = locale('menu.current_garage'),
+            icon = 'location-dot',
+            description = (KnownGarages[vehicle.garage] and KnownGarages[vehicle.garage].label) or vehicle.garage or 'Unknown',
             readOnly = true,
         },
         {
@@ -138,9 +212,9 @@ local function displayVehicleInfo(vehicle, garageName, garageInfo, accessPoint)
             options[#options + 1] = {
                 title = 'Take out',
                 icon = 'fa-truck-ramp-box',
-                description = ('$%s'):format(lib.math.groupdigits(vehicle.depotPrice)),
                 arrow = true,
                 onSelect = function()
+                    destroyVehiclePreview()
                     takeOutOfGarage(vehicle.id, garageName, accessPoint)
                 end,
             }
@@ -152,14 +226,36 @@ local function displayVehicleInfo(vehicle, garageName, garageInfo, accessPoint)
             }
         end
     elseif vehicle.state == VehicleState.GARAGED then
-        options[#options + 1] = {
-            title = locale('menu.take_out'),
-            icon = 'car-rear',
-            arrow = true,
-            onSelect = function()
-                takeOutOfGarage(vehicle.id, garageName, accessPoint)
-            end,
-        }
+        -- Every garage now lists all of a player's vehicles regardless of
+        -- which one they're actually registered to (server/main.lua's
+        -- GetPlayerVehicleFilter). If it isn't actually here, the only
+        -- option is to pay to transfer it here first - server/main.lua's
+        -- transferVehicle then re-opens this same vehicle list so taking
+        -- it out is a separate, deliberate follow-up click once it
+        -- actually shows up as home, not something that happens
+        -- automatically the moment the transfer succeeds.
+        if vehicle.garage == garageName then
+            options[#options + 1] = {
+                title = locale('menu.take_out'),
+                icon = 'car-rear',
+                arrow = true,
+                onSelect = function()
+                    destroyVehiclePreview()
+                    takeOutOfGarage(vehicle.id, garageName, accessPoint)
+                end,
+            }
+        else
+            options[#options + 1] = {
+                title = locale('menu.transfer_here'),
+                icon = 'truck-ramp-box',
+                description = locale('menu.transfer_fee', lib.math.groupdigits(TRANSFER_FEE)),
+                arrow = true,
+                onSelect = function()
+                    destroyVehiclePreview()
+                    transferVehicleToGarage(vehicle.id, garageName, garageInfo, accessPoint)
+                end,
+            }
+        end
     elseif vehicle.state == VehicleState.IMPOUNDED then
         options[#options + 1] = {
             title = locale('menu.veh_impounded'),
@@ -172,6 +268,11 @@ local function displayVehicleInfo(vehicle, garageName, garageInfo, accessPoint)
         id = 'vehicleList',
         title = garageInfo.label,
         menu = 'garageMenu',
+        -- Covers leaving this screen via the back button (onBack) or
+        -- closing the menu outright, e.g. Escape (onExit) - the onSelect
+        -- handlers above already clean up their own take-out/transfer paths.
+        onBack = destroyVehiclePreview,
+        onExit = destroyVehiclePreview,
         options = options,
     })
 
@@ -216,6 +317,22 @@ local function openGarageMenu(garageName, garageInfo, accessPoint)
     })
 
     lib.showContext('garageMenu')
+end
+
+---@param vehicleId number
+---@param garageName string
+---@param garageInfo GarageConfig
+---@param accessPoint integer
+transferVehicleToGarage = function(vehicleId, garageName, garageInfo, accessPoint)
+    if transferLock then return end
+    transferLock = true
+
+    local ok = lib.callback.await('qbx_garages:server:transferVehicle', false, vehicleId, garageName)
+    transferLock = false
+
+    if ok then
+        openGarageMenu(garageName, garageInfo, accessPoint)
+    end
 end
 
 ---@param vehicle number
@@ -371,25 +488,30 @@ end
 
 local function createGarage(name, garage)
     local accessPoints = garage.accessPoints
+
+    -- Only the first spot in a garage ever carries a blip (config/server.lua),
+    -- so just handle it directly here instead of checking every access point
+    -- for one on each pass through the loop below.
+    local firstAccessPoint = accessPoints[1]
+    if firstAccessPoint.blip then
+        createBlips(garage, firstAccessPoint)
+    end
+
     for i = 1, #accessPoints do
-        local accessPoint = accessPoints[i]
-
-        if accessPoint.blip then
-            createBlips(garage, accessPoint)
-        end
-
-        createZones(name, garage, accessPoint, i)
+        createZones(name, garage, accessPoints[i], i)
     end
 end
 
 local function createGarages()
     local garages = lib.callback.await('qbx_garages:server:getGarages')
     for name, garage in pairs(garages) do
+        KnownGarages[name] = garage
         createGarage(name, garage)
     end
 end
 
 RegisterNetEvent('qbx_garages:client:garageRegistered', function(name, garage)
+    KnownGarages[name] = garage
     createGarage(name, garage)
 end)
 

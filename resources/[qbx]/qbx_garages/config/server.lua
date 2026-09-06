@@ -11,7 +11,10 @@ return {
     warpInVehicle = false, -- If false, player will no longer warp into vehicle upon taking the vehicle out.
     doorsLocked = true, -- If true, the doors will be locked upon taking the vehicle out.
     distanceCheck = 5.0, -- The distance that needs to bee clear to let the vehicle spawn, this prevents vehicles stacking on top of each other
-    calculateImpoundFee = require 'server.default-calculate-impound-fee',
+    -- Impound retrieval is free - was `require 'server.default-calculate-impound-fee'`
+    -- (2% of the vehicle's price), that file is left in place unused in case
+    -- a fee ever needs to come back.
+    calculateImpoundFee = function() return 0 end,
     logging = {
         webhook = {
             error = 'https://discord.com/api/webhooks/1539180753471012905/KV82AecVyW1qddorcOnSsJjxincnHC6bgOTX2-qzlPJW25HEIssFO8vVS1cAm_5j7L7L',
@@ -51,214 +54,232 @@ return {
 
     garages = {
         -- Public Garages
-        motelgarage = {
-            label = 'Motel Parking',
+        -- Bigger interact zones than the ox_lib defaults (useRadius 1 /
+        -- dropUseRadius 1.5) - drawRadius (60, unchanged) is just the
+        -- outer range at which the real interact zone gets spun up at
+        -- all, so it's not what makes these feel small in practice.
+        -- Only the first access point per garage carries a blip, so
+        -- multi-spot garages show one map marker, not one per spot.
+        whitegarage = {
+            label = 'White Garage Parking',
             vehicleType = VehicleType.CAR,
             accessPoints = {
                 {
-                    blip = {
-                        name = 'Public Parking',
-                        sprite = 357,
-                        color = 3,
-                    },
-                    coords = vec4(275.58, -344.74, 45.17, 70.0),
-                    spawn = vec4(271.26, -342.32, 44.7, 159.97),
-                }
-            },
-        },
-        sapcounsel = {
-            label = 'San Andreas Parking',
-            vehicleType = VehicleType.CAR,
-            accessPoints = {
+                    blip = { name = 'Public Parking', sprite = 357, color = 3 },
+                    coords = vec4(-461.03, -816.73, 29.58, 268.7),
+                    spawn = vec4(-461.03, -816.73, 29.58, 268.7),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
                 {
-                    blip = {
-                        name = 'Public Parking',
-                        sprite = 357,
-                        color = 3,
-                    },
-                    coords = vec4(-330.67, -781.12, 33.96, 40.46),
-                    spawn = vec4(-337.11, -775.34, 33.56, 132.09),
-                }
-            },
-        },
-        spanishave = {
-            label = 'Spanish Ave Parking',
-            vehicleType = VehicleType.CAR,
-            accessPoints = {
+                    coords = vec4(-460.6, -813.38, 29.56, 278.06),
+                    spawn = vec4(-460.6, -813.38, 29.56, 278.06),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
                 {
-                    blip = {
-                        name = 'Public Parking',
-                        sprite = 357,
-                        color = 3,
-                    },
-                    coords = vec4(-1160.46, -741.04, 19.95, 41.26),
-                    spawn = vec4(-1165.38, -747.65, 18.94, 40.45),
-                }
-            },
-        },
-        caears24 = {
-            label = 'Caears 24 Parking',
-            vehicleType = VehicleType.CAR,
-            accessPoints = {
-                {
-                    blip = {
-                        name = 'Public Parking',
-                        sprite = 357,
-                        color = 3,
-                    },
-                    coords = vec4(68.08, 13.15, 69.21, 160.44),
-                    spawn = vec4(72.61, 11.72, 68.47, 157.59),
+                    coords = vec4(-460.99, -809.95, 29.54, 266.29),
+                    spawn = vec4(-460.99, -809.95, 29.54, 266.29),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
                 },
             },
         },
-        littleseoul = {
-            label = 'Little Seoul Parking',
+        redgarage = {
+            label = 'Red Garage Parking',
             vehicleType = VehicleType.CAR,
             accessPoints = {
                 {
-                    blip = {
-                        name = 'Public Parking',
-                        sprite = 357,
-                        color = 3,
-                    },
-                    coords = vec4(-463.51, -808.2, 30.54, 0.0),
-                    spawn = vec4(-472.24, -813.61, 30.3, 179.88),
-                }
+                    blip = { name = 'Public Parking', sprite = 357, color = 3 },
+                    coords = vec4(-356.61, -775.97, 32.97, 266.07),
+                    spawn = vec4(-356.61, -775.97, 32.97, 266.07),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
+                {
+                    coords = vec4(-357.53, -771.06, 32.97, 266.99),
+                    spawn = vec4(-357.53, -771.06, 32.97, 266.99),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
+                {
+                    coords = vec4(-357.39, -767.86, 32.97, 266.82),
+                    spawn = vec4(-357.39, -767.86, 32.97, 266.82),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
             },
         },
-        lagunapi = {
-            label = 'Laguna Parking',
+        motormotel68 = {
+            label = 'Motor Motel Route 68 Parking',
             vehicleType = VehicleType.CAR,
             accessPoints = {
                 {
-                    blip = {
-                        name = 'Public Parking',
-                        sprite = 357,
-                        color = 3,
-                    },
-                    coords = vec4(363.85, 297.97, 103.5, 341.39),
-                    spawn = vec4(367.41, 297.02, 103.2, 341.08),
-                }
+                    blip = { name = 'Public Parking', sprite = 357, color = 3 },
+                    coords = vec4(1131.6, 2646.24, 37.0, 358.64),
+                    spawn = vec4(1131.6, 2646.24, 37.0, 358.64),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
+                {
+                    coords = vec4(1127.77, 2646.71, 37.0, 359.08),
+                    spawn = vec4(1127.77, 2646.71, 37.0, 359.08),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
+                {
+                    coords = vec4(1124.19, 2646.21, 37.0, 356.44),
+                    spawn = vec4(1124.19, 2646.21, 37.0, 356.44),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
             },
         },
-        airportp = {
-            label = 'Airport Parking',
+        legionparking = {
+            label = 'Legion Parking',
             vehicleType = VehicleType.CAR,
             accessPoints = {
                 {
-                    blip = {
-                        name = 'Public Parking',
-                        sprite = 357,
-                        color = 3,
-                    },
-                    coords = vec4(-796.07, -2023.26, 9.17, 55.18),
-                    spawn = vec4(-793.35, -2020.62, 8.51, 58.42),
-                }
+                    blip = { name = 'Public Parking', sprite = 357, color = 3 },
+                    coords = vec4(216.18, -804.59, 29.8, 71.95),
+                    spawn = vec4(216.18, -804.59, 29.8, 71.95),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
+                {
+                    coords = vec4(205.53, -800.88, 30.02, 248.56),
+                    spawn = vec4(205.53, -800.88, 30.02, 248.56),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
+                {
+                    coords = vec4(206.46, -798.37, 30.0, 252.07),
+                    spawn = vec4(206.46, -798.37, 30.0, 252.07),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
+                {
+                    coords = vec4(216.67, -801.91, 29.79, 68.94),
+                    spawn = vec4(216.67, -801.91, 29.79, 68.94),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
             },
         },
-        beachp = {
-            label = 'Beach Parking',
+        clintonave = {
+            label = 'Clinton Avenue Parking',
             vehicleType = VehicleType.CAR,
             accessPoints = {
                 {
-                    blip = {
-                        name = 'Public Parking',
-                        sprite = 357,
-                        color = 3,
-                    },
-                    coords = vec4(-1184.21, -1509.65, 4.65, 303.72),
-                    spawn = vec4(-1184.4, -1501.88, 4.39, 214.7),
-                }
+                    blip = { name = 'Public Parking', sprite = 357, color = 3 },
+                    coords = vec4(375.2, 295.34, 102.28, 162.65),
+                    spawn = vec4(375.2, 295.34, 102.28, 162.65),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
+                {
+                    coords = vec4(378.92, 293.95, 102.2, 168.11),
+                    spawn = vec4(378.92, 293.95, 102.2, 168.11),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
+                {
+                    coords = vec4(360.71, 293.87, 102.52, 251.69),
+                    spawn = vec4(360.71, 293.87, 102.52, 251.69),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
+                {
+                    coords = vec4(359.19, 290.26, 102.51, 253.03),
+                    spawn = vec4(359.19, 290.26, 102.51, 253.03),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
             },
         },
-        themotorhotel = {
-            label = 'The Motor Hotel Parking',
+        -- Only 2 spots - the 3rd, 4th coords given for this one were an
+        -- exact duplicate of the 1st (same vec4 repeated 3 times), so that
+        -- access point isn't repeated 3 times over here. Worth
+        -- double-checking those were meant to be distinct spots.
+        autopiaparkway = {
+            label = 'Autopia Parkway Parking',
             vehicleType = VehicleType.CAR,
             accessPoints = {
                 {
-                    blip = {
-                        name = 'Public Parking',
-                        sprite = 357,
-                        color = 3,
-                    },
-                    coords = vec4(1137.77, 2663.54, 37.9, 0.0),
-                    spawn = vec4(1137.56, 2674.19, 38.17, 359.95),
-                }
+                    blip = { name = 'Public Parking', sprite = 357, color = 3 },
+                    coords = vec4(-776.3, -2024.65, 7.87, 216.84),
+                    spawn = vec4(-776.3, -2024.65, 7.87, 216.84),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
+                {
+                    coords = vec4(-767.91, -2017.74, 7.88, 228.29),
+                    spawn = vec4(-767.91, -2017.74, 7.88, 228.29),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
             },
         },
-        liqourparking = {
-            label = 'Liqour Parking',
+        paletoblvd = {
+            label = 'Paleto Blvd Parking',
             vehicleType = VehicleType.CAR,
             accessPoints = {
                 {
-                    blip = {
-                        name = 'Public Parking',
-                        sprite = 357,
-                        color = 3,
-                    },
-                    coords = vec4(960.68, 3609.32, 32.98, 268.97),
-                    spawn = vec4(960.48, 3605.71, 32.98, 87.09),
-                }
+                    blip = { name = 'Public Parking', sprite = 357, color = 3 },
+                    coords = vec4(73.08, 6404.79, 30.23, 134.83),
+                    spawn = vec4(73.08, 6404.79, 30.23, 134.83),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
+                {
+                    coords = vec4(75.92, 6402.02, 30.23, 134.79),
+                    spawn = vec4(75.92, 6402.02, 30.23, 134.79),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
+                {
+                    coords = vec4(78.76, 6399.21, 30.23, 136.88),
+                    spawn = vec4(78.76, 6399.21, 30.23, 136.88),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
+                {
+                    coords = vec4(81.2, 6396.37, 30.23, 132.07),
+                    spawn = vec4(81.2, 6396.37, 30.23, 132.07),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
             },
         },
-        shoreparking = {
-            label = 'Shore Parking',
+        gomastreet = {
+            label = 'Goma Street Parking',
             vehicleType = VehicleType.CAR,
             accessPoints = {
                 {
-                    blip = {
-                        name = 'Public Parking',
-                        sprite = 357,
-                        color = 3,
-                    },
-                    coords = vec4(1726.9, 3710.38, 34.26, 22.54),
-                    spawn = vec4(1728.65, 3714.85, 34.18, 21.26),
-                }
-            },
-        },
-        haanparking = {
-            label = 'Bell Farms Parking',
-            vehicleType = VehicleType.CAR,
-            accessPoints = {
+                    blip = { name = 'Public Parking', sprite = 357, color = 3 },
+                    coords = vec4(-1182.86, -1495.46, 3.38, 129.24),
+                    spawn = vec4(-1182.86, -1495.46, 3.38, 129.24),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
                 {
-                    blip = {
-                        name = 'Public Parking',
-                        sprite = 357,
-                        color = 3,
-                    },
-                    coords = vec4(78.34, 6418.74, 31.28, 0),
-                    spawn = vec4(70.71, 6425.16, 30.92, 68.5),
-                }
-            },
-        },
-        dumbogarage = {
-            label = 'Dumbo Private Parking',
-            vehicleType = VehicleType.CAR,
-            accessPoints = {
+                    coords = vec4(-1191.24, -1504.36, 3.37, 304.35),
+                    spawn = vec4(-1191.24, -1504.36, 3.37, 304.35),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
                 {
-                    blip = {
-                        name = 'Public Parking',
-                        sprite = 357,
-                        color = 3,
-                    },
-                    coords = vec4(157.26, -3240.00, 7.00, 0),
-                    spawn = vec4(165.32, -3236.10, 5.93, 268.5),
-                }
-            },
-        },
-        pillboxgarage = {
-            label = 'Pillbox Garage Parking',
-            vehicleType = VehicleType.CAR,
-            accessPoints = {
+                    coords = vec4(-1184.35, -1492.73, 3.38, 123.99),
+                    spawn = vec4(-1184.35, -1492.73, 3.38, 123.99),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
                 {
-                    blip = {
-                        name = 'Public Parking',
-                        sprite = 357,
-                        color = 3,
-                    },
-                    coords = vec4(218.66, -804.08, 30.75, 65.69),
-                    spawn = vec4(229.33, -805.01, 30.54, 156.79),
-                }
+                    coords = vec4(-1186.23, -1490.29, 3.38, 125.64),
+                    spawn = vec4(-1186.23, -1490.29, 3.38, 125.64),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
+                },
             },
         },
         intairport = {

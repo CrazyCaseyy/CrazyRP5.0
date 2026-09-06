@@ -5,7 +5,9 @@
 //   getPlayerInventory, toggleSelf, setPedModel, refreshPedModel, getToggleState,
 //   getVehicles, spawnVehicle, fixVehicle, deleteVehicle, adminCar, setPlate, setWeather,
 //   setTime, getRadioList, pullStash, copyToClipboard, copyText, getReports, replyReport,
-//   closeReport, getBans, unban, searchCharacters, getCharacterDetail, openCharacterInventory
+//   closeReport, getBans, unban, isOwner, getStaff, setStaffTier, getActionPerms, setActionPerm,
+//   getMyActionPerms, getPlayerPermissions, setPlayerPermission, searchCharacters,
+//   getCharacterDetail, openCharacterInventory
 
 function resourceName() {
   return window.GetParentResourceName ? GetParentResourceName() : 'crazy-adminmenu';
@@ -58,6 +60,7 @@ const TAB_META = {
   reports: { title: 'Reports', subtitle: 'Pending player reports' },
   bans: { title: 'Ban Logs', subtitle: 'Reason and duration for every ban on record' },
   characters: { title: 'Characters', subtitle: 'Look up any character in the database, online or not' },
+  admins: { title: 'Admins', subtitle: 'Owner-only: grant, edit, or revoke staff permissions' },
 };
 
 let currentTab = 'dashboard';
@@ -74,6 +77,13 @@ function switchTab(tab) {
   else if (tab === 'vehicles' && !vehicleData) loadVehicles();
   else if (tab === 'reports') loadReports();
   else if (tab === 'bans') loadBans();
+  else if (tab === 'admins') {
+    loadStaff();
+    // Action Permissions (and per-player override editing) stay owner-only
+    // - a delegated 'admin_grantStaff' holder only gets the Staff section.
+    el('ownerOnlySection').classList.toggle('hidden', !isOwnerCached);
+    if (isOwnerCached) loadActionPerms();
+  }
 }
 
 document.querySelectorAll('.nav-item').forEach((item) => {
@@ -84,10 +94,38 @@ document.querySelectorAll('.nav-item').forEach((item) => {
 // Open / close
 // ===================================================================
 
+let isOwnerCached = false;
+let MY_ACTIONS = new Set();
+
+function canDo(actionId) {
+  return MY_ACTIONS.has(actionId);
+}
+
+// Owner is the one tier this NUI never lets anyone grant through itself
+// (see server/permissions.lua) - checked fresh on every open rather than
+// cached across sessions, so a revoked owner immediately loses the nav
+// item and the per-player controls next time they open the menu. Every
+// individual action's current tier (config/actions.lua, owner-editable in
+// the Admins tab) is fetched the same way, into MY_ACTIONS, so the rest of
+// this file can just ask canDo('self_noclip') etc. instead of re-checking
+// the server per element.
+async function refreshOwnerStatus() {
+  const [isOwner, allowed] = await Promise.all([post('isOwner'), post('getMyActionPerms')]);
+  isOwnerCached = isOwner;
+  MY_ACTIONS = new Set(Array.isArray(allowed) ? allowed : []);
+  // The Admins tab also opens for a non-owner specifically granted the
+  // 'admin_grantStaff' action (config/actions.lua, off by default for
+  // every staff rank) - they only get the Staff section though, see
+  // renderStaff/switchTab for the owner-only parts hidden from them.
+  el('adminsNavItem').classList.toggle('hidden', !isOwnerCached && !canDo('admin_grantStaff'));
+  applyActionVisibility();
+}
+
 function openApp() {
   app.classList.add('open');
   switchTab('dashboard');
   post('getToggleState');
+  refreshOwnerStatus();
 }
 
 function closeApp() {
@@ -130,6 +168,38 @@ const DEV_TOGGLE_TILES = [
   { action: 'vehicleInfo', label: 'Vehicle Info Overlay' },
   { action: 'laser', label: 'Laser Pointer' },
 ];
+
+// Matches client.lua's SELF_TOGGLE_ACTIONS - the config/actions.lua id
+// backing each tile/chip, so applyActionVisibility() below can hide
+// exactly the ones the current viewer's tier doesn't cover instead of
+// showing every button and letting the server silently reject a click.
+const TOGGLE_ACTION_IDS = {
+  noclip: 'self_noclip',
+  revive: 'self_revive',
+  invisible: 'self_invisible',
+  godmode: 'self_godmode',
+  names: 'self_names',
+  blips: 'self_blips',
+  vehicleGodmode: 'self_vehicleGodmode',
+  infiniteAmmo: 'self_infiniteAmmo',
+  cuff: 'self_cuff',
+  coords: 'dev_coords',
+  vehicleInfo: 'dev_vehicleInfo',
+  laser: 'dev_laser',
+};
+
+// Hides anything gated by an action id the current viewer's tier doesn't
+// grant - re-run after refreshOwnerStatus resolves (menu open) and again
+// whenever an owner saves an action-permission change, so it never shows
+// a stale set of buttons for the rest of that session.
+function applyActionVisibility() {
+  document.querySelectorAll('[data-action]').forEach((el2) => {
+    const actionId = TOGGLE_ACTION_IDS[el2.dataset.action];
+    if (actionId) el2.classList.toggle('hidden', !canDo(actionId));
+  });
+  const pedModelCard = el('pedModelCard');
+  if (pedModelCard) pedModelCard.classList.toggle('hidden', !canDo('self_setModel'));
+}
 
 function buildToggleTile(def) {
   const tile = document.createElement('div');
@@ -190,6 +260,7 @@ function initSelfExtras() {
   const selfGrid = el('selfToggleGrid');
   const reviveBtn = document.createElement('button');
   reviveBtn.className = 'toggle-tile instant-tile';
+  reviveBtn.dataset.action = 'revive';
   reviveBtn.style.cursor = 'pointer';
   reviveBtn.innerHTML = `<span class="tile-label">Revive Yourself</span>`;
   reviveBtn.addEventListener('click', async () => { await post('toggleSelf', { action: 'revive' }); showToast('Revived'); });
@@ -197,6 +268,7 @@ function initSelfExtras() {
 
   const cuffBtn = document.createElement('button');
   cuffBtn.className = 'toggle-tile instant-tile';
+  cuffBtn.dataset.action = 'cuff';
   cuffBtn.style.cursor = 'pointer';
   cuffBtn.innerHTML = `<span class="tile-label">Cuff / Uncuff</span>`;
   cuffBtn.addEventListener('click', async () => { await post('toggleSelf', { action: 'cuff' }); });
@@ -367,19 +439,12 @@ function escapeHtml(str) {
 }
 
 const GENERAL_ACTIONS = [
-  { action: 'kill', label: 'Kill' },
-  { action: 'revive', label: 'Revive' },
-  { action: 'freeze', label: 'Freeze/Unfreeze' },
-  { action: 'goto_', label: 'Go To' },
-  { action: 'bring', label: 'Bring' },
-  { action: 'sit', label: 'Sit In Their Vehicle' },
-];
-
-const ADMIN_PERM_VALUES = [
-  { value: 'remove', label: 'Remove' },
-  { value: 'mod', label: 'Mod' },
-  { value: 'admin', label: 'Admin' },
-  { value: 'god', label: 'God' },
+  { action: 'kill', label: 'Kill', id: 'player_kill' },
+  { action: 'revive', label: 'Revive', id: 'player_revive' },
+  { action: 'freeze', label: 'Freeze/Unfreeze', id: 'player_freeze' },
+  { action: 'goto_', label: 'Go To', id: 'player_goto' },
+  { action: 'bring', label: 'Bring', id: 'player_bring' },
+  { action: 'sit', label: 'Sit In Their Vehicle', id: 'player_sit' },
 ];
 
 // Jobs/gangs list (name/label/maxGrade per entry) - fetched once and
@@ -400,6 +465,29 @@ function ensureJobsGangsLoaded() {
     });
   }
   return jobsGangsPromise;
+}
+
+const STAFF_TIER_OPTIONS = [
+  { value: 'none', label: 'None' },
+  { value: 'support', label: 'Support' },
+  { value: 'mod', label: 'Mod' },
+  { value: 'admin', label: 'Admin' },
+];
+
+// Cache of granted staff (identifier/name/tier) - the server rejects this
+// with an empty list for anyone who isn't an owner, so fetching it
+// unconditionally here is harmless even though only renderPlayerDetail's
+// owner-only section and the Admins tab actually use the result.
+let STAFF_LIST = [];
+let staffListPromise = null;
+function ensureStaffLoaded(force) {
+  if (force || !staffListPromise) {
+    staffListPromise = post('getStaff').then((list) => {
+      STAFF_LIST = Array.isArray(list) ? list : [];
+      return STAFF_LIST;
+    });
+  }
+  return staffListPromise;
 }
 
 // getValue pre-fills each input with the player's actual current value -
@@ -465,7 +553,7 @@ async function selectPlayer(id) {
   showPlayersDetail();
   const detail = el('playerDetail');
   detail.innerHTML = '<div class="empty-state">Loading...</div>';
-  const [player] = await Promise.all([post('getPlayerDetail', { id }), ensureJobsGangsLoaded()]);
+  const [player] = await Promise.all([post('getPlayerDetail', { id }), ensureJobsGangsLoaded(), ensureStaffLoaded()]);
   if (!player) {
     detail.innerHTML = '<div class="empty-state">Could not load this player (they may have disconnected).</div>';
     return;
@@ -534,6 +622,155 @@ el('invRemoveBtn').addEventListener('click', async () => {
   refreshPlayerInventory();
 });
 
+// ===================================================================
+// Per-player permission checkboxes (Owner Tools -> Edit Permissions)
+// ===================================================================
+
+let permissionsPlayer = null;
+// Where the back button should return to - 'players' (opened from a
+// player's detail page, the original flow) or 'admins' (opened from the
+// Admins tab's Staff list, id is an identifier string rather than an
+// online source id - see permissions.lua's target handling).
+let permissionsReturnTab = 'players';
+
+function showPlayerPermissions(player, returnTab) {
+  permissionsPlayer = player;
+  permissionsReturnTab = returnTab || 'players';
+  // playerPermissionsView lives inside the Players panel - switch there
+  // first when coming from elsewhere (Admins tab) so it's actually visible.
+  if (currentTab !== 'players') switchTab('players');
+  el('permissionsPlayerName').textContent = player.name;
+  el('playersListView').classList.add('hidden');
+  el('playersDetailView').classList.add('hidden');
+  el('playerPermissionsView').classList.remove('hidden');
+  loadPlayerPermissions();
+}
+
+el('permissionsBackBtn').addEventListener('click', () => {
+  el('playerPermissionsView').classList.add('hidden');
+  if (permissionsReturnTab === 'admins') {
+    switchTab('admins');
+  } else {
+    el('playersDetailView').classList.remove('hidden');
+  }
+});
+
+el('playerPermissionsSearch').addEventListener('input', () => renderPlayerPermissions(playerPermissionsCache));
+
+let playerPermissionsCache = [];
+
+async function loadPlayerPermissions() {
+  const container = el('playerPermissionsList');
+  container.innerHTML = '<div class="empty-state">Loading...</div>';
+  const list = await post('getPlayerPermissions', { id: permissionsPlayer.id });
+  playerPermissionsCache = Array.isArray(list) ? list : [];
+  renderPlayerPermissions(playerPermissionsCache);
+}
+
+async function setOnePlayerPermission(actionId, label, allowed, switchEl) {
+  const ok = await post('setPlayerPermission', { id: permissionsPlayer.id, actionId, allowed });
+  if (ok) {
+    showToast(`${label} ${allowed ? 'allowed' : 'denied'} for ${permissionsPlayer.name}`);
+    const cached = playerPermissionsCache.find((a) => a.id === actionId);
+    if (cached) { cached.allowed = allowed; cached.isOverride = true; }
+  } else {
+    showToast('Could not update permission', 'error');
+    if (switchEl) switchEl.checked = !allowed;
+  }
+  return ok;
+}
+
+function renderPlayerPermissions(list) {
+  const container = el('playerPermissionsList');
+  const query = (el('playerPermissionsSearch')?.value || '').trim().toLowerCase();
+  const filtered = query ? list.filter((a) => a.label.toLowerCase().includes(query) || a.category.toLowerCase().includes(query)) : list;
+
+  if (!list.length) {
+    container.innerHTML = '<div class="empty-state">Nothing to show.</div>';
+    return;
+  }
+  if (!filtered.length) {
+    container.innerHTML = '<div class="empty-state">No permissions match that search.</div>';
+    return;
+  }
+
+  const byCategory = {};
+  const order = [];
+  filtered.forEach((a) => {
+    if (!byCategory[a.category]) { byCategory[a.category] = []; order.push(a.category); }
+    byCategory[a.category].push(a);
+  });
+
+  container.innerHTML = '';
+  order.forEach((category) => {
+    const items = byCategory[category];
+    const allowedCount = items.filter((a) => a.allowed).length;
+
+    const card = document.createElement('div');
+    card.className = 'perm-category';
+    card.innerHTML = `
+      <div class="perm-category-header">
+        <span class="perm-category-title">${escapeHtml(category)}</span>
+        <span class="perm-category-count">${allowedCount}/${items.length} allowed</span>
+      </div>
+    `;
+
+    const actionsRow = document.createElement('div');
+    actionsRow.className = 'perm-category-actions';
+    actionsRow.style.marginBottom = '8px';
+    const allowAllBtn = document.createElement('button');
+    allowAllBtn.className = 'perm-mini-btn';
+    allowAllBtn.textContent = 'Allow all';
+    allowAllBtn.addEventListener('click', async () => {
+      for (const a of items) await setOnePlayerPermission(a.id, a.label, true);
+      renderPlayerPermissions(playerPermissionsCache);
+    });
+    const denyAllBtn = document.createElement('button');
+    denyAllBtn.className = 'perm-mini-btn';
+    denyAllBtn.textContent = 'Deny all';
+    denyAllBtn.addEventListener('click', async () => {
+      for (const a of items) await setOnePlayerPermission(a.id, a.label, false);
+      renderPlayerPermissions(playerPermissionsCache);
+    });
+    actionsRow.appendChild(allowAllBtn);
+    actionsRow.appendChild(denyAllBtn);
+    card.querySelector('.perm-category-header').appendChild(actionsRow);
+
+    items.forEach((a) => {
+      const row = document.createElement('div');
+      row.className = 'perm-row';
+
+      const label = document.createElement('span');
+      label.className = 'perm-row-label';
+      label.textContent = a.label;
+      row.appendChild(label);
+
+      if (a.isOverride) {
+        const badge = document.createElement('span');
+        badge.className = 'override-badge';
+        badge.textContent = 'override';
+        row.appendChild(badge);
+      }
+
+      const switchLabel = document.createElement('label');
+      switchLabel.className = 'perm-switch';
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = !!a.allowed;
+      checkbox.addEventListener('change', () => setOnePlayerPermission(a.id, a.label, checkbox.checked, checkbox));
+      switchLabel.appendChild(checkbox);
+      const track = document.createElement('span');
+      track.className = 'track';
+      switchLabel.appendChild(track);
+      row.appendChild(switchLabel);
+
+      card.appendChild(row);
+    });
+
+    container.appendChild(card);
+  });
+}
+
 function renderPlayerDetail(player) {
   const detail = el('playerDetail');
   detail.innerHTML = '';
@@ -544,7 +781,7 @@ function renderPlayerDetail(player) {
   generalGroup.innerHTML = '<div class="action-group-title">General</div>';
   const generalRow = document.createElement('div');
   generalRow.className = 'btn-row';
-  GENERAL_ACTIONS.forEach((a) => {
+  GENERAL_ACTIONS.filter((a) => canDo(a.id)).forEach((a) => {
     const btn = document.createElement('button');
     btn.className = 'btn small';
     btn.textContent = a.label;
@@ -555,81 +792,118 @@ function renderPlayerDetail(player) {
     generalRow.appendChild(btn);
   });
   generalGroup.appendChild(generalRow);
-  detail.appendChild(generalGroup);
+  if (generalRow.children.length) detail.appendChild(generalGroup);
 
   // --- Administration ---
   const adminGroup = document.createElement('div');
   adminGroup.className = 'action-group';
   adminGroup.innerHTML = '<div class="action-group-title">Administration</div>';
 
-  const kickRow = document.createElement('div');
-  kickRow.className = 'field-row';
-  kickRow.innerHTML = `<div class="field"><label>Kick Reason</label><input type="text" id="kickReason" placeholder="Reason"></div>`;
-  const kickBtn = document.createElement('button');
-  kickBtn.className = 'btn small danger';
-  kickBtn.textContent = 'Kick';
-  kickBtn.addEventListener('click', async () => {
-    const reason = detail.querySelector('#kickReason').value || 'No reason given';
-    await post('playerAdmin', { id: player.id, action: 'kick', input: reason });
-    showToast(`Kicked ${player.name}`, 'error');
-  });
-  kickRow.appendChild(kickBtn);
-  adminGroup.appendChild(kickRow);
+  if (canDo('player_kick')) {
+    const kickRow = document.createElement('div');
+    kickRow.className = 'field-row';
+    kickRow.innerHTML = `<div class="field"><label>Kick Reason</label><input type="text" id="kickReason" placeholder="Reason"></div>`;
+    const kickBtn = document.createElement('button');
+    kickBtn.className = 'btn small danger';
+    kickBtn.textContent = 'Kick';
+    kickBtn.addEventListener('click', async () => {
+      const reason = detail.querySelector('#kickReason').value || 'No reason given';
+      await post('playerAdmin', { id: player.id, action: 'kick', input: reason });
+      showToast(`Kicked ${player.name}`, 'error');
+    });
+    kickRow.appendChild(kickBtn);
+    adminGroup.appendChild(kickRow);
+  }
 
-  const banRow = document.createElement('div');
-  banRow.className = 'field-row';
-  banRow.style.marginTop = '8px';
-  banRow.innerHTML = `
-    <div class="field"><label>Ban Reason</label><input type="text" id="banReason" placeholder="VDM"></div>
-    <div class="field" style="max-width:70px"><label>Hours</label><input type="number" id="banHours" placeholder="0"></div>
-    <div class="field" style="max-width:70px"><label>Days</label><input type="number" id="banDays" placeholder="0"></div>
-    <div class="field" style="max-width:70px"><label>Months</label><input type="number" id="banMonths" placeholder="0"></div>
-  `;
-  const banBtn = document.createElement('button');
-  banBtn.className = 'btn small danger';
-  banBtn.textContent = 'Ban';
-  banBtn.addEventListener('click', async () => {
-    const reason = detail.querySelector('#banReason').value;
-    if (!reason) { showToast('Ban reason is required', 'error'); return; }
-    const hours = Number(detail.querySelector('#banHours').value) || 0;
-    const days = Number(detail.querySelector('#banDays').value) || 0;
-    const months = Number(detail.querySelector('#banMonths').value) || 0;
-    await post('playerAdmin', { id: player.id, action: 'ban', input: [reason, hours, days, months] });
-    showToast(`Banned ${player.name}`, 'error');
-  });
-  banRow.appendChild(banBtn);
-  adminGroup.appendChild(banRow);
+  if (canDo('player_ban')) {
+    const banRow = document.createElement('div');
+    banRow.className = 'field-row';
+    banRow.style.marginTop = '8px';
+    banRow.innerHTML = `
+      <div class="field"><label>Ban Reason</label><input type="text" id="banReason" placeholder="VDM"></div>
+      <div class="field" style="max-width:70px"><label>Hours</label><input type="number" id="banHours" placeholder="0"></div>
+      <div class="field" style="max-width:70px"><label>Days</label><input type="number" id="banDays" placeholder="0"></div>
+      <div class="field" style="max-width:70px"><label>Months</label><input type="number" id="banMonths" placeholder="0"></div>
+    `;
+    const banBtn = document.createElement('button');
+    banBtn.className = 'btn small danger';
+    banBtn.textContent = 'Ban';
+    banBtn.addEventListener('click', async () => {
+      const reason = detail.querySelector('#banReason').value;
+      if (!reason) { showToast('Ban reason is required', 'error'); return; }
+      const hours = Number(detail.querySelector('#banHours').value) || 0;
+      const days = Number(detail.querySelector('#banDays').value) || 0;
+      const months = Number(detail.querySelector('#banMonths').value) || 0;
+      await post('playerAdmin', { id: player.id, action: 'ban', input: [reason, hours, days, months] });
+      showToast(`Banned ${player.name}`, 'error');
+    });
+    banRow.appendChild(banBtn);
+    adminGroup.appendChild(banRow);
+  }
 
-  const permRow = document.createElement('div');
-  permRow.className = 'field-row';
-  permRow.style.marginTop = '8px';
-  const permSelect = document.createElement('select');
-  ADMIN_PERM_VALUES.forEach((p) => {
-    const opt = document.createElement('option');
-    opt.value = p.value; opt.textContent = p.label;
-    permSelect.appendChild(opt);
-  });
-  const permField = document.createElement('div');
-  permField.className = 'field';
-  permField.innerHTML = '<label>Permission</label>';
-  permField.appendChild(permSelect);
-  permRow.appendChild(permField);
-  const permBtn = document.createElement('button');
-  permBtn.className = 'btn small';
-  permBtn.textContent = 'Set';
-  permBtn.addEventListener('click', async () => {
-    await post('playerAdmin', { id: player.id, action: 'perm', input: permSelect.value });
-    showToast('Permission updated');
-  });
-  permRow.appendChild(permBtn);
-  adminGroup.appendChild(permRow);
-  detail.appendChild(adminGroup);
+  if (adminGroup.children.length > 1) detail.appendChild(adminGroup);
 
-  // --- Data editor ---
+  // --- Owner Tools: grant/edit/revoke staff tier ---
+  // Owner-only (hidden entirely for everyone else, and re-checked
+  // server-side regardless - see server/permissions.lua). Replaces an
+  // older "Permission" dropdown that used to sit in Administration above,
+  // which any admin-tier user could use to grant others mod/admin/god via
+  // qbx_core's own deprecated, non-persistent AddPermission (see that
+  // export's own @deprecated note) - this is the real, persistent
+  // replacement, gated to owners specifically per that request.
+  if (isOwnerCached) {
+    const ownerGroup = document.createElement('div');
+    ownerGroup.className = 'action-group';
+    ownerGroup.innerHTML = '<div class="action-group-title">Owner Tools</div>';
+
+    const current = STAFF_LIST.find((s) => s.identifier === player.license);
+
+    const tierRow = document.createElement('div');
+    tierRow.className = 'field-row';
+    const tierField = document.createElement('div');
+    tierField.className = 'field';
+    tierField.innerHTML = '<label>Staff Permission</label>';
+    const tierSelect = document.createElement('select');
+    STAFF_TIER_OPTIONS.forEach((t) => {
+      const opt = document.createElement('option');
+      opt.value = t.value; opt.textContent = t.label;
+      tierSelect.appendChild(opt);
+    });
+    tierSelect.value = current ? current.tier : 'none';
+    tierField.appendChild(tierSelect);
+    tierRow.appendChild(tierField);
+
+    const tierBtn = document.createElement('button');
+    tierBtn.className = 'btn small';
+    tierBtn.textContent = 'Save';
+    tierBtn.addEventListener('click', async () => {
+      const ok = await post('setStaffTier', { target: player.id, tier: tierSelect.value });
+      if (ok) {
+        showToast(`${player.name} set to ${tierSelect.value}`);
+        ensureStaffLoaded(true);
+      } else {
+        showToast('Could not update permissions', 'error');
+      }
+    });
+    tierRow.appendChild(tierBtn);
+    ownerGroup.appendChild(tierRow);
+
+    const permsBtn = document.createElement('button');
+    permsBtn.className = 'btn small';
+    permsBtn.style.marginTop = '8px';
+    permsBtn.textContent = 'Edit Permissions';
+    permsBtn.addEventListener('click', () => showPlayerPermissions(player));
+    ownerGroup.appendChild(permsBtn);
+
+    detail.appendChild(ownerGroup);
+  }
+
+  // --- Data editor --- (one shared permission for every field, same as
+  // the server side - see server/admin.lua's changePlayerData)
   const dataGroup = document.createElement('div');
   dataGroup.className = 'action-group';
   dataGroup.innerHTML = '<div class="action-group-title">Edit Character Data</div>';
-  DATA_FIELDS.forEach((f) => {
+  if (canDo('player_editData')) DATA_FIELDS.forEach((f) => {
     const row = document.createElement('div');
     row.className = 'field-row';
     row.style.marginBottom = '8px';
@@ -692,7 +966,7 @@ function renderPlayerDetail(player) {
     row.appendChild(applyBtn);
     dataGroup.appendChild(row);
   });
-  detail.appendChild(dataGroup);
+  if (dataGroup.children.length > 1) detail.appendChild(dataGroup);
 
   // --- Extra ---
   const extraGroup = document.createElement('div');
@@ -701,23 +975,27 @@ function renderPlayerDetail(player) {
   const extraRow = document.createElement('div');
   extraRow.className = 'btn-row';
 
-  const showInvBtn = document.createElement('button');
-  showInvBtn.className = 'btn small';
-  showInvBtn.textContent = 'Show Inventory';
-  showInvBtn.addEventListener('click', () => showPlayerInventory(player));
-  extraRow.appendChild(showInvBtn);
+  if (canDo('player_inventory')) {
+    const showInvBtn = document.createElement('button');
+    showInvBtn.className = 'btn small';
+    showInvBtn.textContent = 'Show Inventory';
+    showInvBtn.addEventListener('click', () => showPlayerInventory(player));
+    extraRow.appendChild(showInvBtn);
+  }
 
-  const clothingBtn = document.createElement('button');
-  clothingBtn.className = 'btn small';
-  clothingBtn.textContent = 'Clothing Menu';
-  clothingBtn.addEventListener('click', async () => {
-    const ok = await post('clothingMenu', { id: player.id });
-    if (!ok) showToast('Clothing menu is unavailable on this server', 'error');
-  });
-  extraRow.appendChild(clothingBtn);
+  if (canDo('player_clothing')) {
+    const clothingBtn = document.createElement('button');
+    clothingBtn.className = 'btn small';
+    clothingBtn.textContent = 'Clothing Menu';
+    clothingBtn.addEventListener('click', async () => {
+      const ok = await post('clothingMenu', { id: player.id });
+      if (!ok) showToast('Clothing menu is unavailable on this server', 'error');
+    });
+    extraRow.appendChild(clothingBtn);
+  }
 
   extraGroup.appendChild(extraRow);
-  detail.appendChild(extraGroup);
+  if (extraRow.children.length) detail.appendChild(extraGroup);
 
   // --- Identifiers ---
   const idGroup = document.createElement('div');
@@ -986,6 +1264,210 @@ function renderBans(bans) {
 }
 
 el('refreshBansBtn').addEventListener('click', loadBans);
+
+// ===================================================================
+// Admins (owner only) - grant/edit/revoke staff permissions
+// ===================================================================
+
+async function loadStaff() {
+  const container = el('staffList');
+  container.innerHTML = '<div class="empty-state">Loading...</div>';
+  const staff = await ensureStaffLoaded(true);
+  renderStaff(staff);
+}
+
+function renderStaff(staff) {
+  const container = el('staffList');
+  if (!staff.length) {
+    container.innerHTML = '<div class="empty-state">No staff permissions granted yet - use the Owner Tools section on a player\'s detail page in the Players tab to grant one.</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  staff.forEach((row) => {
+    const card = document.createElement('div');
+    card.className = 'perm-category';
+    card.innerHTML = `
+      <div class="perm-category-header">
+        <div>
+          <span class="perm-category-title" style="text-transform:none;letter-spacing:0;font-size:14px;color:var(--ox-text)">${escapeHtml(row.name || 'Unknown')}</span>
+          <span class="expiry ${row.onlineId ? 'online' : 'offline'}" style="margin-left:8px">${row.onlineId ? 'Online' : 'Offline'}</span>
+        </div>
+      </div>
+      <div class="ban-meta" style="margin-bottom:10px">Granted by ${escapeHtml(row.granted_by || 'Unknown')} &middot; License: ${escapeHtml(row.identifier)}</div>
+    `;
+
+    const controlsRow = document.createElement('div');
+    controlsRow.style.display = 'flex';
+    controlsRow.style.alignItems = 'center';
+    controlsRow.style.gap = '10px';
+    controlsRow.style.flexWrap = 'wrap';
+
+    if (row.tier === 'owner') {
+      // Read-only - owner can only be granted/revoked in server.cfg (see
+      // the Owner status card above), so there's nothing here to edit.
+      const badge = document.createElement('span');
+      badge.className = 'tier-segment active';
+      badge.style.cursor = 'default';
+      badge.textContent = 'Owner';
+      controlsRow.appendChild(badge);
+    } else {
+      controlsRow.appendChild(buildTierSegmented(STAFF_TIER_OPTIONS, row.tier, async (value) => {
+        const ok = await post('setStaffTier', { target: row.identifier, tier: value });
+        if (ok) {
+          showToast(`${row.name || 'Player'} set to ${value}`);
+          if (value === 'none') {
+            loadStaff();
+          } else {
+            row.tier = value;
+          }
+        } else {
+          showToast('Could not update permissions', 'error');
+        }
+        return ok;
+      }));
+    }
+
+    // Per-player action overrides stay owner-only (unlike the tier control
+    // above, this isn't something 'admin_grantStaff' delegates) - works
+    // independently of tier (even for owners - see hasActionPerm on the
+    // server), and unlike the Players tab's version of this button, this
+    // one works whether or not the admin is currently online
+    // (identifier-keyed, see permissions.lua).
+    if (isOwnerCached) {
+      const editBtn = document.createElement('button');
+      editBtn.className = 'perm-mini-btn';
+      editBtn.textContent = 'Edit Permissions';
+      editBtn.addEventListener('click', () => {
+        showPlayerPermissions({ id: row.identifier, name: row.name || 'Unknown' }, 'admins');
+      });
+      controlsRow.appendChild(editBtn);
+    }
+
+    card.appendChild(controlsRow);
+    container.appendChild(card);
+  });
+}
+
+el('refreshStaffBtn').addEventListener('click', loadStaff);
+
+// Every action always needs *some* tier (unlike a staff grant, there's no
+// "none" here) - reuses STAFF_TIER_OPTIONS minus that first entry rather
+// than a second near-identical list.
+const ACTION_TIER_OPTIONS = STAFF_TIER_OPTIONS.filter((t) => t.value !== 'none');
+
+// Segmented button group (Support/Mod/Admin, or Staff's None/Support/Mod/
+// Admin) instead of a bare <select> - clicking a segment saves
+// immediately, no separate Save button. onSelect gets (value, segmentEl)
+// and should return true/truthy on success; on failure the group snaps
+// back to currentValue on its own.
+function buildTierSegmented(options, currentValue, onSelect) {
+  const group = document.createElement('div');
+  group.className = 'tier-segmented';
+
+  const setActive = (value) => {
+    [...group.children].forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.value === value);
+    });
+  };
+
+  options.forEach((t) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tier-segment' + (t.value === 'none' ? ' tier-none' : '');
+    btn.dataset.value = t.value;
+    btn.textContent = t.label;
+    btn.addEventListener('click', async () => {
+      if (btn.classList.contains('active')) return;
+      const previous = currentValue;
+      currentValue = t.value;
+      setActive(t.value);
+      const ok = await onSelect(t.value, btn);
+      if (!ok) {
+        currentValue = previous;
+        setActive(previous);
+      }
+    });
+    group.appendChild(btn);
+  });
+
+  setActive(currentValue);
+  return group;
+}
+
+let actionPermsCache = [];
+
+async function loadActionPerms() {
+  const container = el('actionPermsList');
+  container.innerHTML = '<div class="empty-state">Loading...</div>';
+  const list = await post('getActionPerms');
+  actionPermsCache = Array.isArray(list) ? list : [];
+  renderActionPerms(actionPermsCache);
+}
+
+function renderActionPerms(list) {
+  const container = el('actionPermsList');
+  const query = (el('actionPermsSearch')?.value || '').trim().toLowerCase();
+  const filtered = query ? list.filter((a) => a.label.toLowerCase().includes(query) || a.category.toLowerCase().includes(query)) : list;
+
+  if (!list.length) {
+    container.innerHTML = '<div class="empty-state">Nothing to show.</div>';
+    return;
+  }
+  if (!filtered.length) {
+    container.innerHTML = '<div class="empty-state">No actions match that search.</div>';
+    return;
+  }
+
+  const byCategory = {};
+  const order = [];
+  filtered.forEach((a) => {
+    if (!byCategory[a.category]) { byCategory[a.category] = []; order.push(a.category); }
+    byCategory[a.category].push(a);
+  });
+
+  container.innerHTML = '';
+  order.forEach((category) => {
+    const items = byCategory[category];
+    const card = document.createElement('div');
+    card.className = 'perm-category';
+    card.innerHTML = `
+      <div class="perm-category-header">
+        <span class="perm-category-title">${escapeHtml(category)}</span>
+        <span class="perm-category-count">${items.length} action${items.length === 1 ? '' : 's'}</span>
+      </div>
+    `;
+
+    items.forEach((a) => {
+      const row = document.createElement('div');
+      row.className = 'perm-row';
+
+      const label = document.createElement('span');
+      label.className = 'perm-row-label';
+      label.textContent = a.label;
+      row.appendChild(label);
+
+      row.appendChild(buildTierSegmented(ACTION_TIER_OPTIONS, a.tier, async (value) => {
+        const ok = await post('setActionPerm', { id: a.id, tier: value });
+        if (ok) {
+          showToast(`${a.label} set to ${value}`);
+          a.tier = value;
+          refreshOwnerStatus(); // MY_ACTIONS may now be stale (e.g. an owner just relaxed/tightened their own tier's access to something)
+        } else {
+          showToast('Could not update permission', 'error');
+        }
+        return ok;
+      }));
+
+      card.appendChild(row);
+    });
+
+    container.appendChild(card);
+  });
+}
+
+el('refreshActionPermsBtn').addEventListener('click', loadActionPerms);
+el('actionPermsSearch').addEventListener('input', () => renderActionPerms(actionPermsCache));
 
 // ===================================================================
 // Character lookup

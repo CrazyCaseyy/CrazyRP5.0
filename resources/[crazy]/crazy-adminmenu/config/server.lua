@@ -1,28 +1,9 @@
+-- commandPerms/eventPerms (one shared tier per whole feature) used to live
+-- here - replaced by config/actions.lua's one-entry-per-action registry,
+-- overridable live from the Admins tab (server/permissions.lua's
+-- hasActionPerm) instead of hardcoded and requiring a resource restart to
+-- change.
 return {
-    commandPerms = {
-        useMenu = 'mod',
-        reportReply = 'mod',
-        noclip = 'mod',
-        names = 'mod',
-        blips = 'mod',
-        spawnVehicle = 'admin',
-        saveVehicle = 'admin',
-        setModel = 'admin',
-        dev = 'admin',
-    },
-
-    eventPerms = {
-        playerOptionsGeneral = 'mod',
-        kick = 'mod',
-        ban = 'admin',
-        changePerms = 'admin',
-        changePlayerData = 'admin',
-        giveAllWeapons = 'admin',
-        getRadioList = 'mod',
-        useMenu = 'mod',
-        clothingMenu = 'admin',
-    },
-
     weaponList = {
         pistol = {
             'weapon_pistol',
