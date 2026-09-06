@@ -74,25 +74,35 @@ local CRAWL_SPEED = 0.65 -- ground units/second while dragging themselves forwar
 -- and only drags the ped when one of WASD is actually held, in whatever
 -- direction that key means relative to wherever the camera is currently
 -- facing - matching normal on-foot movement's camera-relative feel.
--- IsDisabledControlPressed (not IsControlPressed) is needed here since
--- these controls are deliberately kept disabled above.
-local function updateCrawlMovement()
-    local moveForward = IsDisabledControlPressed(0, 32) -- INPUT_MOVE_UP_ONLY (W)
-    local moveBack = IsDisabledControlPressed(0, 33) -- INPUT_MOVE_DOWN_ONLY (S)
-    local moveLeft = IsDisabledControlPressed(0, 34) -- INPUT_MOVE_LEFT_ONLY (A)
-    local moveRight = IsDisabledControlPressed(0, 35) -- INPUT_MOVE_RIGHT_ONLY (D)
+--
+-- Reads GetDisabledControlNormal (an actual 0.0-1.0 press magnitude)
+-- against a small deadzone rather than the boolean IsDisabledControlPressed -
+-- that boolean was reporting these controls as held even with nothing
+-- pressed, moving the ped on its own. The numeric read is the standard,
+-- more reliable way to poll input on a control that's deliberately being
+-- kept disabled.
+local MOVE_DEADZONE = 0.1
 
-    if not (moveForward or moveBack or moveLeft or moveRight) then return end
+local function updateCrawlMovement()
+    local forwardAmount = GetDisabledControlNormal(0, 32) -- INPUT_MOVE_UP_ONLY (W)
+    local backAmount = GetDisabledControlNormal(0, 33) -- INPUT_MOVE_DOWN_ONLY (S)
+    local leftAmount = GetDisabledControlNormal(0, 34) -- INPUT_MOVE_LEFT_ONLY (A)
+    local rightAmount = GetDisabledControlNormal(0, 35) -- INPUT_MOVE_RIGHT_ONLY (D)
+
+    if forwardAmount < MOVE_DEADZONE and backAmount < MOVE_DEADZONE
+        and leftAmount < MOVE_DEADZONE and rightAmount < MOVE_DEADZONE then
+        return
+    end
 
     local camHeadingRad = math.rad(GetGameplayCamRot(2).z)
     local forward = vector3(-math.sin(camHeadingRad), math.cos(camHeadingRad), 0.0)
     local right = vector3(math.cos(camHeadingRad), math.sin(camHeadingRad), 0.0)
 
     local dir = vector3(0.0, 0.0, 0.0)
-    if moveForward then dir += forward end
-    if moveBack then dir -= forward end
-    if moveRight then dir += right end
-    if moveLeft then dir -= right end
+    if forwardAmount >= MOVE_DEADZONE then dir += forward end
+    if backAmount >= MOVE_DEADZONE then dir -= forward end
+    if rightAmount >= MOVE_DEADZONE then dir += right end
+    if leftAmount >= MOVE_DEADZONE then dir -= right end
 
     if #dir == 0.0 then return end -- opposing keys held together (e.g. W+S) cancel out
 
