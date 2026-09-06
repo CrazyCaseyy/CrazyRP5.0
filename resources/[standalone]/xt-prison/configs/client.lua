@@ -9,7 +9,7 @@ return {
     -- createCheckoutLocation/removeCheckoutLocation. Down to a single spot
     -- for now; add more entries here if more check-in points are needed.
     CheckOut = {
-        { coords = vec3(1766.3, 2575.41, 45.0), radius = 0.5 },
+        { coords = vec3(1779.04, 2576.82, 46.39), radius = 0.5 },
     },
 
     -- Alert When Entering Prison --
@@ -60,7 +60,7 @@ return {
     -- Prison Doctor --
     PrisonDoctor = {
         model = 's_m_m_doctor_01',
-        coords = vector4(1766.45, 2577.03, 46.0, 180.12),
+        coords = vector4(1766.3, 2575.41, 45.0, 167.14),
         scenario = 'WORLD_HUMAN_CLIPBOARD',
         healLength = 5
     },
