@@ -82,9 +82,20 @@ function StartLastStand(attacker, weapon)
     end)
 
     CreateThread(function()
+        -- pcall guards against a bad LastStandDict/LastStandAnim (set in
+        -- main.lua) throwing mid-loop - an uncaught error here used to abort
+        -- this whole thread before it reached `startLastStandLock = false`
+        -- below, which permanently no-op'd every future StartLastStand()
+        -- call (players would just ragdoll like vanilla GTA from then on,
+        -- since line 66 above returns immediately while the lock is stuck
+        -- true). Now a bad anim just skips its own frame instead of
+        -- breaking the feature for the rest of the session.
         while DeathState == sharedConfig.deathState.LAST_STAND do
             DisableControls()
-            PlayLastStandAnimation()
+            local ok, err = pcall(PlayLastStandAnimation)
+            if not ok then
+                lib.print.error(('last stand animation failed: %s'):format(err))
+            end
             Wait(0)
         end
         startLastStandLock = false

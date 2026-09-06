@@ -53,14 +53,15 @@ Hp = nil
 DeathTime = 0
 LaststandTime = 0
 RespawnHoldTime = 5
--- Was 'combat@damage@writhe'/'writhe_loop' (a squirming-on-the-back writhe,
--- not a forward crawl) - swapped for a dedicated crawl-on-the-ground loop
--- to match qbx_ambulancejob's "Knocked Out" NUI stage
--- (client/deathscreen.lua). Verify this pairing looks right in-game (can't
--- preview 3D anims from here) - it's a one-line swap if a different
--- dict/clip reads better.
-LastStandDict = 'missfbi3'
-LastStandAnim = 'fbi3_intro_dying'
+-- Reverted: 'missfbi3'/'fbi3_intro_dying' (tried here to get a forward-crawl
+-- look for qbx_ambulancejob's "Knocked Out" NUI stage) is not a real anim
+-- dict - DoesAnimDictExist() fails on it, which makes ox_lib's
+-- requestAnimDict throw, which was silently disabling the entire last
+-- stand system after the first hit (see qbx_medical/client/laststand.lua's
+-- pcall comment). Back to the vanilla dict Rockstar actually ships for shot
+-- peds writhing/dragging themselves on the ground - confirmed valid.
+LastStandDict = 'combat@damage@writhe'
+LastStandAnim = 'writhe_loop'
 
 exports('IsDead', function()
     return DeathState == sharedConfig.deathState.DEAD
