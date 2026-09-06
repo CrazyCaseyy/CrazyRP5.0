@@ -83,16 +83,22 @@ local CRAWL_SPEED = 0.65 -- ground units/second while dragging themselves forwar
 -- kept disabled.
 local MOVE_DEADZONE = 0.1
 
+-- True on any frame WASD is actually moving the ped this tick - read by
+-- setdownedstate.lua's playUnescortedLastStandAnimation to pick between the
+-- moving-crawl anim and a stationary injured-idle one instead of always
+-- playing the crawl pose even while standing still.
+IsCrawling = false
+
 local function updateCrawlMovement()
     local forwardAmount = GetDisabledControlNormal(0, 32) -- INPUT_MOVE_UP_ONLY (W)
     local backAmount = GetDisabledControlNormal(0, 33) -- INPUT_MOVE_DOWN_ONLY (S)
     local leftAmount = GetDisabledControlNormal(0, 34) -- INPUT_MOVE_LEFT_ONLY (A)
     local rightAmount = GetDisabledControlNormal(0, 35) -- INPUT_MOVE_RIGHT_ONLY (D)
 
-    if forwardAmount < MOVE_DEADZONE and backAmount < MOVE_DEADZONE
-        and leftAmount < MOVE_DEADZONE and rightAmount < MOVE_DEADZONE then
-        return
-    end
+    IsCrawling = forwardAmount >= MOVE_DEADZONE or backAmount >= MOVE_DEADZONE
+        or leftAmount >= MOVE_DEADZONE or rightAmount >= MOVE_DEADZONE
+
+    if not IsCrawling then return end
 
     local camHeadingRad = math.rad(GetGameplayCamRot(2).z)
     local forward = vector3(-math.sin(camHeadingRad), math.cos(camHeadingRad), 0.0)
@@ -150,13 +156,16 @@ function StartLastStand(attacker, weapon)
         -- for the rest of the session.
         while DeathState == sharedConfig.deathState.LAST_STAND do
             DisableControls()
+            -- Movement first so IsCrawling reflects this frame's input
+            -- before PlayLastStandAnimation reads it to pick an anim.
+            updateCrawlMovement()
             local ok, err = pcall(PlayLastStandAnimation)
             if not ok then
                 lib.print.error(('last stand animation failed: %s'):format(err))
             end
-            updateCrawlMovement()
             Wait(0)
         end
+        IsCrawling = false
         startLastStandLock = false
     end)
 end
