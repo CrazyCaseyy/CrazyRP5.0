@@ -25,6 +25,11 @@ end
 function EndLastStand()
     TaskPlayAnim(cache.ped, LastStandDict, 'exit', 1.0, 8.0, -1, 1, -1, false, false, false)
     LaststandTime = 0
+    -- updateCrawlMovement() below freezes the ped whenever nothing is being
+    -- crawled toward - this is the single point both exits from last stand
+    -- (revived, or bled out into death) already funnel through, so it's
+    -- also the one guaranteed place to unfreeze them again.
+    FreezeEntityPosition(cache.ped, false)
     TriggerServerEvent('qbx_medical:server:onPlayerLaststandEnd')
 end
 
@@ -63,25 +68,8 @@ local startLastStandLock = false
 
 local CRAWL_SPEED = 0.65 -- ground units/second while dragging themselves forward
 
--- Moves the ped directly instead of leaning on GTA's own locomotion system -
--- a real "stay down and crawl" movement needs a movement clipset built for
--- it, and this project doesn't have one that's confirmed to actually exist
--- (a wrong guess here previously broke last stand outright - see the pcall
--- comment below), and simply re-enabling movement controls let normal
--- standing locomotion take over the instant a movement key was pressed.
--- This instead keeps every control disabled (so GTA's own movement never
--- engages, and the crawl anim in setdownedstate.lua never gets interrupted)
--- and only drags the ped when one of WASD is actually held, in whatever
--- direction that key means relative to wherever the camera is currently
--- facing - matching normal on-foot movement's camera-relative feel.
---
--- Reads GetDisabledControlNormal (an actual 0.0-1.0 press magnitude)
--- against a small deadzone rather than the boolean IsDisabledControlPressed -
--- that boolean was reporting these controls as held even with nothing
--- pressed, moving the ped on its own. The numeric read is the standard,
--- more reliable way to poll input on a control that's deliberately being
--- kept disabled.
-local MOVE_DEADZONE = 0.1
+-- Win32 virtual-key codes for W/A/S/D, used with IsRawKeyDown below.
+local KEY_W, KEY_A, KEY_S, KEY_D = 0x57, 0x41, 0x53, 0x44
 
 -- True on any frame WASD is actually moving the ped this tick - read by
 -- setdownedstate.lua's playUnescortedLastStandAnimation to pick between the
@@ -89,26 +77,49 @@ local MOVE_DEADZONE = 0.1
 -- playing the crawl pose even while standing still.
 IsCrawling = false
 
+-- Moves the ped directly instead of leaning on GTA's own locomotion system -
+-- a real "stay down and crawl" movement needs a movement clipset built for
+-- it, and this project doesn't have one that's confirmed to actually exist
+-- (a wrong guess here previously broke last stand outright - see the pcall
+-- comment below), and simply re-enabling movement controls let normal
+-- standing locomotion take over the instant a movement key was pressed.
+--
+-- Reads raw keyboard state (IsRawKeyDown) rather than GTA's own control
+-- system - two earlier attempts (the boolean IsDisabledControlPressed,
+-- then the analog GetDisabledControlNormal against a deadzone) both kept
+-- reporting these controls as held with nothing pressed, since they were
+-- being read on controls this same loop force-disables every frame
+-- (DisableControls() below) - raw key state bypasses GTA's control
+-- mapping/disabling entirely, so it isn't affected by that. Trade-off:
+-- this only recognizes keyboard WASD, not a controller's stick.
+-- FreezeEntityPosition is extra insurance on top of that - the ped is
+-- fully frozen (immune to gravity/physics drift, not just uncontrolled)
+-- on any frame nothing is held, and only unfrozen for the instant a key
+-- actually moves it.
 local function updateCrawlMovement()
-    local forwardAmount = GetDisabledControlNormal(0, 32) -- INPUT_MOVE_UP_ONLY (W)
-    local backAmount = GetDisabledControlNormal(0, 33) -- INPUT_MOVE_DOWN_ONLY (S)
-    local leftAmount = GetDisabledControlNormal(0, 34) -- INPUT_MOVE_LEFT_ONLY (A)
-    local rightAmount = GetDisabledControlNormal(0, 35) -- INPUT_MOVE_RIGHT_ONLY (D)
+    local moveForward = IsRawKeyDown(KEY_W)
+    local moveBack = IsRawKeyDown(KEY_S)
+    local moveLeft = IsRawKeyDown(KEY_A)
+    local moveRight = IsRawKeyDown(KEY_D)
 
-    IsCrawling = forwardAmount >= MOVE_DEADZONE or backAmount >= MOVE_DEADZONE
-        or leftAmount >= MOVE_DEADZONE or rightAmount >= MOVE_DEADZONE
+    IsCrawling = moveForward or moveBack or moveLeft or moveRight
 
-    if not IsCrawling then return end
+    if not IsCrawling then
+        FreezeEntityPosition(cache.ped, true)
+        return
+    end
+
+    FreezeEntityPosition(cache.ped, false)
 
     local camHeadingRad = math.rad(GetGameplayCamRot(2).z)
     local forward = vector3(-math.sin(camHeadingRad), math.cos(camHeadingRad), 0.0)
     local right = vector3(math.cos(camHeadingRad), math.sin(camHeadingRad), 0.0)
 
     local dir = vector3(0.0, 0.0, 0.0)
-    if forwardAmount >= MOVE_DEADZONE then dir += forward end
-    if backAmount >= MOVE_DEADZONE then dir -= forward end
-    if rightAmount >= MOVE_DEADZONE then dir += right end
-    if leftAmount >= MOVE_DEADZONE then dir -= right end
+    if moveForward then dir += forward end
+    if moveBack then dir -= forward end
+    if moveRight then dir += right end
+    if moveLeft then dir -= right end
 
     if #dir == 0.0 then return end -- opposing keys held together (e.g. W+S) cancel out
 
