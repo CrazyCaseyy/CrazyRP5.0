@@ -15,7 +15,18 @@ function ResurrectPlayer()
     local pos = GetEntityCoords(cache.ped)
     local heading = GetEntityHeading(cache.ped)
 
-    NetworkResurrectLocalPlayer(pos.x, pos.y, pos.z + 0.5, heading, true, false)
+    -- Ground-snap instead of trusting the ped's current Z outright - dying
+    -- straight out of last stand goes through here with whatever height
+    -- the crawl movement (updateCrawlMovement, below) left them at, and
+    -- that deliberately preserves existing Z velocity so gravity keeps
+    -- working normally while crawling - meaning it's possible to still be
+    -- very slightly airborne (a bump, a ledge) the instant death triggers.
+    -- Resurrecting at that exact height left them floating instead of on
+    -- the ground.
+    local groundFound, groundZ = GetGroundZFor_3dCoord(pos.x, pos.y, pos.z + 1.0, false)
+    local z = groundFound and groundZ or pos.z
+
+    NetworkResurrectLocalPlayer(pos.x, pos.y, z + 0.5, heading, true, false)
     if cache.vehicle then
         SetPedIntoVehicle(cache.ped, cache.vehicle, cache.seat)
     end
@@ -145,8 +156,12 @@ local function updateCrawlMovement()
             -- Face the direction actually being crawled toward, not just
             -- wherever the camera points, so moving backward/sideways turns
             -- them to face it instead of sliding around while still facing
-            -- the camera's forward.
-            SetEntityHeading(cache.ped, math.deg(math.atan(-dir.x, dir.y)))
+            -- the camera's forward. SetPedDesiredHeading (the same "turn to
+            -- face this way" API GTA's own ped locomotion uses), not a raw
+            -- SetEntityHeading snap - a plain entity-level heading override
+            -- wasn't reaching other players' screens when the crawl
+            -- direction changed, only this ped-level one properly syncs.
+            SetPedDesiredHeading(cache.ped, math.deg(math.atan(-dir.x, dir.y)))
         end
     end
 
