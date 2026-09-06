@@ -156,12 +156,16 @@ local function updateCrawlMovement()
             -- Face the direction actually being crawled toward, not just
             -- wherever the camera points, so moving backward/sideways turns
             -- them to face it instead of sliding around while still facing
-            -- the camera's forward. SetPedDesiredHeading (the same "turn to
-            -- face this way" API GTA's own ped locomotion uses), not a raw
-            -- SetEntityHeading snap - a plain entity-level heading override
-            -- wasn't reaching other players' screens when the crawl
-            -- direction changed, only this ped-level one properly syncs.
-            SetPedDesiredHeading(cache.ped, math.deg(math.atan(-dir.x, dir.y)))
+            -- the camera's forward. SetEntityHeading, not SetPedDesiredHeading -
+            -- that native only takes effect through an active ped locomotion
+            -- task turning toward it over time, and this ped isn't running one
+            -- (movement here is direct velocity, not a task) - so it just sat
+            -- there doing nothing and the crawling player's own view got stuck
+            -- facing one way instead. The velocity fix a turn ago (teleport ->
+            -- SetEntityVelocity) already addresses position sync, and heading
+            -- syncs alongside position in the same ped-sync packet, so a plain
+            -- instant heading set should now reach other players fine too.
+            SetEntityHeading(cache.ped, math.deg(math.atan(-dir.x, dir.y)))
         end
     end
 
