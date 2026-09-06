@@ -19,16 +19,17 @@ local function playUnescortedLastStandAnimation()
                 lib.playAnim(cache.ped, LastStandCuffedDict, LastStandCuffedAnim, 1.0, 1.0, -1, 1, 0, false, false, false)
             end
         else
-            -- animFlags 51 = LOOPING(1) | HOLD_LAST_FRAME(2) | UPPERBODY(16) |
-            -- SECONDARY(32) - the same combo scully_emotemenu's own "Move"
-            -- emotes use (general_emotes.lua's Flags.Move) to let an emote
-            -- keep playing as a secondary/upper-body anim while normal
-            -- locomotion still drives movement, instead of a plain Loop(1)
-            -- that locks the ped in place. laststand.lua leaves only the
-            -- forward-movement control enabled while down, so [W] ends up
-            -- being the only input that can actually move them anywhere.
+            -- Plain animFlags 1 (LOOPING) - same as this server's own "/e
+            -- crawl" - so the ped is actually down on the ground in the
+            -- crawl pose. A previous attempt used the UPPERBODY|SECONDARY
+            -- combo scully_emotemenu's "Move" emotes use so GTA's own
+            -- locomotion could drive movement, but that let normal
+            -- (standing) locomotion take over the moment [W] was pressed -
+            -- exactly the "still standing" bug this reverts. Movement is
+            -- now handled manually instead (laststand.lua's
+            -- updateCrawlMovement), independent of this anim entirely.
             if not IsEntityPlayingAnim(cache.ped, LastStandDict, LastStandAnim, 3) then
-                lib.playAnim(cache.ped, LastStandDict, LastStandAnim, 1.0, 1.0, -1, 51, 0, false, false, false)
+                lib.playAnim(cache.ped, LastStandDict, LastStandAnim, 1.0, 1.0, -1, 1, 0, false, false, false)
             end
         end
     end

@@ -61,13 +61,31 @@ end
 
 local startLastStandLock = false
 
--- Same lockdown as DisableControls() (dead.lua) but leaves forward movement
--- on - control 32 is INPUT_MOVE_UP_ONLY ([W] / left-stick forward), the one
--- movement control this state doesn't disable, so that's the only input
--- that can actually move a knocked-out player anywhere while they crawl.
-local function disableControlsButAllowForwardMovement()
-    DisableControls()
-    EnableControlAction(0, 32, true)
+local CRAWL_SPEED = 0.65 -- ground units/second while dragging themselves forward
+
+-- Moves the ped directly instead of leaning on GTA's own locomotion system -
+-- a real "stay down and crawl" movement needs a movement clipset built for
+-- it, and this project doesn't have one that's confirmed to actually exist
+-- (a wrong guess here previously broke last stand outright - see the pcall
+-- comment below), and simply re-enabling the movement control let normal
+-- standing locomotion take over the instant [W] was pressed. This instead
+-- keeps every control disabled (so GTA's own movement never engages, and
+-- the crawl anim in setdownedstate.lua never gets interrupted) and drags
+-- the ped forward relative to wherever the camera is currently facing -
+-- matching normal on-foot movement's camera-relative feel - while [W] is
+-- physically held. IsDisabledControlPressed (not IsControlPressed) is
+-- needed here since the control is deliberately kept disabled above.
+local function updateCrawlMovement()
+    if not IsDisabledControlPressed(0, 32) then return end -- INPUT_MOVE_UP_ONLY (W)
+
+    local heading = GetGameplayCamRot(2).z
+    local rad = math.rad(heading)
+    local forward = vector3(-math.sin(rad), math.cos(rad), 0.0)
+    local coords = GetEntityCoords(cache.ped)
+    local newCoords = coords + forward * (CRAWL_SPEED * GetFrameTime())
+
+    SetEntityHeading(cache.ped, heading)
+    SetEntityCoordsNoOffset(cache.ped, newCoords.x, newCoords.y, newCoords.z, true, true, true)
 end
 
 ---put player in last stand mode and notify EMS.
@@ -96,15 +114,17 @@ function StartLastStand(attacker, weapon)
         -- this whole thread before it reached `startLastStandLock = false`
         -- below, which permanently no-op'd every future StartLastStand()
         -- call (players would just ragdoll like vanilla GTA from then on,
-        -- since line 66 above returns immediately while the lock is stuck
-        -- true). Now a bad anim just skips its own frame instead of
-        -- breaking the feature for the rest of the session.
+        -- since the `if startLastStandLock then return end` guard above
+        -- returns immediately while the lock is stuck true). Now a bad
+        -- anim just skips its own frame instead of breaking the feature
+        -- for the rest of the session.
         while DeathState == sharedConfig.deathState.LAST_STAND do
-            disableControlsButAllowForwardMovement()
+            DisableControls()
             local ok, err = pcall(PlayLastStandAnimation)
             if not ok then
                 lib.print.error(('last stand animation failed: %s'):format(err))
             end
+            updateCrawlMovement()
             Wait(0)
         end
         startLastStandLock = false
