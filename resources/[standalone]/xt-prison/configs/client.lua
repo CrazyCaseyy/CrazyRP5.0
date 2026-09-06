@@ -8,12 +8,12 @@ return {
     -- box, same shape as prisonbreak.lua's HackZones - see
     -- client/modules/prison.lua's createCheckoutLocation/removeCheckoutLocation.
     CheckOut = {
-        { coords = vec3(1779.04, 2576.82, 47.39), radius = 0.5 },
-        { coords = vec3(1779.04, 2577.63, 47.41), radius = 0.5 },
-        { coords = vec3(1779.04, 2578.5, 47.43),  radius = 0.5 },
-        { coords = vec3(1779.04, 2579.37, 47.4),  radius = 0.5 },
-        { coords = vec3(1779.04, 2580.19, 47.4),  radius = 0.5 },
-        { coords = vec3(1779.04, 2581.06, 47.42), radius = 0.5 },
+        { coords = vec3(1779.04, 2576.82, 46.39), radius = 0.5 },
+        { coords = vec3(1779.04, 2577.63, 46.41), radius = 0.5 },
+        { coords = vec3(1779.04, 2578.5, 46.43),  radius = 0.5 },
+        { coords = vec3(1779.04, 2579.37, 46.4),  radius = 0.5 },
+        { coords = vec3(1779.04, 2580.19, 46.4),  radius = 0.5 },
+        { coords = vec3(1779.04, 2581.06, 46.42), radius = 0.5 },
     },
 
     -- Alert When Entering Prison --
@@ -71,7 +71,7 @@ return {
 
     -- Roster Location --
     RosterLocation = {
-        coords = vec3(1783.37, 2574.34, 46.88),
+        coords = vec3(1783.37, 2574.34, 45.88),
         radius = 0.3,
     },
 
