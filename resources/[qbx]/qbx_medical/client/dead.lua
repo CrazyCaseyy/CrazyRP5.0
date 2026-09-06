@@ -61,23 +61,12 @@ local function respawn()
     plyState.invBusy = false
 end
 
----Allow player to respawn
+---Allow player to respawn once the full death timer (config.deathTime, 5
+---minutes) has elapsed - no more holding [E] to respawn early. That
+---bypass used to let anyone skip the wait entirely; now DeathTime hitting
+---0 is the only thing that triggers a respawn.
 function CheckForRespawn()
-    RespawnHoldTime = 5
     while DeathState == sharedConfig.deathState.DEAD do
-        if IsControlPressed(0, 38) and RespawnHoldTime <= 1 and allowRespawn then
-            respawn()
-            return
-        end
-        if IsControlPressed(0, 38) then
-            RespawnHoldTime -= 1
-        end
-        if IsControlReleased(0, 38) then
-            RespawnHoldTime = 5
-        end
-        if RespawnHoldTime <= 0 then
-            RespawnHoldTime = 0
-        end
         DeathTime -= 1
         if DeathTime <= 0 and allowRespawn then
             respawn()

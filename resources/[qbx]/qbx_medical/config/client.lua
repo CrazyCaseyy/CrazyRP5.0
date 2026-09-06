@@ -35,8 +35,8 @@ return {
         running = 50,
         walking = 15,
     },
-    laststandReviveInterval = 360,
-    deathTime = 300,
+    laststandReviveInterval = 60, -- how long (seconds) knocked out/last stand lasts before bleeding out into death
+    deathTime = 300, -- how long (seconds, = 5 min) dead lasts before being able to respawn
 
     forceInjury = 35, -- Maximum amount of damage a player can take before limb damage & effects are forced to occur
     healthDamage = 5, -- Minimum damage done to health before checking for injuries

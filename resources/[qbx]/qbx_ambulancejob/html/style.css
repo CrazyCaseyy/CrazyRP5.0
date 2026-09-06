@@ -102,7 +102,7 @@ html, body {
 }
 
 .death-panel.dead .stage-label {
-  color: var(--ox-text-faint);
+  color: var(--ox-danger);
 }
 
 .pulse-row {
@@ -175,6 +175,10 @@ html, body {
   letter-spacing: 1px;
   color: var(--ox-text);
   font-variant-numeric: tabular-nums;
+}
+
+.death-panel.dead .timer {
+  color: var(--ox-danger);
 }
 
 .hint {

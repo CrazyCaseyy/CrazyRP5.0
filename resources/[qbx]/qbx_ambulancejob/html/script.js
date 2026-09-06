@@ -29,7 +29,7 @@ function applyStage(stage) {
 
   if (stage === 'dead') {
     el('stageLabel').textContent = 'Dead';
-    el('hint').textContent = 'Hold [E] to respawn early, or wait it out';
+    el('hint').textContent = 'You can respawn once this reaches zero';
     heart.classList.remove('beating');
     heart.classList.add('flatlined');
     ecg.setAttribute('d', ECG_PATH_FLAT);
