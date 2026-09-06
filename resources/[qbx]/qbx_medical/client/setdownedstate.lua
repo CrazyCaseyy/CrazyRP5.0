@@ -3,14 +3,17 @@ local vehicleDict = 'veh@low@front_ps@idle_duck'
 local vehicleAnim = 'sit'
 local LastStandCuffedDict = 'dead'
 local LastStandCuffedAnim = 'dead_f'
--- Stationary pose for whenever IsCrawling (laststand.lua) is false - the
--- same vanilla "wounded ped writhing on the ground" anim this project used
--- before the crawl-and-move rework, confirmed to actually exist (unlike a
--- couple of guessed alternatives that didn't - see laststand.lua's pcall
--- comment). Similar in theme to the moving crawl pose (down, in pain),
--- just for when nothing is actually being crawled toward.
-local LastStandIdleDict = 'combat@damage@writhe'
-local LastStandIdleAnim = 'writhe_loop'
+-- Stationary pose for whenever IsCrawling (laststand.lua) is false - reuses
+-- the exact same lying-still anim as the "Dead" stage (dead.lua's
+-- playDeadAnimation), which is confirmed to actually hold still. The
+-- earlier idle choice here, 'combat@damage@writhe'/'writhe_loop' (Rockstar's
+-- "wounded ped" anim), has its own squirming/dragging motion baked into the
+-- clip itself - freezing the ped's world position (laststand.lua's
+-- updateCrawlMovement) stops it from actually traveling anywhere, but the
+-- animation's own built-in motion still reads as "crawling in place" even
+-- while stationary. This pose doesn't have that problem.
+local LastStandIdleDict = 'dead'
+local LastStandIdleAnim = 'dead_a'
 
 local function playUnescortedLastStandAnimation()
     if cache.vehicle then

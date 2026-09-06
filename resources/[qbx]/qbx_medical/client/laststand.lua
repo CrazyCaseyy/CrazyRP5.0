@@ -67,15 +67,26 @@ end
 local startLastStandLock = false
 
 local CRAWL_SPEED = 0.65 -- ground units/second while dragging themselves forward
+local CRAWL_WINDUP_MS = 400 -- lets the crawl pose blend in before actually sliding
 
 -- Win32 virtual-key codes for W/A/S/D, used with IsRawKeyDown below.
 local KEY_W, KEY_A, KEY_S, KEY_D = 0x57, 0x41, 0x53, 0x44
 
--- True on any frame WASD is actually moving the ped this tick - read by
+-- True on any frame WASD is actually being held down - read by
 -- setdownedstate.lua's playUnescortedLastStandAnimation to pick between the
--- moving-crawl anim and a stationary injured-idle one instead of always
--- playing the crawl pose even while standing still.
+-- crawl anim and the stationary injured-idle one instead of always playing
+-- the crawl pose even while standing still. Flips the instant a key is
+-- pressed (so the pose itself starts blending in right away) - separate
+-- from crawlWindupStarted below, which is what actually gates movement.
 IsCrawling = false
+
+-- Timestamp (GetGameTimer()) of when WASD was first pressed this "hold",
+-- or nil while nothing is held. Going straight from the idle pose to
+-- sliding across the ground the same instant the anim switches looked like
+-- a snap - this makes the switch-to-crawling-anim and the start-of-actual-
+-- movement two separate steps a beat apart, so the pose has time to blend
+-- in before the ped starts moving in it.
+local crawlWindupStarted = nil
 
 -- Moves the ped directly instead of leaning on GTA's own locomotion system -
 -- a real "stay down and crawl" movement needs a movement clipset built for
@@ -105,11 +116,20 @@ local function updateCrawlMovement()
     IsCrawling = moveForward or moveBack or moveLeft or moveRight
 
     if not IsCrawling then
+        crawlWindupStarted = nil
         FreezeEntityPosition(cache.ped, true)
         return
     end
 
     FreezeEntityPosition(cache.ped, false)
+
+    if not crawlWindupStarted then
+        crawlWindupStarted = GetGameTimer()
+    end
+
+    if GetGameTimer() - crawlWindupStarted < CRAWL_WINDUP_MS then
+        return -- still settling into the crawl pose - don't start sliding yet
+    end
 
     local camHeadingRad = math.rad(GetGameplayCamRot(2).z)
     local forward = vector3(-math.sin(camHeadingRad), math.cos(camHeadingRad), 0.0)
