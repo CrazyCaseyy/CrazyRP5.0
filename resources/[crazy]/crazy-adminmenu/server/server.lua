@@ -37,18 +37,25 @@ lib.callback.register('crazy_adminmenu:server:unban', function(source, id)
 end)
 
 -- ===================================================================
--- Players tab - on-duty job counts
+-- Dashboard - player count + on-duty job counts
 -- ===================================================================
 
--- qbx_adminmenu's own getPlayers callback (server/main.lua) already
--- formats job as a flattened "Label | Grade" string for its own list row,
--- so counts are done here instead of trying to parse that back apart -
--- this loops the same qbx_core player pool directly.
-lib.callback.register('crazy_adminmenu:server:getJobCounts', function(source)
-    if not checkPerm(source, 'mod') then return {} end
+-- The Players tab no longer calls this - its own getPlayers fetch already
+-- carries an `onduty` flag per row now (server/admin.lua), so it tallies
+-- job counts client-side from data it fetches anyway instead of triggering
+-- a second callback that re-loops every online player. Only the Dashboard
+-- still needs a server-side count, and it needs BOTH the total player
+-- count and the on-duty breakdown - bundled into one callback so the
+-- Dashboard costs one network round trip and one pass over
+-- GetQBPlayers() (a cheap live-table reference, not a copy) instead of
+-- two separate ones.
+lib.callback.register('crazy_adminmenu:server:getDashboardStats', function(source)
+    if not checkPerm(source, 'mod') then return { playerCount = 0, jobCounts = {} } end
 
     local counts = {}
+    local playerCount = 0
     for _, v in pairs(exports.qbx_core:GetQBPlayers()) do
+        playerCount += 1
         local job = v.PlayerData.job
         if job and job.onduty and job.name ~= 'unemployed' then
             local entry = counts[job.name]
@@ -68,7 +75,7 @@ lib.callback.register('crazy_adminmenu:server:getJobCounts', function(source)
         if a.count ~= b.count then return a.count > b.count end
         return a.label < b.label
     end)
-    return list
+    return { playerCount = playerCount, jobCounts = list }
 end)
 
 -- ===================================================================

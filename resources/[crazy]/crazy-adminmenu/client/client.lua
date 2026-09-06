@@ -88,9 +88,9 @@ RegisterNUICallback('getPlayerDetail', function(data, cb)
     cb(player)
 end)
 
-RegisterNUICallback('getJobCounts', function(_, cb)
-    local counts = lib.callback.await('crazy_adminmenu:server:getJobCounts', false)
-    cb(counts or {})
+RegisterNUICallback('getDashboardStats', function(_, cb)
+    local stats = lib.callback.await('crazy_adminmenu:server:getDashboardStats', false)
+    cb(stats or { playerCount = 0, jobCounts = {} })
 end)
 
 RegisterNUICallback('getPlayerHistory', function(_, cb)

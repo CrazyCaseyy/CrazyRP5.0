@@ -256,6 +256,12 @@ lib.callback.register('qbx_admin:server:getPlayers', function(source)
             cash = v.PlayerData.money.cash,
             bank = v.PlayerData.money.bank,
             job = v.PlayerData.job.label .. ' | ' .. v.PlayerData.job.grade.level,
+            -- The Players tab's on-duty summary is derived client-side from
+            -- this same list now (see html/script.js's computeJobCounts) -
+            -- rather than firing a second callback that re-loops every
+            -- online player just to recompute what's already being iterated
+            -- here to build this list.
+            onduty = v.PlayerData.job.onduty,
             gang = v.PlayerData.gang.label,
             license = GetPlayerIdentifierByType(k, 'license') or 'Unknown',
             discord = GetPlayerIdentifierByType(k, 'discord') or 'Not Linked',

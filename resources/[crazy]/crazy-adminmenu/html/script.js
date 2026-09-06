@@ -1,6 +1,6 @@
 // NUI contract with client.lua — see resources/[crazy]/crazy-adminmenu/client/client.lua
 // inbound (SendNUIMessage):  { action: 'open' | 'close' | 'toggleState' }
-// outbound (RegisterNUICallback): close, getPlayers, getPlayerDetail, getJobCounts, getPlayerHistory,
+// outbound (RegisterNUICallback): close, getPlayers, getPlayerDetail, getDashboardStats, getPlayerHistory,
 //   getJobsAndGangs, playerGeneral, playerAdmin, changePlayerData, clothingMenu, giveItem, removePlayerItem,
 //   getPlayerInventory, toggleSelf, setPedModel, refreshPedModel, getToggleState,
 //   getVehicles, spawnVehicle, fixVehicle, deleteVehicle, adminCar, setPlate, setWeather,
@@ -70,7 +70,7 @@ function switchTab(tab) {
   el('topbarSubtitle').textContent = TAB_META[tab].subtitle;
 
   if (tab === 'dashboard') loadDashboard();
-  else if (tab === 'players') { showPlayersList(); loadPlayers(); loadJobCounts(); }
+  else if (tab === 'players') { showPlayersList(); loadPlayers(); }
   else if (tab === 'vehicles' && !vehicleData) loadVehicles();
   else if (tab === 'reports') loadReports();
   else if (tab === 'bans') loadBans();
@@ -220,6 +220,11 @@ async function loadPlayers() {
   const result = await post('getPlayers');
   players = Array.isArray(result) ? result : [];
   renderPlayersList(players);
+  // Tallied locally from the list just fetched instead of firing a second
+  // callback that would re-loop every online player on the server just to
+  // recompute what getPlayers already carries per-row (see `onduty` on
+  // server/admin.lua's getPlayers).
+  renderJobCounts('dutySummary', computeJobCounts(players));
 }
 
 // getPlayers' job field is qbx_adminmenu's own flattened "Label | Grade"
@@ -230,9 +235,21 @@ function jobLabelOf(p) {
   return (p.job || '').split('|')[0].trim();
 }
 
-async function loadJobCounts(containerId = 'dutySummary') {
+function computeJobCounts(list) {
+  const counts = {};
+  for (const p of list) {
+    if (!p.onduty) continue;
+    const label = jobLabelOf(p);
+    if (!label) continue;
+    counts[label] = (counts[label] || 0) + 1;
+  }
+  return Object.entries(counts)
+    .map(([label, count]) => ({ label, count }))
+    .sort((a, b) => (b.count - a.count) || a.label.localeCompare(b.label));
+}
+
+function renderJobCounts(containerId, counts) {
   const container = el(containerId);
-  const counts = await post('getJobCounts');
   if (!Array.isArray(counts) || !counts.length) {
     container.innerHTML = '<div class="duty-empty">Nobody is on duty right now.</div>';
     return;
@@ -252,9 +269,14 @@ async function loadJobCounts(containerId = 'dutySummary') {
 async function loadDashboard() {
   const countEl = el('dashboardPlayerCount');
   countEl.textContent = '—';
-  const list = await post('getPlayers');
-  countEl.textContent = Array.isArray(list) ? list.length : '0';
-  loadJobCounts('dashboardDutySummary');
+  // One bundled callback (server/server.lua's getDashboardStats) instead of
+  // fetching the full per-player getPlayers payload just to read its
+  // length - that endpoint builds ~15 fields per player (several native
+  // identifier lookups included) purely so this page could throw all of
+  // it away but the count.
+  const stats = await post('getDashboardStats');
+  countEl.textContent = stats && typeof stats.playerCount === 'number' ? stats.playerCount : '0';
+  renderJobCounts('dashboardDutySummary', stats ? stats.jobCounts : []);
   loadPlayerHistoryChart();
 }
 
