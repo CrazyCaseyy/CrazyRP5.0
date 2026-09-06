@@ -2,14 +2,32 @@
 -- counts — things the old qbx_adminmenu resource never had server logic
 -- for (it only had an ox_lib menu with no ban/character-lookup features
 -- at all), so this talks to the database directly instead of routing
--- through server/admin.lua's qbx_admin:server:* events. Permission tiers
--- ('mod'/'admin') match the bare-ACE-object convention every check in
--- server/admin.lua and server/commands.lua uses (see config/server.lua's
--- eventPerms/commandPerms) — already granted correctly to group.admin
--- via permissions.cfg.
+-- through server/admin.lua's qbx_admin:server:* events. Gated through
+-- hasActionPerm (server/permissions.lua, config/actions.lua) the same as
+-- everything else in this resource now, rather than the bare 'mod'/'admin'
+-- tier checks this used before that - every action, this included, is
+-- independently configurable from the Admins tab.
 
-local function checkPerm(source, tier)
+-- checkPerm(source, tier) still exists for the raw bare-ACE-tier checks
+-- that aren't per-action (the owner-only staff/action-permission endpoints
+-- themselves, in server/permissions.lua - those gate the Admins tab, so
+-- they can't also be an entry inside the thing they gate).
+function checkPerm(source, tier)
     if not IsPlayerAceAllowed(source, tier) then
+        exports.qbx_core:Notify(source, "You don't have permission to do this", 'error')
+        return false
+    end
+    if not exports.qbx_core:IsOptin(source) then
+        exports.qbx_core:Notify(source, 'You are not opted in for admin duty. (/optin to toggle)', 'error')
+        return false
+    end
+    return true
+end
+
+---Same shape as checkPerm, but resolves an action id (config/actions.lua)
+---to its current tier (server/permissions.lua's hasActionPerm) first.
+local function checkAction(source, actionId)
+    if not hasActionPerm(source, actionId) then
         exports.qbx_core:Notify(source, "You don't have permission to do this", 'error')
         return false
     end
@@ -25,12 +43,12 @@ end
 -- ===================================================================
 
 lib.callback.register('crazy_adminmenu:server:getBans', function(source)
-    if not checkPerm(source, 'admin') then return {} end
+    if not checkAction(source, 'bans_view') then return {} end
     return MySQL.query.await('SELECT id, name, license, discord, reason, expire, bannedby FROM bans ORDER BY id DESC LIMIT 200') or {}
 end)
 
 lib.callback.register('crazy_adminmenu:server:unban', function(source, id)
-    if not checkPerm(source, 'admin') then return false end
+    if not checkAction(source, 'bans_unban') then return false end
     if not id then return false end
     MySQL.query.await('DELETE FROM bans WHERE id = ?', { id })
     return true
@@ -50,7 +68,7 @@ end)
 -- GetQBPlayers() (a cheap live-table reference, not a copy) instead of
 -- two separate ones.
 lib.callback.register('crazy_adminmenu:server:getDashboardStats', function(source)
-    if not checkPerm(source, 'mod') then return { playerCount = 0, jobCounts = {} } end
+    if not checkAction(source, 'menu_open') then return { playerCount = 0, jobCounts = {} } end
 
     local counts = {}
     local playerCount = 0
@@ -103,7 +121,7 @@ local function toGroupList(groups)
 end
 
 lib.callback.register('crazy_adminmenu:server:getJobsAndGangs', function(source)
-    if not checkPerm(source, 'mod') then return { jobs = {}, gangs = {} } end
+    if not checkAction(source, 'player_editData') then return { jobs = {}, gangs = {} } end
     return {
         jobs = toGroupList(exports.qbx_core:GetJobs()),
         gangs = toGroupList(exports.qbx_core:GetGangs()),
@@ -118,7 +136,7 @@ end)
 -- getCharacterDetail below already uses for the offline inventory snapshot,
 -- kept consistent rather than aggregating counts across stacks here.
 lib.callback.register('crazy_adminmenu:server:getPlayerInventory', function(source, targetId)
-    if not checkPerm(source, 'mod') then return {} end
+    if not checkAction(source, 'player_inventory') then return {} end
     if not targetId then return {} end
 
     local slots = exports.ox_inventory:GetInventoryItems(targetId)
@@ -173,7 +191,7 @@ CreateThread(function()
 end)
 
 lib.callback.register('crazy_adminmenu:server:getPlayerHistory', function(source)
-    if not checkPerm(source, 'mod') then return {} end
+    if not checkAction(source, 'menu_open') then return {} end
     return MySQL.query.await(
         'SELECT player_count, recorded_at FROM crazy_adminmenu_player_history WHERE recorded_at >= (NOW() - INTERVAL 48 HOUR) ORDER BY recorded_at ASC'
     ) or {}
@@ -184,7 +202,7 @@ end)
 -- ===================================================================
 
 lib.callback.register('crazy_adminmenu:server:searchCharacters', function(source, term)
-    if not checkPerm(source, 'mod') then return {} end
+    if not checkAction(source, 'characters_search') then return {} end
     term = tostring(term or ''):gsub('%s+', '')
     if term == '' then return {} end
 
@@ -196,7 +214,7 @@ lib.callback.register('crazy_adminmenu:server:searchCharacters', function(source
 end)
 
 lib.callback.register('crazy_adminmenu:server:getCharacterDetail', function(source, citizenid)
-    if not checkPerm(source, 'mod') then return end
+    if not checkAction(source, 'characters_search') then return end
     if not citizenid then return end
 
     local player = exports.qbx_core:GetOfflinePlayer(citizenid)

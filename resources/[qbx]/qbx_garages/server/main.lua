@@ -115,7 +115,14 @@ function GetPlayerVehicleFilter(source, garageName)
     local filter = {}
     filter.citizenid = not garage.shared and player.PlayerData.citizenid or nil
     filter.states = garage.states or VehicleState.GARAGED
-    filter.garage = not garage.skipGarageCheck and garageName or nil
+    -- Every garage now lists the full fleet (matching type/state), not
+    -- just whichever vehicles happen to be registered to this specific
+    -- one - garageName is still tracked per-vehicle (updated in
+    -- spawn-vehicle.lua whenever one's taken out from somewhere new), it
+    -- just no longer restricts what shows up where. skipGarageCheck on
+    -- individual garages (impound lots) is redundant now but left alone
+    -- rather than ripped out for a one-line behavior change.
+    filter.garage = nil
     return filter
 end
 
@@ -183,6 +190,53 @@ lib.callback.register('qbx_garages:server:getGarageVehicles', function(source, g
         end
     end
     return toSend
+end)
+
+-- Relocates a GARAGED vehicle's registered home to a different garage for
+-- a flat fee, as its own explicit step - a garage's vehicle list shows
+-- everything a player owns regardless of where it's actually registered
+-- (see GetPlayerVehicleFilter above), but spawn-vehicle.lua's spawnVehicle
+-- still only lets you take a vehicle out of the garage it's actually
+-- registered to, so this (and only this) is what changes that. Once this
+-- succeeds, taking the vehicle out from here is a separate follow-up
+-- action in the UI (client/main.lua re-opens the vehicle list so the
+-- player clicks back in and sees "Take Out" for real this time), not
+-- something this callback does itself.
+---@param source number
+---@param vehicleId integer
+---@param garageName string
+---@return boolean
+lib.callback.register('qbx_garages:server:transferVehicle', function(source, vehicleId, garageName)
+    local garage = TryGetGarage(source, garageName)
+    if not garage or garage.type == GarageType.DEPOT then return false end
+
+    local player = exports.qbx_core:GetPlayer(source)
+    if not getCanAccessGarage(player, garage) then
+        exports.qbx_core:Notify(source, locale('error.no_access'), 'error')
+        return false
+    end
+
+    local filter = GetPlayerVehicleFilter(source, garageName)
+    local playerVehicle = exports.qbx_vehicles:GetPlayerVehicle(vehicleId, filter)
+    if not playerVehicle or playerVehicle.state ~= VehicleState.GARAGED then
+        exports.qbx_core:Notify(source, locale('error.not_owned'), 'error')
+        return false
+    end
+    if getVehicleType(playerVehicle) ~= garage.vehicleType then
+        exports.qbx_core:Notify(source, locale('error.not_correct_type'), 'error')
+        return false
+    end
+    if playerVehicle.garage == garageName then return false end -- already here, nothing to do
+
+    local canPay = payDepotPrice(player, TRANSFER_FEE)
+    if not canPay then
+        exports.qbx_core:Notify(source, locale('error.not_enough'), 'error')
+        return false
+    end
+
+    setVehicleGarage(vehicleId, garageName)
+    exports.qbx_core:Notify(source, locale('success.vehicle_transferred', lib.math.groupdigits(TRANSFER_FEE)), 'success')
+    return true
 end)
 
 ---@param source number

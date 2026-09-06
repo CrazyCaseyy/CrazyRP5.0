@@ -23,6 +23,7 @@ server_scripts {
     'server/admin.lua',
     'server/commands.lua',
     'server/server.lua',
+    'server/permissions.lua',
 }
 
 ui_page 'html/index.html'

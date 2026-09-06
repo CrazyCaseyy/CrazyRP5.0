@@ -1,18 +1,27 @@
 local logger = require '@qbx_core.modules.logger'
 
+-- Flat fee for transferring a vehicle's registered garage to a different
+-- one (main.lua's transferVehicle callback) - garages now list every
+-- vehicle you own everywhere (see main.lua's GetPlayerVehicleFilter), so
+-- this is what actually makes "which garage it's based at" mean something
+-- again. Global (not local) - and so is payDepotPrice below - since
+-- main.lua's transfer callback needs both too, and Lua's `local` at a
+-- file's top level doesn't cross files within the same resource.
+TRANSFER_FEE = 500
+
 ---@param vehicleId integer
 ---@param modelName string
 local function setVehicleStateToOut(vehicleId, vehicle, modelName)
     local depotPrice = Config.calculateImpoundFee(vehicleId, modelName) or 0
     exports.qbx_vehicles:SaveVehicle(vehicle, {
         state = VehicleState.OUT,
-        depotPrice = depotPrice
+        depotPrice = depotPrice,
     })
 end
 
 ---@param player table
 ---@param depotPrice integer
-local function payDepotPrice(player, depotPrice)
+function payDepotPrice(player, depotPrice)
     local cashBalance = player.PlayerData.money.cash
     local bankBalance = player.PlayerData.money.bank
 
@@ -52,8 +61,12 @@ lib.callback.register('qbx_garages:server:spawnVehicle', function (source, vehic
         return
     end
 
+    -- Anti-cheat distance check - kept a bit above the interact zone's own
+    -- useRadius (now 3.0 on the public parking spots, config/server.lua)
+    -- so someone legitimately standing at the edge of a bigger zone
+    -- doesn't get flagged as suspicious for it.
     local distanceBetweenPlayerAndAccessPoint = #(GetEntityCoords(GetPlayerPed(source)) - accessPoint.coords.xyz)
-    if distanceBetweenPlayerAndAccessPoint > 3 then
+    if distanceBetweenPlayerAndAccessPoint > 5 then
         logger.log({
             source = source,
             message = string.format(
@@ -90,7 +103,9 @@ lib.callback.register('qbx_garages:server:spawnVehicle', function (source, vehic
         return exports.qbx_core:Notify(source, locale('error.not_impound'), 'error')
     end
 
-    if garageType == GarageType.DEPOT and playerVehicle.depotPrice then
+    -- Impound retrieval is free (config.calculateImpoundFee always returns 0
+    -- now), so skip the charge entirely rather than "charging" $0.
+    if garageType == GarageType.DEPOT and playerVehicle.depotPrice and playerVehicle.depotPrice > 0 then
         local player = exports.qbx_core:GetPlayer(source)
         OverrideFreeDepotPriceForOutVehicle(playerVehicle)
         local canPay = payDepotPrice(player, playerVehicle.depotPrice)
@@ -99,6 +114,20 @@ lib.callback.register('qbx_garages:server:spawnVehicle', function (source, vehic
             exports.qbx_core:Notify(source, locale('error.not_enough'), 'error')
             return
         end
+    end
+
+    -- Every garage lists all of a player's vehicles regardless of which
+    -- one they're actually registered to (main.lua's
+    -- GetPlayerVehicleFilter), but taking one out still requires it to
+    -- actually be here first - main.lua's transferVehicle callback (a
+    -- separate, explicit "Transfer Here" step in the UI, paid up front)
+    -- is the only thing that changes a vehicle's registered garage now.
+    -- Depots are exempt: every vehicle sitting in one is "not at its
+    -- registered garage" by definition, that's just what recovering an
+    -- OUT/IMPOUNDED vehicle from a depot means.
+    if garageType ~= GarageType.DEPOT and playerVehicle.garage ~= garageName then
+        exports.qbx_core:Notify(source, locale('error.not_here'), 'error')
+        return
     end
 
     playerVehicle.props.lockState = 1 -- Modify the veh props lock state here to avoid conflicts with the vehicleConfig.noLock system.

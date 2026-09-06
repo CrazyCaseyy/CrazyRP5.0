@@ -10,18 +10,23 @@
         "vehicle_occupied": "You can't store this vehicle as it is not empty",
         "in_vehicle": "You're already in a vehicle...",
         "spawn_failed": "Something went wrong spawning the vehicle",
-        "spawn_in_progress": "Please wait for your vehicle to be delivered..."
+        "spawn_in_progress": "Please wait for your vehicle to be delivered...",
+        "not_here": "This vehicle isn't at this garage - transfer it here first"
     },
     "success": {
-        "vehicle_parked": "Vehicle Stored"
+        "vehicle_parked": "Vehicle Stored",
+        "vehicle_transferred": "Paid $%s to transfer this vehicle here."
     },
     "menu": {
         "information": "Information",
-        "description": "Name: %s\nPlate: %s\nImpound Fee: $%s",
+        "description": "Name: %s\nPlate: %s",
+        "current_garage": "Currently At",
         "body": "Body",
         "engine": "Engine",
         "fuel": "Fuel",
         "take_out": "Take Out",
+        "transfer_here": "Transfer Here",
+        "transfer_fee": "$%s",
         "veh_impounded": "Your vehicle has been impounded by the police"
     },
     "info": {

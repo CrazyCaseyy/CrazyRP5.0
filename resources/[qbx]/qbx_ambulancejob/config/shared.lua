@@ -38,16 +38,6 @@ return {
                 }
             }
         },
-        -- Not given a new coord with the rest of this hospital's move - the
-        -- new helicopter spawn is a ground-level garage (see `helicopter`
-        -- above), not a rooftop, so this may no longer apply. Left pointing
-        -- at the old Pillbox roof access until confirmed either way.
-        roof = {
-            vec3(338.54, -583.88, 74.17),
-        },
-        main = {
-            vec3(88.33, -413.32, 39.53),
-        },
         stash = {
             {
                 name = 'ambulanceStash',

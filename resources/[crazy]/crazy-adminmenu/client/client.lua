@@ -117,8 +117,11 @@ RegisterNUICallback('playerGeneral', function(data, cb)
     cb('ok')
 end)
 
--- Matches qbx_adminmenu's administrationOptions index order: kick/ban/perm.
-local ADMIN_ACTIONS = { kick = 1, ban = 2, perm = 3 }
+-- Matches qbx_adminmenu's administrationOptions index order: kick/ban.
+-- (index 3, "perm", used to call qbx_core's own deprecated
+-- AddPermission/RemovePermission - removed along with its handler, see
+-- server/admin.lua's administrationOptions.)
+local ADMIN_ACTIONS = { kick = 1, ban = 2 }
 
 RegisterNUICallback('playerAdmin', function(data, cb)
     local index = ADMIN_ACTIONS[data.action]
@@ -192,9 +195,30 @@ local SELF_TOGGLES = {
     laser = function() ToggleLaser() end,
 }
 
+-- config/actions.lua id for each SELF_TOGGLES key - these toggles used to
+-- have no server-side permission check at all (purely client-local state,
+-- gated only by whether the button was drawn), so this is what actually
+-- enforces the tier an owner sets for each one now, not just the NUI
+-- hiding the button.
+local SELF_TOGGLE_ACTIONS = {
+    noclip = 'self_noclip',
+    revive = 'self_revive',
+    invisible = 'self_invisible',
+    godmode = 'self_godmode',
+    names = 'self_names',
+    blips = 'self_blips',
+    vehicleGodmode = 'self_vehicleGodmode',
+    infiniteAmmo = 'self_infiniteAmmo',
+    cuff = 'self_cuff',
+    coords = 'dev_coords',
+    vehicleInfo = 'dev_vehicleInfo',
+    laser = 'dev_laser',
+}
+
 RegisterNUICallback('toggleSelf', function(data, cb)
     local toggle = SELF_TOGGLES[data.action]
-    if toggle then
+    local actionId = SELF_TOGGLE_ACTIONS[data.action]
+    if toggle and actionId and lib.callback.await('crazy_adminmenu:server:hasActionPerm', false, actionId) then
         -- A few of these (invisible/vehicleGodmode/infiniteAmmo in
         -- admin.lua, coords/vehicleInfo/laser in dev.lua) run their "on"
         -- state as a `while flag do ... Wait(0) end` loop directly in the
@@ -225,14 +249,16 @@ RegisterNUICallback('toggleSelf', function(data, cb)
 end)
 
 RegisterNUICallback('setPedModel', function(data, cb)
-    if data.model and data.model ~= '' then
+    if data.model and data.model ~= '' and lib.callback.await('crazy_adminmenu:server:hasActionPerm', false, 'self_setModel') then
         pcall(ApplyPedModel, data.model)
     end
     cb('ok')
 end)
 
 RegisterNUICallback('refreshPedModel', function(_, cb)
-    pcall(RefreshPedModel)
+    if lib.callback.await('crazy_adminmenu:server:hasActionPerm', false, 'self_setModel') then
+        pcall(RefreshPedModel)
+    end
     cb('ok')
 end)
 
@@ -295,23 +321,38 @@ RegisterNUICallback('spawnVehicle', function(data, cb)
     cb('ok')
 end)
 
+-- fix/dv/admincar are qbx_core commands with their own restrictions
+-- already, but the checks below are what actually make these three
+-- individually configurable from this menu's own Admins tab, same as
+-- everything else here - a tier change here wouldn't otherwise affect
+-- qbx_core's separate, unrelated permission system for those commands.
 RegisterNUICallback('fixVehicle', function(_, cb)
-    ExecuteCommand('fix')
+    if lib.callback.await('crazy_adminmenu:server:hasActionPerm', false, 'vehicle_fix') then
+        ExecuteCommand('fix')
+    end
     cb('ok')
 end)
 
 RegisterNUICallback('deleteVehicle', function(_, cb)
-    ExecuteCommand('dv')
+    if lib.callback.await('crazy_adminmenu:server:hasActionPerm', false, 'vehicle_delete') then
+        ExecuteCommand('dv')
+    end
     cb('ok')
 end)
 
 RegisterNUICallback('adminCar', function(_, cb)
-    ExecuteCommand('admincar')
+    -- /admincar itself is also gated server-side (vehicle_takeOwnership,
+    -- server/commands.lua) - this check just avoids the round trip for
+    -- someone who can already see the button doesn't apply to them.
+    if lib.callback.await('crazy_adminmenu:server:hasActionPerm', false, 'vehicle_takeOwnership') then
+        ExecuteCommand('admincar')
+    end
     cb('ok')
 end)
 
 RegisterNUICallback('setPlate', function(data, cb)
     if not cache.vehicle then cb('error') return end
+    if not lib.callback.await('crazy_adminmenu:server:hasActionPerm', false, 'vehicle_setPlate') then cb('error') return end
     local plate = tostring(data.plate or ''):sub(1, 8)
     if plate == '' then cb('error') return end
     SetVehicleNumberPlateText(cache.vehicle, plate)
@@ -323,12 +364,16 @@ end)
 -- ===================================================================
 
 RegisterNUICallback('setWeather', function(data, cb)
-    TriggerServerEvent('qb-weathersync:server:setWeather', data.weather)
+    if lib.callback.await('crazy_adminmenu:server:hasActionPerm', false, 'server_weather') then
+        TriggerServerEvent('qb-weathersync:server:setWeather', data.weather)
+    end
     cb('ok')
 end)
 
 RegisterNUICallback('setTime', function(data, cb)
-    TriggerServerEvent('qb-weathersync:server:setTime', data.hour)
+    if lib.callback.await('crazy_adminmenu:server:hasActionPerm', false, 'server_time') then
+        TriggerServerEvent('qb-weathersync:server:setTime', data.hour)
+    end
     cb('ok')
 end)
 
@@ -344,7 +389,7 @@ end)
 -- at all — dead on arrival there. ox_inventory opens a stash by name
 -- directly through its own client export instead.
 RegisterNUICallback('pullStash', function(data, cb)
-    if data.name and data.name ~= '' then
+    if data.name and data.name ~= '' and lib.callback.await('crazy_adminmenu:server:hasActionPerm', false, 'server_stash') then
         pcall(function() exports.ox_inventory:openInventory('stash', data.name) end)
         close()
     end
@@ -358,9 +403,12 @@ end)
 -- Same function the /vec2 /vec3 /vec4 /heading commands use
 -- (client/vectors.lua) - now a plain global in this same resource, so
 -- the NUI callback can just call it directly instead of duplicating its
--- math.
+-- math. Those commands are also gated server-side (dev_copyCoords,
+-- server/commands.lua) - this check is what gates the NUI button itself.
 RegisterNUICallback('copyToClipboard', function(data, cb)
-    pcall(CopyToClipboard, data.kind)
+    if lib.callback.await('crazy_adminmenu:server:hasActionPerm', false, 'dev_copyCoords') then
+        pcall(CopyToClipboard, data.kind)
+    end
     cb('ok')
 end)
 
@@ -396,6 +444,66 @@ end)
 
 RegisterNUICallback('unban', function(data, cb)
     local ok = lib.callback.await('crazy_adminmenu:server:unban', false, data.id)
+    cb(ok or false)
+end)
+
+-- ===================================================================
+-- Owner-only staff (admin/mod/support) permission management
+-- ===================================================================
+
+RegisterNUICallback('isOwner', function(_, cb)
+    local isOwner = lib.callback.await('crazy_adminmenu:server:isOwner', false)
+    cb(isOwner or false)
+end)
+
+RegisterNUICallback('getStaff', function(_, cb)
+    local staff = lib.callback.await('crazy_adminmenu:server:getStaff', false)
+    cb(staff or {})
+end)
+
+-- data.target: a live player id (number, from the Players tab) or a
+-- stored identifier (string, from the Admins tab). data.tier: 'support' |
+-- 'mod' | 'admin' | 'none'.
+RegisterNUICallback('setStaffTier', function(data, cb)
+    local ok = lib.callback.await('crazy_adminmenu:server:setStaffTier', false, data.target, data.tier)
+    cb(ok or false)
+end)
+
+-- ===================================================================
+-- Owner-only action permissions (which tier each individual admin-menu
+-- action requires - config/actions.lua)
+-- ===================================================================
+
+RegisterNUICallback('getActionPerms', function(_, cb)
+    local list = lib.callback.await('crazy_adminmenu:server:getActionPerms', false)
+    cb(list or {})
+end)
+
+RegisterNUICallback('setActionPerm', function(data, cb)
+    local ok = lib.callback.await('crazy_adminmenu:server:setActionPerm', false, data.id, data.tier)
+    cb(ok or false)
+end)
+
+-- Every non-owner tab/button check reads from this once per menu open
+-- rather than calling hasActionPerm per element - see refreshOwnerStatus
+-- in html/script.js.
+RegisterNUICallback('getMyActionPerms', function(_, cb)
+    local allowed = lib.callback.await('crazy_adminmenu:server:getMyActionPerms', false)
+    cb(allowed or {})
+end)
+
+-- Per-player permission overrides ("Edit Permissions" box, from a player's
+-- detail page in the Players tab or a staff row in the Admins tab) -
+-- data.id is either that player's online source id (Players tab) or their
+-- stored identifier as a string (Admins tab, may be offline) - see
+-- server/permissions.lua's resolvePermissionTarget.
+RegisterNUICallback('getPlayerPermissions', function(data, cb)
+    local list = lib.callback.await('crazy_adminmenu:server:getPlayerPermissions', false, data.id)
+    cb(list or {})
+end)
+
+RegisterNUICallback('setPlayerPermission', function(data, cb)
+    local ok = lib.callback.await('crazy_adminmenu:server:setPlayerPermission', false, data.id, data.actionId, data.allowed)
     cb(ok or false)
 end)
 
