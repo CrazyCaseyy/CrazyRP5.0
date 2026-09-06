@@ -61,6 +61,15 @@ end
 
 local startLastStandLock = false
 
+-- Same lockdown as DisableControls() (dead.lua) but leaves forward movement
+-- on - control 32 is INPUT_MOVE_UP_ONLY ([W] / left-stick forward), the one
+-- movement control this state doesn't disable, so that's the only input
+-- that can actually move a knocked-out player anywhere while they crawl.
+local function disableControlsButAllowForwardMovement()
+    DisableControls()
+    EnableControlAction(0, 32, true)
+end
+
 ---put player in last stand mode and notify EMS.
 function StartLastStand(attacker, weapon)
     if startLastStandLock then return end
@@ -91,7 +100,7 @@ function StartLastStand(attacker, weapon)
         -- true). Now a bad anim just skips its own frame instead of
         -- breaking the feature for the rest of the session.
         while DeathState == sharedConfig.deathState.LAST_STAND do
-            DisableControls()
+            disableControlsButAllowForwardMovement()
             local ok, err = pcall(PlayLastStandAnimation)
             if not ok then
                 lib.print.error(('last stand animation failed: %s'):format(err))

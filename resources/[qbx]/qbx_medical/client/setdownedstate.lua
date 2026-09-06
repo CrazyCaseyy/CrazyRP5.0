@@ -13,11 +13,23 @@ local function playUnescortedLastStandAnimation()
         local playerData = QBX.PlayerData
         local metadata = playerData and playerData.metadata
         local isHandCuffed = metadata and metadata.ishandcuffed
-        
-        local dict = not isHandCuffed and LastStandDict or LastStandCuffedDict
-        local anim = not isHandCuffed and LastStandAnim or LastStandCuffedAnim
-        if not IsEntityPlayingAnim(cache.ped, dict, anim, 3) then
-            lib.playAnim(cache.ped, dict, anim, 1.0, 1.0, -1, 1, 0, false, false, false)
+
+        if isHandCuffed then
+            if not IsEntityPlayingAnim(cache.ped, LastStandCuffedDict, LastStandCuffedAnim, 3) then
+                lib.playAnim(cache.ped, LastStandCuffedDict, LastStandCuffedAnim, 1.0, 1.0, -1, 1, 0, false, false, false)
+            end
+        else
+            -- animFlags 51 = LOOPING(1) | HOLD_LAST_FRAME(2) | UPPERBODY(16) |
+            -- SECONDARY(32) - the same combo scully_emotemenu's own "Move"
+            -- emotes use (general_emotes.lua's Flags.Move) to let an emote
+            -- keep playing as a secondary/upper-body anim while normal
+            -- locomotion still drives movement, instead of a plain Loop(1)
+            -- that locks the ped in place. laststand.lua leaves only the
+            -- forward-movement control enabled while down, so [W] ends up
+            -- being the only input that can actually move them anywhere.
+            if not IsEntityPlayingAnim(cache.ped, LastStandDict, LastStandAnim, 3) then
+                lib.playAnim(cache.ped, LastStandDict, LastStandAnim, 1.0, 1.0, -1, 51, 0, false, false, false)
+            end
         end
     end
 end

@@ -88,6 +88,18 @@ end)
 local DEATHSTATE_LASTSTAND = 2
 local DEATH_STATE_BAG = 'qbx_medical:deathState'
 
+-- Getting helped up isn't a full medical revive - reuses qbx_medical's own
+-- playerRevived event for the parts that actually need its internal state
+-- (DeathState back to ALIVE, ending last stand, clearing invincibility -
+-- none of which qbx_medical exports directly), then immediately drops the
+-- health it just set back down to a critical 10 HP (native entity health
+-- is 100-200 with 100 as the "dead" floor, matching crazy-adminmenu's same
+-- -100 HUD-facing scale) instead of the full heal that event normally does.
+RegisterNetEvent('hospital:client:HelpedUp', function()
+    TriggerEvent('qbx_medical:client:playerRevived')
+    SetEntityHealth(cache.ped, 110)
+end)
+
 exports.ox_target:addGlobalPlayer({
     {
         name = 'hospital:helpUp',

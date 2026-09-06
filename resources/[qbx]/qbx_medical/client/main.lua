@@ -53,15 +53,13 @@ Hp = nil
 DeathTime = 0
 LaststandTime = 0
 RespawnHoldTime = 5
--- Reverted: 'missfbi3'/'fbi3_intro_dying' (tried here to get a forward-crawl
--- look for qbx_ambulancejob's "Knocked Out" NUI stage) is not a real anim
--- dict - DoesAnimDictExist() fails on it, which makes ox_lib's
--- requestAnimDict throw, which was silently disabling the entire last
--- stand system after the first hit (see qbx_medical/client/laststand.lua's
--- pcall comment). Back to the vanilla dict Rockstar actually ships for shot
--- peds writhing/dragging themselves on the ground - confirmed valid.
-LastStandDict = 'combat@damage@writhe'
-LastStandAnim = 'writhe_loop'
+-- The exact same dict/clip as this server's own "/e crawl" emote (see
+-- scully_emotemenu/shared/data/emotes/general_emotes.lua's "Crawl" entry) -
+-- confirmed to actually exist since it's live there, unlike the earlier
+-- 'missfbi3' guess that silently broke last stand entirely (see
+-- setdownedstate.lua/laststand.lua's pcall comments for what that did).
+LastStandDict = 'move_injured_ground'
+LastStandAnim = 'front_loop'
 
 exports('IsDead', function()
     return DeathState == sharedConfig.deathState.DEAD
