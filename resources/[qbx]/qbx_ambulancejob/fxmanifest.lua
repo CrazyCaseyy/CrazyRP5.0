@@ -11,7 +11,8 @@ dependencies {
     'qbx_core',
 	'qbx_medical',
     'ox_lib',
-	'ox_inventory'
+	'ox_inventory',
+	'ox_target'
 }
 
 shared_scripts {
@@ -28,10 +29,16 @@ server_scripts {
 	'server/*.lua',
 }
 
+ui_page 'html/index.html'
+
 files {
 	'locales/*.json',
 	'config/client.lua',
 	'config/shared.lua',
+	'html/index.html',
+	'html/style.css',
+	'html/script.js',
+	'html/fonts/GeomGraphic.woff2',
 }
 
 lua54 'yes'

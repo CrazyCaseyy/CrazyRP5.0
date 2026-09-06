@@ -53,8 +53,14 @@ Hp = nil
 DeathTime = 0
 LaststandTime = 0
 RespawnHoldTime = 5
-LastStandDict = 'combat@damage@writhe'
-LastStandAnim = 'writhe_loop'
+-- Was 'combat@damage@writhe'/'writhe_loop' (a squirming-on-the-back writhe,
+-- not a forward crawl) - swapped for a dedicated crawl-on-the-ground loop
+-- to match qbx_ambulancejob's "Knocked Out" NUI stage
+-- (client/deathscreen.lua). Verify this pairing looks right in-game (can't
+-- preview 3D anims from here) - it's a one-line swap if a different
+-- dict/clip reads better.
+LastStandDict = 'missfbi3'
+LastStandAnim = 'fbi3_intro_dying'
 
 exports('IsDead', function()
     return DeathState == sharedConfig.deathState.DEAD

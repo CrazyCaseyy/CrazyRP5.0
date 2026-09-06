@@ -6,17 +6,10 @@ local function getDoctorCount()
     return lib.callback.await('qbx_ambulancejob:server:getNumDoctors')
 end
 
+-- The countdown text this used to draw (info.respawn_txt / info.respawn_revive)
+-- now comes from client/deathscreen.lua's NUI instead - left as a no-op
+-- so handleDead()'s call site below doesn't need touching.
 local function displayRespawnText()
-    local deathTime = exports.qbx_medical:GetDeathTime()
-    if deathTime > 0 and doctorCount > 0 then
-        qbx.drawText2d({ text = locale('info.respawn_txt', math.ceil(deathTime)), coords = vec2(1.0, 1.44), scale = 0.6 })
-    else
-        qbx.drawText2d({
-            text = locale('info.respawn_revive', exports.qbx_medical:GetRespawnHoldTimeDeprecated(), sharedConfig.checkInCost),
-            coords = vec2(1.0, 1.44),
-            scale = 0.6
-        })
-    end
 end
 
 ---@param ped number
@@ -52,12 +45,12 @@ local function handleRequestingEms()
     end
 end
 
+-- The bleed_out / bleed_out_help countdown text this used to draw is now
+-- shown by client/deathscreen.lua's NUI instead - this only still decides
+-- whether the EMS-alert hotkey hint (handleRequestingEms) should run.
 local function handleLastStand()
     local laststandTime = exports.qbx_medical:GetLaststandTime()
-    if laststandTime > config.laststandTimer or doctorCount == 0 then
-        qbx.drawText2d({ text = locale('info.bleed_out', math.ceil(laststandTime)), coords = vec2(1.0, 1.44), scale = 0.6 })
-    else
-        qbx.drawText2d({ text = locale('info.bleed_out_help', math.ceil(laststandTime)), coords = vec2(1.0, 1.44), scale = 0.6 })
+    if laststandTime <= config.laststandTimer and doctorCount > 0 then
         handleRequestingEms()
     end
 end

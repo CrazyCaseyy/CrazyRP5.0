@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>qbx_ambulancejob deathscreen</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <div class="vignette" id="vignette"></div>
+
+  <div class="death-panel hidden" id="deathPanel">
+    <div class="stage-label" id="stageLabel">Knocked Out</div>
+
+    <div class="pulse-row">
+      <svg class="heart-icon beating" id="heartIcon" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 21s-6.7-4.35-9.3-8.28C.86 10.02 1.4 6.6 4.1 4.98c2.2-1.32 4.9-.72 6.4 1.2.5.63.9 1.33 1.5 1.33s1-.7 1.5-1.33c1.5-1.92 4.2-2.52 6.4-1.2 2.7 1.62 3.24 5.04 1.4 7.74C18.7 16.65 12 21 12 21z"/>
+      </svg>
+      <svg class="ecg-svg" viewBox="0 0 260 46" preserveAspectRatio="none">
+        <path class="ecg-path" id="ecgPath" d=""></path>
+      </svg>
+    </div>
+
+    <div class="timer" id="timer">00:00</div>
+    <div class="hint" id="hint">Wait for help, or someone nearby can revive you</div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

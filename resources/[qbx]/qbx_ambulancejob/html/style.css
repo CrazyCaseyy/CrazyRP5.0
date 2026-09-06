@@ -1,0 +1,184 @@
+/* Same design language as the rest of the server (crazy-adminmenu,
+   crazy-dailytasks, crazy-caseopening, ox_lib): near-black translucent
+   panels, grey 3D-bevel borders, #1573ed accent blue, Geom Graphic W03
+   display font for headers/labels. The stage label and timer swap to a
+   red accent instead of the usual blue while bleeding out, since this is
+   the one screen in the server meant to read as urgent rather than calm. */
+
+@font-face {
+  font-family: 'Geom Graphic W03';
+  src: url('fonts/GeomGraphic.woff2') format('woff2');
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+:root {
+  --ox-blue: #1573ed;
+  --ox-panel: rgba(15, 15, 18, 0.96);
+  --ox-panel-soft: rgba(24, 24, 28, 0.92);
+  --ox-border: rgba(140, 140, 150, 0.4);
+  --ox-border-strong: rgba(140, 140, 150, 0.55);
+  --ox-glow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 2px 6px rgba(0, 0, 0, 0.35);
+  --ox-text: #ffffff;
+  --ox-text-dim: #c9c9c9;
+  --ox-text-faint: #8c8f96;
+  --ox-danger: #e5484d;
+  --ox-radius: 10px;
+  --ox-radius-sm: 6px;
+
+  --font-display: 'Geom Graphic W03', 'Segoe UI', Roboto, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+  font-family: var(--font-body);
+  color: var(--ox-text);
+}
+
+.hidden { display: none !important; }
+
+#app {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* ===================================================================
+   Vignette - darkens/reddens the screen edges while down, eases to a
+   cold desaturated grey once dead. Purely decorative, never intercepts
+   clicks (pointer-events: none) so it can never block anything else.
+   =================================================================== */
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.6s ease, background 0.8s ease;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 45%, rgba(120, 10, 10, 0.55) 100%);
+}
+
+.vignette.laststand { opacity: 1; }
+
+.vignette.dead {
+  opacity: 1;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.05) 40%, rgba(10, 10, 12, 0.85) 100%);
+  filter: grayscale(1);
+}
+
+/* ===================================================================
+   Death panel - bottom-center HUD group, no card/box behind it, just the
+   pulse + countdown floating directly over the vignette. Everything gets
+   a drop-shadow instead of a background so it still reads clearly no
+   matter how dark or bright the spot behind it is.
+   =================================================================== */
+
+.death-panel {
+  position: fixed;
+  left: 50%;
+  bottom: 54px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 300px;
+  text-align: center;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.65));
+}
+
+.stage-label {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--ox-danger);
+}
+
+.death-panel.dead .stage-label {
+  color: var(--ox-text-faint);
+}
+
+.pulse-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin: 2px 0;
+}
+
+.heart-icon {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  color: var(--ox-danger);
+  transform-origin: center;
+}
+
+.heart-icon.beating { animation: heartbeat 1.05s ease-in-out infinite; }
+
+.heart-icon.flatlined {
+  color: var(--ox-text-faint);
+  animation: none;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  12% { transform: scale(1.28); }
+  24% { transform: scale(0.94); }
+  36% { transform: scale(1.16); }
+  50% { transform: scale(1); }
+}
+
+.ecg-svg {
+  flex: 1;
+  height: 34px;
+  overflow: visible;
+}
+
+.ecg-path {
+  fill: none;
+  stroke: var(--ox-danger);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ecg-path.sweeping {
+  stroke-dasharray: 320;
+  stroke-dashoffset: 320;
+  animation: ecg-sweep 1.55s linear infinite;
+}
+
+.ecg-path.flat {
+  stroke: var(--ox-text-faint);
+  stroke-dasharray: none;
+  stroke-dashoffset: 0;
+  animation: none;
+}
+
+@keyframes ecg-sweep {
+  to { stroke-dashoffset: 0; }
+}
+
+.timer {
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 1px;
+  color: var(--ox-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.hint {
+  font-size: 12.5px;
+  color: var(--ox-text-dim);
+  max-width: 280px;
+}
