@@ -1,0 +1,115 @@
+.buttons-control {
+    display: flex;
+    width: 100%;
+    height: 3vh;
+    justify-content: space-between;
+}
+
+.disband-button {
+    background-color: #FF5353;
+    color: inherit;
+    height: 3.5vh;
+    border-radius: 0.3em;
+    width: 10em;
+    font-size: 1.3em;
+}
+
+.disband-button:hover {
+    cursor: pointer;
+}
+
+.start-button {
+    background-color: #74FE5F;
+    color: black;
+    height: 3.5vh;
+    border-radius: 0.3em;
+    width: 10em;
+    font-size: 1.3em
+}
+
+.start-button:hover {
+    cursor: pointer;
+}
+
+
+.lobby-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: start;
+    padding-top: 0.5em;
+    padding-left: 0.8em;
+    padding-bottom: 1.7em;
+    padding-right: 0.8em;
+    box-sizing: border-box;
+    gap: 0.5em;
+}
+
+.lobby-title {
+    font-size: 2.5em;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: hidden;
+    height: 40vh;
+}
+
+.table-container::-webkit-scrollbar {
+    width: 0.5em;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: #333333;
+    border-radius: 0.5em;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background-color: #D9D9D9;
+    border-radius: 0.5em;
+}
+
+.lobby-table {
+    width: 98%;
+    border-collapse: collapse;
+}
+
+.lobby-table-row {
+    height: 3.8em;
+    border-bottom: 1px solid #5A5A5A;
+}
+
+.delete-icon {
+    height: 2.2em;
+}
+
+.delete-icon:hover {
+    cursor: pointer;
+}
+
+.lobby-table-data {
+    font-size: 1em
+}
+
+.lobby-table-player {
+    width: 15%;
+    text-align: left;
+}
+
+.lobby-table-name {
+    width: 45%;
+    text-align: left;
+}
+
+.lobby-table-wager {
+    width: 30%;
+    text-align: left;
+}
+
+.lobby-table-icon {
+    width: 10%;
+    text-align: left;
+    font-size: 0.9em
+}

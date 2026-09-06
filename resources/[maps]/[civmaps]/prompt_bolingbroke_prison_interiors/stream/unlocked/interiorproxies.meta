@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SInteriorOrderData>
+  <startFrom value="3000" />
+  <proxies>
+	<Item>p_prison_dining_milo_</Item>
+	<Item>p_prompt_prison_admin</Item>
+	<Item>p_prompt_prison_block</Item>
+	<Item>p_prompt_prison_block_2</Item>
+	<Item>p_prompt_prison_block_3</Item>
+	<Item>p_prompt_prison_entrance</Item>
+	<Item>p_prompt_prison_newinnmate</Item>
+	<Item>p_prompt_prison_workshop</Item>
+	<Item>p_prompt_prison_pcells</Item>
+  </proxies>
+</SInteriorOrderData>

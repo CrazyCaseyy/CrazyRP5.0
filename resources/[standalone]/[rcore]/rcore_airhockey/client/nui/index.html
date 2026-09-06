@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="./css/styles.css" type="text/css">
+    <link rel="stylesheet" type="text/css" href="./css/style.css">
+    <link rel="stylesheet" type="text/css" href="./css/menu.css" media="screen" />
+    <script src="./scripts/vue.min.js"></script>
+    <script src="nui://game/ui/jquery.js" type="text/javascript"></script>
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "https://unpkg.com/three@v0.149.0/build/three.module.js",
+            "three/": "https://unpkg.com/three@v0.149.0/",
+            "three/addons/": "https://unpkg.com/three@v0.149.0/examples/jsm/"
+          }
+        }
+      </script>
+    <script src="./scripts/peerjs.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:500" rel="stylesheet">
+</head>
+
+<body>
+    <div id="hockeyui" class="hockeyui" style="display:none">
+        <iframe id="gameframe" src="about:blank" class="frame">
+        </iframe>
+
+        <div id="counter" class="countdown2" style="display: none">
+            ?
+        </div>
+
+        <div id="wasted" class="wasted" style="display: none">
+            ???
+        </div>
+
+        <div id="gameinfo" class="gameinfo" style="display: none">
+            <div id="row1" class="row">
+                <img id="p1mug" class="mug" />
+                <p id="p1name">Ice Hockey Player 1</p>
+                <div id="p1saves" class="notifybox">
+                    ?
+                </div>
+                <div id="p1score" class="scorebox">
+                    ?
+                </div>
+
+                <div class="right">
+                    <div id="picon1" class="paddle p1icon"></div>
+                </div>
+            </div>
+            <div id="row2" class="row">
+                <div class="mugspinner"></div>
+                <img id="p2mug" class="mug" />
+                <p id="p2name">Ice Hockey Player 2</p>
+                <div id="p2saves" class="notifybox">
+                    ?
+                </div>
+                <div id="p2score" class="scorebox">
+                    ?
+                </div>
+                <div class="right">
+                    <div id="picon2" class="paddle p2icon"></div>
+                </div>
+            </div>
+
+            <div id="row2" class="row" style=" height: 2vh; background-color: rgba(0, 0, 0, 0);">
+                <div class="mugspinner"></div>
+                <div id="p1saves" class="notifybox" style="height: 2.0vh; line-height: 2.0vh;font-size: 1.0vh;">
+                    SAVES
+                </div>
+                <div id="p2score" class="scorebox" style="height: 2.0vh;line-height: 2.0vh;font-size: 1.0vh;">
+                    GOALS
+                </div>
+
+            </div>
+
+            <div id="pingRow" class="littlerow" style="max-width: 75%;margin-top: -2.2vh">
+                0 PING
+            </div>
+
+            <div id="betRow" class="littlerow" style="max-width: 75%;display: none;">
+                STAKE: 0$
+            </div>
+
+            <div id="matchpoint" class="actionrow">
+                MATCH POINT!
+            </div>
+        </div>
+
+        <div id="loading" class="loadingbar" style="display: none;">
+            <img src="imgs/loading.gif" />
+            <p id="loadingtext">???</p>
+        </div>
+    </div>
+    <div id="menuui" class="hockeyui">
+        <div id="menu" v-if="visible" style="width: 100vw; height: 100vh;">
+            <div class="container" :style="{ width: menuWidth}" v-bind:class="[position, float]" v-if="visible">
+                <div class="title" :style="{ background: titleDescriptionColor }">
+                    <img src="images/icons/golfcapticon.png" style="display:none;float:right;width:auto;height:100%;">
+                    <!-- put the shine on the element that contains the letters -->
+                    <p class="btn-shine">{{ caption }}</p>
+                </div>
+                <div class="menu" style="background: black;">
+                    <div style="display: flex; justify-content: space-between;margin-right: 1vw;">
+                        <p class="menuSubtitle" :style="{ color: titleDescriptionColor }">{{ titleMenu }}</p>
+                        <p style="color: white;"> {{ customCounter === null || customCounter === undefined ?
+                            displayIndex + ' / ' + totalItems : customCounter }}</p>
+                    </div>
+                </div>
+                <div id="scrolldiv" style="overflow: hidden;">
+                    <div v-for="item in menu" :key="item.number" class="menu"
+                        v-bind:class="{ 'active': item.active, 'black': item.black, 'disabled': !item.enabled }"
+                        v-if="item.visible === true" :data-number="item.number"
+                        :style="{ padding: item.type === 8 ? '0.10vw 0px' : '' }">
+                        <p v-if="item.type === 1" class="row‑type1">
+                            <span class="row‑type1__label" v-text="item.label"></span>
+                            <span class="row‑type1__second-label" v-if="item.secondLabel !== ''"
+                                v-text="item.secondLabel"></span>
+                        </p>
+                        <p v-else-if="item.type === 2" class="row-type2">
+                            <span class="row-type2__label" v-text="item.label"></span>
+                            <span class="row-type2__value">
+                                <span v-if="item.bulletColor" class="bullet-dot"
+                                    :style="{ backgroundColor: item.bulletColor }"></span>
+                                <span>{{ item.displayText || item.displayLabel }}</span>
+                            </span>
+                        </p>
+                        <p v-else-if="item.type === 3" :style="{
+        color: titleDescriptionColor,
+        borderLeft: '5px solid ' + titleDescriptionColor,   /* ← the bar */
+        paddingLeft: '0.7vw'                                /* keeps text off the bar */
+   }">
+                            <span v-text="item.label"></span>
+                            <span v-text="item.secondLabel" v-if="item.secondLabel !== ''"
+                                style="float: right; margin-right: 0.7vw;"></span>
+                        </p>
+                        <p v-else-if="item.type === 4">
+                            <span v-text="item.label"></span>
+                            <span v-if="item.checked" style="float: right; margin-right: 0.7vw;">
+                                <svg style="width:19px;height:19px" xmlns="http://www.w3.org/2000/svg"
+                                    fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+                                    <path
+                                        d="M13.646 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 0-.708l1-1a.5.5 0 0 1 .708 0L6 9.293l6.646-6.647a.5.5 0 0 1 .708 0l1 1z" />
+                                </svg>
+                            </span>
+                        </p>
+                        <p v-else-if="item.type === 5">
+                        <div v-if="item.type === 5" style="display: flex; align-items: center;">
+                            <div class="avatar"
+                                style="width: 10%; display: flex; align-items: center; justify-content: flex-end; position: relative;">
+                                <img :src="item.mugShot" style="width: 32px; height: 32px;">
+                            </div>
+                            <p style="width: 90%;">
+                                <span v-text="item.label"></span>
+                                <span v-text="item.secondLabel" v-if="item.secondLabel !== ''"
+                                    style="float: right; margin-right: 0.7vw;"></span>
+                            </p>
+                        </div>
+                        </p>
+
+                        <p v-else-if="item.type === 6"
+                            :style="{ color: titleDescriptionColor, width: '100%', display: 'flex', alignItems: 'center' }"
+                            style="display: flex; align-items: center;">
+                        <div v-if="item.visible === true && item.type === 6"
+                            style="display: flex; align-items: center; width: 100%;">
+                            <div class="avatar"
+                                style="width: 10%; display: flex; align-items: center; justify-content: flex-end; position: relative;">
+                                <div style="background-color: green; width: 2.5vh; height: 2.5vh;">
+                                    <img :src="item.mugShot" style="margin-top:-0.3vh; width: 3vh; height: 3vh;">
+                                </div>
+                            </div>
+                            <div
+                                style="margin-left:1vw; width: 90%; display: flex; align-items: center; justify-content: space-between;">
+                                <span v-text="item.label"></span>
+                                <span v-text="item.secondLabel" v-if="item.secondLabel !== ''"
+                                    style="margin-right: 0.7vw;"></span>
+                            </div>
+                        </div>
+                        </p>
+
+
+
+                        <p v-else-if="item.type === 7"
+                            :style="{ color: titleDescriptionColor, width: 100%; display: flex; }">
+
+                        <div v-if="item.type === 7"
+                            style="width: 100%; display:flex; flex-direction: row; justify-content: space-between; flex-grow: 1;min-width: 0"
+                            :style="{ color: titleDescriptionColor}">
+
+                            <div :style="{ color: titleDescriptionColor, width: `${item.leftWidth}%` }"
+                                style="flex-shrink: 0; text-align: center; left: 0px; text-align: left; ">
+
+                                <div style="display:inline;position: absolute;left: 0"
+                                    :style="{color: titleDescriptionColor}">&nbsp;{{ item.extralabelLeft }}</div>
+                                <div style="display:inline;position: absolute;"
+                                    :style="{color: titleDescriptionColor, right: 'calc(100% - ' + item.leftWidth + '%)'}">
+                                    {{ item.extralabelRight }}&nbsp;</div>
+
+                            </div>
+
+                            <div v-for="n in item.numHoles" :key="n" style="text-align: center; font-size: 0.8em;"
+                                :style="{
+        color: n === item.numHoles && item.countable ? 'white' : titleDescriptionColor, // White text for the last item
+        backgroundColor: n === item.numHoles && item.countable ? titleDescriptionColor : 'transparent', // Green background for the last item
+        flexShrink: 0,
+        flexGrow: 0,
+        borderBottom: n === item.selectedHole ? `1px solid ${titleDescriptionColor}` : 'none',
+        borderTop: n === item.selectedHole ? `1px solid ${titleDescriptionColor}` : 'none',
+        borderLeft: n === item.selectedHole ? `1px solid ${titleDescriptionColor}` : 'none',
+        borderRight: n === item.selectedHole ? `1px solid ${titleDescriptionColor}` : 'none',
+        flexBasis: `${(100 - item.leftWidth) / item.numHoles}%`, // Sets a fixed width for each column
+        width: `${(100 - item.leftWidth) / item.numHoles}%`, // Ensures the width remains consistent
+        resize: `both`
+      }">
+                                <span>{{ item.customCaptions[n - 1] }}</span>
+                            </div>
+                        </div>
+
+
+                        </p>
+
+                        <p v-else-if="item.type === 8"
+                            :style="{ color: titleDescriptionColor, width: 100%; display: flex; }">
+
+                        <div v-if="item.type === 8"
+                            style="width: 100%; display: flex; flex-direction: row; justify-content: space-between; flex-grow: 1; min-width: 0; align-items: center; position: relative;"
+                            :style="{ color: titleDescriptionColor }">
+
+                            <div style="display: flex; align-items: center;" :style="{ width: item.leftWidth + '%' }">
+                                <div style="flex: 0 0 10%; display: flex; justify-content: center; align-items: center;"
+                                    :style="{  border: '0.1vh solid rgb(' + item.r + ',' + item.g + ',' + item.b + ')' }">
+                                    <svg v-if="item.playerActive"
+                                        :fill="'rgb(' + item.r + ',' + item.g + ',' + item.b + ')'"
+                                        style="position: absolute; left: -2px" xmlns="http://www.w3.org/2000/svg"
+                                        width="7.07" height="10.37" viewBox="0 0 10.605 15.555">
+                                        <path
+                                            d="m2.828 15.555 7.777-7.779L2.828 0 0 2.828l4.949 4.948L0 12.727l2.828 2.828z" />
+                                    </svg>
+
+                                    <img :src="item.mugShot" style="width: 32px; height: 32px;">
+                                </div>
+                                <div
+                                    style=" box-sizing: border-box;padding-left: 0.5vw;padding-right: 0.2vw;flex: 0 0 90%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    {{ item.label }}
+                                </div>
+                            </div>
+
+                            <div v-for="(v, n) in item.scores" :key="n" style="text-align: center; padding-bottom: 5px"
+                                :style="{
+         flexShrink: 0,
+         flexGrow: 0,
+     
+
+         flexBasis: `${(100 - item.leftWidth) / item.numHoles}%`, // Sets a fixed width for each column
+        width: `${(100 - item.leftWidth) / item.numHoles}%`, // Ensures the width remains consistent
+
+         color: item.countable && n === item.scores.length - 1 ? titleDescriptionColor : ''
+     }">
+                                <span v-if="n !== item.scores.length - 1 || item.countable == false">{{ v }}</span>
+                                <span v-else>{{ item.scores.slice(0, -1).reduce((acc, curr) => acc + curr, 0) }}</span>
+                            </div>
+                            <div
+                                :style="{  width: item.progress + '%', height: '0.1vh',  backgroundColor: 'rgb(' + item.r + ',' + item.g + ',' + item.b + ')',  position: 'absolute', bottom: '0', left: '0' }">
+                            </div>
+                            <div
+                                :style="{  width: '100%', height: '0.1vh',  backgroundColor: 'rgba(255,255,255,0.1)',  position: 'absolute', bottom: '0', left: '0' }">
+                            </div>
+                        </div>
+                        </p>
+                        <p v-if="item.type === 9" class="menu-progress-item"
+                            style="display:flex;align-items:center;justify-content:space-between;">
+                            <!-- label -->
+                            <span v-text="item.label"></span>
+
+                            <!-- progress track -->
+                            <span class="menu-progress-track">
+                                <span class="menu-progress-thumb"
+                                    :style="{ left: (Math.max(0, Math.min(1, item.volumeProgress)) * 100) + '%' }"></span>
+                            </span>
+                        </p>
+
+                        <p v-else-if="item.type === 10"
+                            :style="{ color: titleDescriptionColor, width: '100%', display: 'flex', alignItems: 'center' }"
+                            style="display: flex; align-items: center;">
+                        <div v-if="item.visible === true && item.type === 10"
+                            style="display: flex; align-items: center; width: 100%;">
+                            <div class="avatar"
+                                style="width: 10%; display: flex; align-items: center; justify-content: flex-end; position: relative;">
+                                <div style="width: 2.5vh; height: 2.0vh;">
+                                    <img :src="item.iconUrl" style="margin-top:-0.3vh; width: 2.5vh; height: 2.5vh;">
+                                </div>
+                            </div>
+                            <div
+                                style="margin-left:1vw; width: 90%; display: flex; align-items: center; justify-content: space-between;">
+                                <span v-text="item.label"></span>
+                                <span v-text="item.secondLabel" v-if="item.secondLabel !== ''"
+                                    style="margin-right: 0.7vw;"></span>
+                            </div>
+                        </div>
+                        </p>
+                    </div>
+                </div>
+
+
+
+                <div class="menu key-content"
+                    style="padding: 1.5vh; background-image: linear-gradient(to bottom, rgba(0,0,0,0.75), rgba(0,0,0,0)); display: flex; align-items: center; max-width: calc(100% - 3.0vh); border-bottom: 0.1vh solid rgba(255, 255, 255, 0.197);"
+                    v-if="currentDescription && currentDescription !== null && currentDescription !== ''">
+                    <p style="color: white;" v-text="currentDescription"></p>
+                </div>
+                <div class="menu key-content" v-if="currentWarning && currentWarning !== null && currentWarning !== ''"
+                    :style="{
+        padding: '1.5vh',
+        backgroundImage: 'linear-gradient(to bottom, rgba(59,45,16,0.75), rgba(0,0,0,0))',
+        display: 'flex',
+        alignItems: 'center',
+        maxWidth: 'calc(100% - 3.0vh)',
+        borderBottom: '0.1vh solid rgba(255, 255, 255, 0.197)'
+     }">
+                    <!-- icon -->
+                    <span :style="{
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: '0.7vw',
+      fontSize: '1.2em',
+      lineHeight: '1',
+      color: titleDescriptionColor   // use your reactive color; change to a literal like '#ffcc00' if you prefer
+    }" aria-hidden="true">⚠</span>
+                    <!-- text -->
+                    <p style="color: white; margin: 0; flex: 1;" v-text="currentWarning"></p>
+                </div>
+                <div :style="{
+        position: 'absolute',
+        left: '0',
+        bottom: '0',
+        width: '100%',
+        height: '0.3vh',
+        background: titleDescriptionColor,
+        pointerEvents: 'none'
+     }">
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+<script src="./scripts/menu.js" type="text/javascript"></script>
+
+<script src="./scripts/client.js"></script>
+
+<script>
+    var pool = [];
+
+    // creates a new PeerJS peer instance and sets up event listeners.
+    function CreateNewPeer(peerInstanceId) {
+        var peer = new Peer();
+        peer.peerInstanceId = peerInstanceId;
+        pool[peerInstanceId] = peer;
+        peer.on('open', function (id) {
+            CallFivem({ action: "pOpen", peerInstanceId: peerInstanceId, id: id });
+        });
+
+        peer.on('connection', function (conn) {
+            var connId = conn.peer;
+            pool[connId] = conn;
+            CallFivem({ action: "pConnection", peerInstanceId: peerInstanceId, connId: connId });
+            conn.on('data', function (data) {
+                CallFivem({ action: "cData", peerInstanceId: peerInstanceId, connId: connId, data: data });
+            });
+
+            conn.on('open', function () {
+                CallFivem({ action: "cOpen", peerInstanceId: peerInstanceId, connId: connId });
+            });
+
+            conn.on('close', function () {
+                CallFivem({ action: "cClose", peerInstanceId: peerInstanceId, connId: connId });
+            });
+
+            conn.on('error', function (err) {
+                CallFivem({ action: "cError", peerInstanceId: peerInstanceId, connId: connId, err: err });
+            });
+        });
+
+        peer.on('close', function () {
+            CallFivem({ action: "pClose", peerInstanceId: peerInstanceId });
+        });
+
+        peer.on('disconnected', function () {
+            CallFivem({ action: "pDisconnected", peerInstanceId: peerInstanceId });
+        });
+
+        peer.on('error', function (err) {
+            CallFivem({ action: "pError", peerInstanceId: peerInstanceId, err: err });
+        });
+    }
+
+    // listens for messages from the client and performs actions based on the message's "action" property
+    window.addEventListener('message', (event) => {
+        let data = event.data
+        if (data.action == 'CreatePeer') {
+            CreateNewPeer(data.peerInstanceId);
+        }
+        else if (data.action == 'ConnSend') {
+            pool[data.connId].send(data.data);
+        } else if (data.action == 'CreatePeerConn') {
+            var connId = data.connId;
+            var peerInstanceId = data.peerInstanceId;
+            var peerConn = pool[data.peerInstanceId].connect(connId);
+            peerConn.peerInstanceId = peerInstanceId;
+            pool[connId] = peerConn;
+
+            peerConn.on('data', function (data) {
+                CallFivem({ action: "cData", peerInstanceId: peerInstanceId, connId: connId, data: data });
+            });
+
+            peerConn.on('open', function () {
+                CallFivem({ action: "cOpen", peerInstanceId: peerInstanceId, connId: connId });
+            });
+
+            peerConn.on('close', function () {
+                CallFivem({ action: "cClose", peerInstanceId: peerInstanceId, connId: connId });
+            });
+
+            peerConn.on('error', function (err) {
+                CallFivem({ action: "cError", peerInstanceId: peerInstanceId, connId: connId, err: err });
+            });
+        } else if (data.action == 'ConnClose') {
+            var connId = data.connId;
+            pool[connId].close();
+        }
+        else if (data.action == 'PeerClose') {
+            pool[data.peerInstanceId].disconnect()
+        }
+        else if (data.action == 'PeerDestroy') {
+            pool[data.peerInstanceId].destroy()
+        }
+    })
+
+    function CallFivem(data) {
+        $.post(`https://${GetParentResourceName()}/peerevent`, JSON.stringify(data));
+    }
+</script>

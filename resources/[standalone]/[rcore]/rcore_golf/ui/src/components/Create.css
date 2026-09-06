@@ -1,0 +1,138 @@
+.double-checkbox {
+    display: flex;
+    flex-direction: row;
+    gap: 2.6em;
+    padding-bottom: 0.5em;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+.create-button {
+    background-color: #74FE5F;
+    width: 100%;
+    height: 4vh;
+    border-radius: 0.3em;
+    font-size: inherit;
+    font-size: 1.4em;
+
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.create-button:hover {
+    cursor: pointer;
+}
+
+.create-form {
+    width: 60%;
+    /* min-width: 385px; */
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+    padding-bottom: 2em;
+}
+
+@media (max-width: 1550px) {
+    .create-form {
+    width: 80%;
+  }
+}
+
+.form-section {
+    margin-top: 1rem;
+}
+
+.form-input {
+    width: 100%;
+    height: 4vh;
+    border-radius: 0.3em;
+    padding-left: 0.6em;
+    box-sizing: border-box;
+    background-color: #222222;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #B4B5B4;
+    color: inherit;
+    font-size: 1.28em;
+}
+
+.form-input::placeholder {
+    color: inherit;
+    opacity: 60%;
+}
+
+.form-title {
+    text-align: left;
+    font-size: 1.25em;
+    font-weight: bold;
+    padding-bottom: 0.2em;
+}
+
+.join-title {
+    padding-top: 0.3em;
+    font-size: 2.6em
+}
+
+.join-description {
+    padding-top: 0.1em;
+    padding-bottom: 1em;
+    font-size: 1.34em
+}
+
+.checkbox {
+    width: 1.5em;
+    height: 1.5em;
+    background-color: white;
+    border-radius: 50%;
+    vertical-align: middle;
+    border: 1px solid #ddd;
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+    cursor: pointer;
+}
+
+.checkbox:checked {
+    background-color: #FE9E00;
+}
+
+.checkbox-text {
+    padding-left: 0.5em;
+    font-size: 1.2em;
+}
+
+.checkbox-pair {
+    min-width: 40%;
+    text-align: left;
+}
+
+.minigame-radio {
+    display: block;
+    margin-top: 0.4em;
+    cursor: pointer;
+}
+
+.minigame-container {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    text-align: left;
+}
+
+.minigame-title {
+    margin-top: 0.5em;
+}
+
+.minigame-description {
+    font-size: 0.7em;
+}
