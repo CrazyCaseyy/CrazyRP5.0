@@ -28,55 +28,34 @@ function prisonModules.setJailTime(jailTime)
     return (playerState.jailTime == jailTime)
 end
 
--- Create Checkout Locations (one circle zone per config.CheckOut entry,
--- same list-of-zones shape as prisonbreak.lua's HackZones) --
+-- Create Checkout Locations - a "press [E]" prompt (ox_lib zone +
+-- showTextUI) instead of a target-menu option, one per config.CheckOut
+-- entry. No longer branches on qb-target/ox_target at all, this doesn't go
+-- through either.
 function prisonModules.createCheckoutLocation()
     if resources.xt_prisonjobs then return end
 
     for x = 1, #config.CheckOut do
         local checkoutInfo = config.CheckOut[x]
-        if resources.qb_target then
-            CheckOutZones[x] = exports['qb-target']:AddCircleZone(("CheckOutZone_%s"):format(x), checkoutInfo.coords, checkoutInfo.radius, {
-                name = ("CheckOutZone_%s"):format(x),
-                debugPoly = config.DebugPoly,
-                useZ = true,
-            }, {
-                options = {
-                    {
-                        type = "client",
-                        event = "checkTime",
-                        icon = "fas fa-hourglass-start",
-                        label = locale('input.check_time'),
-                        action = function()
-                            local timeLeft = lib.callback.await('xt-prison:server:checkJailTime', false)
-                            if timeLeft <= 0 then
-                                prisonModules.exitPrison(true)
-                            end
-                        end
-                    },
-                },
-                distance = 2.5
-            })
-        else
-            CheckOutZones[x] = exports.ox_target:addSphereZone({
-                coords = checkoutInfo.coords,
-                radius = checkoutInfo.radius,
-                debug = config.DebugPoly,
-                drawsprite = true,
-                options = {
-                    {
-                        label = locale('input.check_time'),
-                        icon = 'fas fa-hourglass-start',
-                        onSelect = function()
-                            local timeLeft = lib.callback.await('xt-prison:server:checkJailTime', false)
-                            if timeLeft and timeLeft <= 0 then
-                                prisonModules.exitPrison(true)
-                            end
-                        end
-                    }
-                }
-            })
-        end
+        CheckOutZones[x] = lib.zones.sphere({
+            coords = checkoutInfo.coords,
+            radius = checkoutInfo.radius,
+            debug = config.DebugPoly,
+            onEnter = function()
+                lib.showTextUI(('[E] %s'):format(locale('input.check_time')))
+            end,
+            onExit = function()
+                lib.hideTextUI()
+            end,
+            inside = function()
+                if IsControlJustReleased(0, 38) then
+                    local timeLeft = lib.callback.await('xt-prison:server:checkJailTime', false)
+                    if timeLeft and timeLeft <= 0 then
+                        prisonModules.exitPrison(true)
+                    end
+                end
+            end,
+        })
     end
 end
 
@@ -85,13 +64,10 @@ function prisonModules.removeCheckoutLocation()
     if resources.xt_prisonjobs then return end
 
     for x = 1, #CheckOutZones do
-        if resources.qb_target then
-            exports['qb-target']:RemoveZone(("CheckOutZone_%s"):format(x))
-        else
-            exports.ox_target:removeZone(CheckOutZones[x])
-        end
+        CheckOutZones[x]:remove()
     end
     CheckOutZones = {}
+    lib.hideTextUI() -- in case this runs while the player is still standing in one (e.g. prisonCleanup)
 end
 
 -- Create Prison Zone for Prison Break Distance Checks --

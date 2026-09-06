@@ -60,7 +60,7 @@ return {
     -- Prison Doctor --
     PrisonDoctor = {
         model = 's_m_m_doctor_01',
-        coords = vector4(1766.3, 2575.41, 45.0, 167.14),
+        coords = vector4(1766.3, 2575.41, 46.0, 167.14),
         scenario = 'WORLD_HUMAN_CLIPBOARD',
         healLength = 5
     },
