@@ -140,17 +140,23 @@ local function unassignFleetVehicle(source, vehicleId)
     return true, nil, vehicle.plate
 end
 
+local PLATE_CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
 ---@return string
 local function generateFleetPlate()
-    -- PD-### continuing past whatever's already in use (fleet or not -
-    -- plate is globally unique on player_vehicles) rather than a single
-    -- fixed-size random string, so it stays readable as a fleet plate.
-    local number = 1
+    -- PD + 6 random alphanumeric chars = 8 total, the same max length as a
+    -- normal generated plate. Re-rolls on collision rather than continuing
+    -- a counter, since plate is globally unique on player_vehicles.
     while true do
-        local plate = ('PD-%03d'):format(number)
+        local suffix = {}
+        for i = 1, 6 do
+            local index = math.random(1, #PLATE_CHARS)
+            suffix[i] = PLATE_CHARS:sub(index, index)
+        end
+        local plate = 'PD' .. table.concat(suffix)
+
         local taken = MySQL.scalar.await('SELECT 1 FROM `player_vehicles` WHERE `plate` = ?', { plate })
         if not taken then return plate end
-        number += 1
     end
 end
 
