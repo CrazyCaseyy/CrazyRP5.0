@@ -303,7 +303,7 @@ local function drawDoorBadge(x, y, z)
     local unit = scale / 0.4
     local boxWidth = 0.021 * unit
     local boxHeight = boxWidth * aspect
-    local accentWidth = boxWidth * 0.12
+    local accentWidth = boxWidth * 0.4 -- a proper stripe, not a sliver
 
     DrawRect(sx, sy, boxWidth, boxHeight, BADGE_PANEL[1], BADGE_PANEL[2], BADGE_PANEL[3], 225)
     DrawRect(sx - boxWidth / 2 + accentWidth / 2, sy, accentWidth, boxHeight, BADGE_BLUE[1], BADGE_BLUE[2], BADGE_BLUE[3], 255)
@@ -327,7 +327,7 @@ local function drawDoorBadge(x, y, z)
     -- height - tied to boxHeight instead of scale/textScale, so this stays
     -- correct regardless of how the box or text is sized independently
     -- (that mismatch was why it kept drifting out of center before).
-    EndTextCommandDisplayText(sx, sy - boxHeight * 0.32)
+    EndTextCommandDisplayText(sx, sy - boxHeight * 0.45)
 end
 
 CreateThread(function()
