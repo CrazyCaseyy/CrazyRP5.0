@@ -287,26 +287,36 @@ end
 -- Blue "E" badge drawn at a door's own world position (screen-projected via
 -- World3dToScreen2d, same technique as crazy-id's overhead numbers) instead
 -- of GTA's native DrawSprite lock icon or a fixed-position ox_lib text UI.
+-- A thin darker-blue border behind the fill gives it a bit of a card/frame
+-- look instead of one flat block of color (no true rounded corners without
+-- a texture asset, but this reads a lot less plain).
 local BADGE_BLUE = { 21, 115, 237 } -- this project's established accent blue (crazy-adminmenu's --ox-blue)
+local BADGE_BLUE_BORDER = { 11, 66, 158 } -- ~35% darker, for the border
 
 local function drawDoorBadge(x, y, z)
     local onScreen, sx, sy = World3dToScreen2d(x, y, z)
     if not onScreen then return end
 
     local dist = #(GetGameplayCamCoords() - vec3(x, y, z))
-    local scale = math.min(0.4, 1.6 / dist)
-    local boxSize = 0.028 * (scale / 0.4)
+    local scale = math.min(0.38, 1.5 / dist)
+    local aspect = GetAspectRatio(true)
+    local unit = scale / 0.38
+    local fillSize = 0.024 * unit
+    local borderSize = fillSize + 0.0035 * unit
 
-    DrawRect(sx, sy, boxSize, boxSize * GetAspectRatio(true), BADGE_BLUE[1], BADGE_BLUE[2], BADGE_BLUE[3], 210)
+    DrawRect(sx, sy, borderSize, borderSize * aspect, BADGE_BLUE_BORDER[1], BADGE_BLUE_BORDER[2], BADGE_BLUE_BORDER[3], 235)
+    DrawRect(sx, sy, fillSize, fillSize * aspect, BADGE_BLUE[1], BADGE_BLUE[2], BADGE_BLUE[3], 220)
 
-    SetTextScale(0.0, scale)
+    local textScale = scale * 0.82
+    SetTextScale(0.0, textScale)
     SetTextFont(4)
     SetTextProportional(1)
     SetTextColour(255, 255, 255, 255)
     SetTextCentre(true)
+    SetTextOutline()
     BeginTextCommandDisplayText('STRING')
     AddTextComponentSubstringPlayerName('E')
-    EndTextCommandDisplayText(sx, sy - scale * 0.02)
+    EndTextCommandDisplayText(sx, sy - textScale * 0.34 * aspect)
 end
 
 CreateThread(function()
