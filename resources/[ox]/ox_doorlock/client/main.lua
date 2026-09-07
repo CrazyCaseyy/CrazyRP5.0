@@ -287,11 +287,8 @@ end
 -- "E" badge drawn at a door's own world position (screen-projected via
 -- World3dToScreen2d, same technique as crazy-id's overhead numbers) instead
 -- of GTA's native DrawSprite lock icon or a fixed-position ox_lib text UI.
--- Styled like ox_lib's own textUI: a dark panel (its exact --ox-panel color
--- from crazy-adminmenu, rgba(15,15,18)) with a blue accent bar on the left
--- edge instead of a flat solid-blue block.
-local BADGE_PANEL = { 15, 15, 18 } -- crazy-adminmenu's --ox-panel
-local BADGE_BLUE = { 21, 115, 237 } -- this project's established accent blue (--ox-blue)
+-- Solid blue box - this project's established accent blue.
+local BADGE_BLUE = { 21, 115, 237 } -- --ox-blue
 
 local function drawDoorBadge(x, y, z)
     local onScreen, sx, sy = World3dToScreen2d(x, y, z)
@@ -301,12 +298,10 @@ local function drawDoorBadge(x, y, z)
     local scale = math.min(0.4, 1.6 / dist)
     local aspect = GetAspectRatio(true)
     local unit = scale / 0.4
-    local boxWidth = 0.021 * unit
+    local boxWidth = 0.014 * unit
     local boxHeight = boxWidth * aspect
-    local accentWidth = boxWidth * 0.4 -- a proper stripe, not a sliver
 
-    DrawRect(sx, sy, boxWidth, boxHeight, BADGE_PANEL[1], BADGE_PANEL[2], BADGE_PANEL[3], 225)
-    DrawRect(sx - boxWidth / 2 + accentWidth / 2, sy, accentWidth, boxHeight, BADGE_BLUE[1], BADGE_BLUE[2], BADGE_BLUE[3], 255)
+    DrawRect(sx, sy, boxWidth, boxHeight, BADGE_BLUE[1], BADGE_BLUE[2], BADGE_BLUE[3], 235)
 
     -- Font 4 - same native font crazy-id uses for its overhead numbers, the
     -- only other in-world (not NUI) text in this project. The custom
