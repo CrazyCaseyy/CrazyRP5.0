@@ -72,6 +72,31 @@ function openFleetVehicleActions(vehicle)
         end,
     }
 
+    options[#options + 1] = {
+        title = 'Delete',
+        icon = 'trash',
+        description = 'Removes it from the fleet permanently. Must be parked first.',
+        onSelect = function()
+            local confirmed = lib.alertDialog({
+                header = 'Delete Fleet Vehicle',
+                content = ('Permanently remove %s from the fleet? This cannot be undone.'):format(vehicle.plate),
+                centered = true,
+                cancel = true,
+            })
+            if confirmed ~= 'confirm' then
+                return openFleetVehicleActions(vehicle)
+            end
+
+            local success, result = lib.callback.await('qbx_garages:server:deleteFleetVehicle', false, vehicle.id)
+            if success then
+                exports.qbx_core:Notify(('%s removed from the fleet.'):format(result), 'success')
+            else
+                exports.qbx_core:Notify(result, 'error')
+            end
+            openFleetMenu()
+        end,
+    }
+
     lib.registerContext({
         id = 'fleetVehicleActions',
         title = vehicle.plate,
@@ -81,21 +106,45 @@ function openFleetVehicleActions(vehicle)
     lib.showContext('fleetVehicleActions')
 end
 
-function openFleetMenu()
-    local roster = lib.callback.await('qbx_garages:server:getFleetRoster', false)
-    if not roster or #roster == 0 then
-        exports.qbx_core:Notify('No fleet vehicles found.', 'error')
-        return
+-- Prompts for a model name and adds it to the fleet. A separate function
+-- (rather than inline in openFleetMenu's option) since the "no vehicles yet"
+-- empty state below also needs to trigger it.
+function openAddFleetVehicle()
+    local input = lib.inputDialog('Add Fleet Vehicle', {
+        { type = 'input', label = 'Vehicle Model', description = 'Spawn code, e.g. police, police2, police3', required = true },
+    })
+    if not input then
+        return openFleetMenu()
     end
+
+    local success, result = lib.callback.await('qbx_garages:server:addFleetVehicle', false, input[1])
+    if success then
+        exports.qbx_core:Notify(('%s (%s) added to the fleet.'):format(input[1], result), 'success')
+    else
+        exports.qbx_core:Notify(result, 'error')
+    end
+    openFleetMenu()
+end
+
+function openFleetMenu()
+    local roster = lib.callback.await('qbx_garages:server:getFleetRoster', false) or {}
 
     local vehicleList = exports.qbx_core:GetVehiclesByName()
     local options = {}
+
+    options[#options + 1] = {
+        title = 'Add Vehicle',
+        icon = 'plus',
+        iconColor = '#4caf50',
+        onSelect = openAddFleetVehicle,
+    }
+
     for i = 1, #roster do
         local vehicle = roster[i]
         local vehicleData = vehicleList[vehicle.model]
         local label = vehicleData and ('%s %s'):format(vehicleData.brand, vehicleData.name) or vehicle.model
 
-        options[i] = {
+        options[#options + 1] = {
             title = label,
             description = vehicle.assignedName and ('%s · Assigned to %s'):format(vehicle.plate, vehicle.assignedName)
                 or ('%s · Unassigned'):format(vehicle.plate),

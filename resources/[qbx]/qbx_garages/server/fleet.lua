@@ -140,6 +140,77 @@ local function unassignFleetVehicle(source, vehicleId)
     return true, nil, vehicle.plate
 end
 
+---@return string
+local function generateFleetPlate()
+    -- PD-### continuing past whatever's already in use (fleet or not -
+    -- plate is globally unique on player_vehicles) rather than a single
+    -- fixed-size random string, so it stays readable as a fleet plate.
+    local number = 1
+    while true do
+        local plate = ('PD-%03d'):format(number)
+        local taken = MySQL.scalar.await('SELECT 1 FROM `player_vehicles` WHERE `plate` = ?', { plate })
+        if not taken then return plate end
+        number += 1
+    end
+end
+
+---@param source number the boss adding it
+---@param model string
+---@return boolean success, string? error, string? plate
+local function addFleetVehicle(source, model)
+    if not isFleetBoss(source) then
+        return false, 'You need to be a police boss to do that.'
+    end
+
+    model = model:lower()
+    if not exports.qbx_core:GetVehiclesByName()[model] then
+        return false, ('"%s" is not a real vehicle model.'):format(model)
+    end
+
+    local plate = generateFleetPlate()
+    local hash = GetHashKey(model)
+    local props = {
+        model = hash,
+        plate = plate,
+        engineHealth = 1000,
+        bodyHealth = 1000,
+        fuelLevel = 100,
+    }
+
+    MySQL.insert.await([[
+        INSERT INTO `player_vehicles` (`citizenid`, `vehicle`, `hash`, `mods`, `plate`, `garage`, `fuel`, `engine`, `body`, `state`, `depotprice`)
+        VALUES (?, ?, ?, ?, ?, 'policefleet', 100, 1000, 1000, 1, 0)
+    ]], { FLEET_OWNER_CITIZENID, model, tostring(hash), json.encode(props), plate })
+
+    return true, nil, plate
+end
+
+---@param source number the boss deleting it
+---@param vehicleId integer
+---@return boolean success, string? error, string? plate
+local function deleteFleetVehicle(source, vehicleId)
+    if not isFleetBoss(source) then
+        return false, 'You need to be a police boss to do that.'
+    end
+
+    local vehicle = MySQL.single.await('SELECT `plate`, `state` FROM `player_vehicles` WHERE `id` = ? AND `citizenid` = ?', { vehicleId, FLEET_OWNER_CITIZENID })
+    if not vehicle then
+        return false, 'Not a fleet vehicle.'
+    end
+
+    -- OUT (0) means it's currently spawned/being driven somewhere -
+    -- deleting the DB row out from under a live vehicle would leave an
+    -- orphaned entity in the world with nothing backing it. It has to be
+    -- parked (GARAGED) first. police_fleet_assignments cascades on its own
+    -- FK, so no separate cleanup needed for that part.
+    if vehicle.state == 0 then
+        return false, 'That vehicle is currently out - it needs to be parked before it can be removed from the fleet.'
+    end
+
+    MySQL.query.await('DELETE FROM `player_vehicles` WHERE `id` = ?', { vehicleId })
+    return true, nil, vehicle.plate
+end
+
 lib.addCommand('assignfleet', {
     help = 'Assign an available police fleet vehicle to an officer by model',
     params = {
@@ -193,6 +264,43 @@ lib.addCommand('unassignfleet', {
     exports.qbx_core:Notify(source, ('%s unassigned.'):format(plate), 'success')
 end)
 
+lib.addCommand('addfleetvehicle', {
+    help = 'Add a new vehicle to the police fleet',
+    params = {
+        { name = 'model', type = 'string', help = 'The vehicle model, e.g. police' },
+    },
+}, function(source, args)
+    while not ready do Wait(50) end
+
+    local success, err, plate = addFleetVehicle(source, args.model)
+    if not success then
+        return exports.qbx_core:Notify(source, err, 'error')
+    end
+
+    exports.qbx_core:Notify(source, ('%s (%s) added to the fleet.'):format(args.model, plate), 'success')
+end)
+
+lib.addCommand('deletefleetvehicle', {
+    help = 'Remove a vehicle from the police fleet (must be parked)',
+    params = {
+        { name = 'plate', type = 'string', help = 'The fleet vehicle\'s plate' },
+    },
+}, function(source, args)
+    while not ready do Wait(50) end
+
+    local vehicle = MySQL.single.await('SELECT `id` FROM `player_vehicles` WHERE `plate` = ? AND `citizenid` = ?', { args.plate:upper(), FLEET_OWNER_CITIZENID })
+    if not vehicle then
+        return exports.qbx_core:Notify(source, 'No fleet vehicle with that plate.', 'error')
+    end
+
+    local success, err, plate = deleteFleetVehicle(source, vehicle.id)
+    if not success then
+        return exports.qbx_core:Notify(source, err, 'error')
+    end
+
+    exports.qbx_core:Notify(source, ('%s removed from the fleet.'):format(plate), 'success')
+end)
+
 -- ============================================================
 -- qbx_police's /fleetvehicle UI talks to these instead of duplicating any
 -- of the above - kept in qbx_garages since this is where the fleet data
@@ -231,4 +339,22 @@ end)
 lib.callback.register('qbx_garages:server:unassignFleetVehicle', function(source, vehicleId)
     local success, err = unassignFleetVehicle(source, vehicleId)
     return success, err
+end)
+
+---@param source number
+---@param model string
+---@return boolean success, string? errorOrPlate
+lib.callback.register('qbx_garages:server:addFleetVehicle', function(source, model)
+    while not ready do Wait(50) end
+    local success, err, plate = addFleetVehicle(source, model)
+    return success, success and plate or err
+end)
+
+---@param source number
+---@param vehicleId integer
+---@return boolean success, string? errorOrPlate
+lib.callback.register('qbx_garages:server:deleteFleetVehicle', function(source, vehicleId)
+    while not ready do Wait(50) end
+    local success, err, plate = deleteFleetVehicle(source, vehicleId)
+    return success, success and plate or err
 end)
