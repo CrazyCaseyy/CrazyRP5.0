@@ -288,10 +288,11 @@ end
 -- World3dToScreen2d, same technique as crazy-id's overhead numbers) instead
 -- of GTA's native DrawSprite lock icon or a fixed-position ox_lib text UI.
 -- Solid blue box - this project's established accent blue - with a subtle
--- lighter-blue outline (a thin rect drawn behind the fill, just barely
--- peeking out on each edge) instead of a plain flat block.
+-- white outline (a thin rect drawn behind the fill, peeking out on each
+-- edge) instead of a plain flat block. A light BLUE outline barely showed
+-- up against the blue fill - white actually reads against it.
 local BADGE_BLUE = { 21, 115, 237 } -- --ox-blue
-local BADGE_BLUE_OUTLINE = { 92, 168, 250 } -- lighter tint of --ox-blue-hover, for a subtle edge
+local BADGE_OUTLINE = { 255, 255, 255 }
 
 local function drawDoorBadge(x, y, z)
     local onScreen, sx, sy = World3dToScreen2d(x, y, z)
@@ -303,9 +304,9 @@ local function drawDoorBadge(x, y, z)
     local unit = scale / 0.4
     local boxWidth = 0.0175 * unit
     local boxHeight = boxWidth * aspect
-    local outlineWidth = boxWidth + 0.001 * unit
+    local outlineWidth = boxWidth + 0.0022 * unit
 
-    DrawRect(sx, sy, outlineWidth, outlineWidth * aspect, BADGE_BLUE_OUTLINE[1], BADGE_BLUE_OUTLINE[2], BADGE_BLUE_OUTLINE[3], 160)
+    DrawRect(sx, sy, outlineWidth, outlineWidth * aspect, BADGE_OUTLINE[1], BADGE_OUTLINE[2], BADGE_OUTLINE[3], 130)
     DrawRect(sx, sy, boxWidth, boxHeight, BADGE_BLUE[1], BADGE_BLUE[2], BADGE_BLUE[3], 235)
 
     -- Font 4 - same native font crazy-id uses for its overhead numbers, the
