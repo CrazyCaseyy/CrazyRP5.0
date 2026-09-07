@@ -298,7 +298,7 @@ local function drawDoorBadge(x, y, z)
     local scale = math.min(0.4, 1.6 / dist)
     local aspect = GetAspectRatio(true)
     local unit = scale / 0.4
-    local boxWidth = 0.014 * unit
+    local boxWidth = 0.0175 * unit
     local boxHeight = boxWidth * aspect
 
     DrawRect(sx, sy, boxWidth, boxHeight, BADGE_BLUE[1], BADGE_BLUE[2], BADGE_BLUE[3], 235)
