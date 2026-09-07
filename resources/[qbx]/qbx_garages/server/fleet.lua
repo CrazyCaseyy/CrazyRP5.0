@@ -87,21 +87,16 @@ local function isFleetBoss(source)
 end
 
 lib.addCommand('assignfleet', {
-    help = 'Assign a police fleet vehicle to an officer by plate',
+    help = 'Assign an available police fleet vehicle to an officer by model',
     params = {
-        { name = 'plate', type = 'string', help = 'The fleet vehicle\'s plate' },
         { name = 'target', type = 'playerId', help = 'The officer to assign it to' },
+        { name = 'model', type = 'string', help = 'The fleet vehicle model, e.g. police' },
     },
 }, function(source, args)
     while not ready do Wait(50) end
 
     if not isFleetBoss(source) then
         return exports.qbx_core:Notify(source, 'You need to be a police boss to do that.', 'error')
-    end
-
-    local vehicle = MySQL.single.await('SELECT `id` FROM `player_vehicles` WHERE `plate` = ? AND `citizenid` = ?', { args.plate:upper(), FLEET_OWNER_CITIZENID })
-    if not vehicle then
-        return exports.qbx_core:Notify(source, 'No fleet vehicle with that plate.', 'error')
     end
 
     local target = exports.qbx_core:GetPlayer(args.target)
@@ -112,6 +107,19 @@ lib.addCommand('assignfleet', {
         return exports.qbx_core:Notify(source, 'That player is not police.', 'error')
     end
 
+    -- First fleet vehicle of this model that doesn't already have a row in
+    -- police_fleet_assignments - picked automatically rather than by plate,
+    -- since the boss is choosing a model, not a specific physical car.
+    local vehicle = MySQL.single.await([[
+        SELECT pv.id, pv.plate FROM `player_vehicles` pv
+        LEFT JOIN `police_fleet_assignments` pfa ON pfa.vehicle_id = pv.id
+        WHERE pv.citizenid = ? AND pv.vehicle = ? AND pfa.vehicle_id IS NULL
+        LIMIT 1
+    ]], { FLEET_OWNER_CITIZENID, args.model:lower() })
+    if not vehicle then
+        return exports.qbx_core:Notify(source, ('No available %s in the fleet.'):format(args.model), 'error')
+    end
+
     local name = ('%s %s'):format(target.PlayerData.charinfo.firstname, target.PlayerData.charinfo.lastname)
     MySQL.query.await([[
         INSERT INTO `police_fleet_assignments` (`vehicle_id`, `citizenid`, `name`, `assigned_by`)
@@ -119,7 +127,7 @@ lib.addCommand('assignfleet', {
         ON DUPLICATE KEY UPDATE `citizenid` = VALUES(`citizenid`), `name` = VALUES(`name`), `assigned_by` = VALUES(`assigned_by`), `assigned_at` = CURRENT_TIMESTAMP
     ]], { vehicle.id, target.PlayerData.citizenid, name, GetPlayerName(source) })
 
-    exports.qbx_core:Notify(source, ('%s assigned to %s.'):format(args.plate:upper(), name), 'success')
+    exports.qbx_core:Notify(source, ('%s (%s) assigned to %s.'):format(args.model, vehicle.plate, name), 'success')
 end)
 
 lib.addCommand('unassignfleet', {

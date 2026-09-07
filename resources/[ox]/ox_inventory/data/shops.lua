@@ -145,7 +145,7 @@ return {
 			{ name = 'bandage', price = 15 },
 			{ name = 'empty_evidence_bag', price = 10 },
 		}, locations = {
-			vec3(451.51, -979.44, 30.68)
+			vec3(464.36, -1010.22, 29.71)
 		}, targets = {
 			{ loc = vec3(453.21, -980.03, 30.68), length = 0.5, width = 3.0, heading = 270.0, minZ = 30.5, maxZ = 32.0, distance = 6 }
 		}

@@ -281,6 +281,18 @@ local function isParkable(source, vehicleId, garageName)
     if getVehicleType(playerVehicle) ~= garage.vehicleType then
         return false
     end
+
+    if garage.fleet then
+        -- Storing it back doesn't require it to still be assigned to you
+        -- (only taking one OUT does, see spawn-vehicle.lua) - just that
+        -- it's genuinely one of this fleet's vehicles, not owned by any
+        -- real citizenid at all. Without this branch the check below
+        -- always fails for fleet vehicles (their citizenid is the fleet
+        -- placeholder, never the officer's own), so nobody could ever
+        -- park one back.
+        return playerVehicle.citizenid == FLEET_OWNER_CITIZENID
+    end
+
     if not garage.shared then
         if playerVehicle.citizenid ~= player.PlayerData.citizenid then
             return false

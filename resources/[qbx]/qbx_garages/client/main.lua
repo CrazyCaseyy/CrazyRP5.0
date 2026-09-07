@@ -299,6 +299,13 @@ local function displayVehicleInfo(vehicle, garageName, garageInfo, accessPoint)
     lib.showContext('vehicleList')
 end
 
+-- Fleet garages default to showing only your own assigned vehicle(s), with
+-- a toggle to pull up the whole roster - resets to "mine only" each time a
+-- fleet garage is freshly opened (createZones/interact), but stays as
+-- whichever way you left it while flipping back and forth within the same
+-- visit (re-opening the list after backing out of a vehicle, etc).
+local showAllFleetVehicles = false
+
 ---@param garageName string
 ---@param garageInfo GarageConfig
 ---@param accessPoint integer
@@ -316,8 +323,26 @@ local function openGarageMenu(garageName, garageInfo, accessPoint)
     end)
 
     local options = {}
+
+    if garageInfo.fleet then
+        options[#options + 1] = {
+            title = showAllFleetVehicles and 'Show Only Mine' or 'Show All Fleet Vehicles',
+            icon = showAllFleetVehicles and 'user' or 'users',
+            arrow = true,
+            onSelect = function()
+                showAllFleetVehicles = not showAllFleetVehicles
+                openGarageMenu(garageName, garageInfo, accessPoint)
+            end,
+        }
+    end
+
     for i = 1, #vehicleEntities do
         local vehicleEntity = vehicleEntities[i]
+
+        if garageInfo.fleet and not showAllFleetVehicles and vehicleEntity.fleetAssignedCitizenid ~= QBX.PlayerData.citizenid then
+            goto continue
+        end
+
         local vehicleLabel = ('%s %s'):format(VEHICLES[vehicleEntity.modelName].brand, VEHICLES[vehicleEntity.modelName].name)
 
         -- Fleet garages: who it's assigned to right in the list, not just
@@ -337,6 +362,15 @@ local function openGarageMenu(garageName, garageInfo, accessPoint)
             onSelect = function()
                 displayVehicleInfo(vehicleEntity, garageName, garageInfo, accessPoint)
             end,
+        }
+
+        ::continue::
+    end
+
+    if garageInfo.fleet and not showAllFleetVehicles and #options == 1 then
+        options[#options + 1] = {
+            title = 'No fleet vehicles assigned to you',
+            readOnly = true,
         }
     end
 
