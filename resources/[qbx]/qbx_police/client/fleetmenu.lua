@@ -115,13 +115,14 @@ function openFleetMenu()
     lib.showContext('fleetVehicleMenu')
 end
 
-lib.addCommand('fleetvehicle', {
-    help = 'Manage the police fleet - assign or unassign vehicles to officers',
-}, function()
+-- lib.addCommand is server-only in ox_lib (imports/addCommand/server.lua) -
+-- this needs to run client-side (to open a local ox_lib context menu), so
+-- it's the plain native RegisterCommand instead.
+RegisterCommand('fleetvehicle', function()
     if QBX.PlayerData.job.name ~= 'police' or not QBX.PlayerData.job.isboss then
         exports.qbx_core:Notify('You need to be a police boss to do that.', 'error')
         return
     end
 
     openFleetMenu()
-end)
+end, false)
