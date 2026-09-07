@@ -207,6 +207,15 @@ local function displayVehicleInfo(vehicle, garageName, garageInfo, accessPoint)
         }
     }
 
+    if garageInfo.fleet then
+        options[#options + 1] = {
+            title = 'Assigned To',
+            icon = 'user-shield',
+            description = vehicle.fleetAssignedName or 'Unassigned',
+            readOnly = true,
+        }
+    end
+
     if vehicle.state == VehicleState.OUT then
         if garageInfo.type == GarageType.DEPOT then
             options[#options + 1] = {
@@ -234,7 +243,18 @@ local function displayVehicleInfo(vehicle, garageName, garageInfo, accessPoint)
         -- it out is a separate, deliberate follow-up click once it
         -- actually shows up as home, not something that happens
         -- automatically the moment the transfer succeeds.
-        if vehicle.garage == garageName then
+        if garageInfo.fleet and vehicle.fleetAssignedCitizenid ~= QBX.PlayerData.citizenid then
+            -- Visible to every officer (server/main.lua sends the whole
+            -- fleet roster, not just your own), but only takeable by
+            -- whoever it's actually assigned to - server-side enforced
+            -- too (spawn-vehicle.lua), this is just the matching UI state.
+            options[#options + 1] = {
+                title = locale('menu.take_out'),
+                icon = 'car-rear',
+                description = vehicle.fleetAssignedName and ('Assigned to ' .. vehicle.fleetAssignedName) or 'Not assigned to you',
+                readOnly = true,
+            }
+        elseif vehicle.garage == garageName then
             options[#options + 1] = {
                 title = locale('menu.take_out'),
                 icon = 'car-rear',
@@ -300,9 +320,19 @@ local function openGarageMenu(garageName, garageInfo, accessPoint)
         local vehicleEntity = vehicleEntities[i]
         local vehicleLabel = ('%s %s'):format(VEHICLES[vehicleEntity.modelName].brand, VEHICLES[vehicleEntity.modelName].name)
 
+        -- Fleet garages: who it's assigned to right in the list, not just
+        -- after drilling into a specific vehicle - lets an officer spot
+        -- their own car (or that everything's taken) at a glance.
+        local description = vehicleEntity.props.plate
+        if garageInfo.fleet then
+            local assignedLabel = vehicleEntity.fleetAssignedCitizenid == QBX.PlayerData.citizenid and 'Yours'
+                or vehicleEntity.fleetAssignedName or 'Unassigned'
+            description = ('%s · %s'):format(vehicleEntity.props.plate, assignedLabel)
+        end
+
         options[#options + 1] = {
             title = vehicleLabel,
-            description = vehicleEntity.props.plate,
+            description = description,
             arrow = true,
             onSelect = function()
                 displayVehicleInfo(vehicleEntity, garageName, garageInfo, accessPoint)

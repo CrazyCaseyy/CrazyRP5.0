@@ -99,6 +99,22 @@ lib.callback.register('qbx_garages:server:spawnVehicle', function (source, vehic
         exports.qbx_core:Notify(source, locale('error.not_owned'), 'error')
         return
     end
+
+    -- Fleet garages: the filter above only scopes to "is this a fleet
+    -- vehicle in this garage", not "is it assigned to ME" - every officer
+    -- can see the whole fleet (server/main.lua's getGarageVehicles), so
+    -- this is the actual gate on who can drive which one. Checked
+    -- server-side regardless of what the client's UI happened to allow
+    -- clicking on.
+    if garage.fleet then
+        local player = exports.qbx_core:GetPlayer(source)
+        local assignment = GetFleetAssignment(vehicleId)
+        if not assignment or assignment.citizenid ~= player.PlayerData.citizenid then
+            exports.qbx_core:Notify(source, 'This vehicle is not assigned to you.', 'error')
+            return
+        end
+    end
+
     if garageType == GarageType.DEPOT and FindPlateOnServer(playerVehicle.props.plate) then -- If depot, check if vehicle is not already spawned on the map
         return exports.qbx_core:Notify(source, locale('error.not_impound'), 'error')
     end

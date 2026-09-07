@@ -574,6 +574,15 @@ Config.ClothingRooms = {
             vector3(454.35513305664, -988.46459960938, 30.69),
             vector3(460.4231262207, -987.94573974609, 30.69)
         }
+    },
+    -- No heading given for this one, defaulted to 0 - worth checking in-game
+    -- and adjusting if the player doesn't end up facing a sensible way.
+    {
+        job = "police",
+        coords = vector4(455.87, -996.99, 29.71, 0),
+        size = vector3(3, 3, 3),
+        rotation = 0,
+        usePoly = false,
     }
 }
 

@@ -113,11 +113,23 @@ function GetPlayerVehicleFilter(source, garageName)
     local player = exports.qbx_core:GetPlayer(source)
     local garage = Garages[garageName]
     local filter = {}
-    filter.citizenid = not garage.shared and player.PlayerData.citizenid or nil
     filter.states = garage.states or VehicleState.GARAGED
-    -- Every garage now lists the full fleet (matching type/state), not
-    -- just whichever vehicles happen to be registered to this specific
-    -- one - garageName is still tracked per-vehicle (updated in
+
+    if garage.fleet then
+        -- Department-owned pool, not personal vehicles - scoped to both
+        -- the fleet's placeholder citizen AND this specific garage (unlike
+        -- personal garages below), since a fleet vehicle only ever belongs
+        -- to the one motor pool it was bought into, not "wherever the
+        -- owner's other cars happen to be" - see server/fleet.lua.
+        filter.citizenid = FLEET_OWNER_CITIZENID
+        filter.garage = garageName
+        return filter
+    end
+
+    filter.citizenid = not garage.shared and player.PlayerData.citizenid or nil
+    -- Every non-fleet garage lists the full fleet (matching type/state),
+    -- not just whichever vehicles happen to be registered to this
+    -- specific one - garageName is still tracked per-vehicle (updated in
     -- spawn-vehicle.lua whenever one's taken out from somewhere new), it
     -- just no longer restricts what shows up where. skipGarageCheck on
     -- individual garages (impound lots) is redundant now but left alone
@@ -185,6 +197,17 @@ lib.callback.register('qbx_garages:server:getGarageVehicles', function(source, g
         if not FindPlateOnServer(vehicle.props.plate) then
             if vehicleType == getVehicleType(vehicle) then
                 OverrideFreeDepotPriceForOutVehicle(vehicle)
+
+                -- Fleet vehicles show who they're currently assigned to
+                -- (or that nobody is) so an officer can see the whole
+                -- fleet, not just their own vehicle, without being able to
+                -- take out ones that aren't theirs - see server/fleet.lua.
+                if garage.fleet then
+                    local assignment = GetFleetAssignment(vehicle.id)
+                    vehicle.fleetAssignedCitizenid = assignment and assignment.citizenid or nil
+                    vehicle.fleetAssignedName = assignment and assignment.name or nil
+                end
+
                 toSend[#toSend + 1] = vehicle
             end
         end

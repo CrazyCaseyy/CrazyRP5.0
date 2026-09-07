@@ -24,6 +24,7 @@ server_scripts {
     'server/default-calculate-impound-fee.lua',
     'server/main.lua',
     'server/spawn-vehicle.lua',
+    'server/fleet.lua',
 }
 
 files {

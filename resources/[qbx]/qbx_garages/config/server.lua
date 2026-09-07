@@ -48,6 +48,7 @@ return {
     ---@field states? VehicleState | VehicleState[] if set, only vehicles in the given states will be retrievable from the garage. Defaults to GARAGED.
     ---@field skipGarageCheck? boolean if true, returns vehicles for retrieval regardless of if that vehicle's garage matches this garage's name
     ---@field canAccess? fun(source: number): boolean checks access as an additional guard clause. Other filter fields still need to pass in addition to this function.
+    ---@field fleet? boolean department-owned vehicle pool (see server/fleet.lua) instead of personal ownership - every vehicle here belongs to the placeholder FLEET_OWNER_CITIZENID citizen, not any real player, and each one must be individually assigned to an officer (server/fleet.lua's /assignfleet) before that officer can take it out. Implies groups-restricted access; not meant to be combined with `shared`.
     ---@field accessPoints AccessPoint[]
 
     ---@type table<string, GarageConfig>
@@ -400,6 +401,25 @@ return {
                 {
                     coords = vec4(454.6, -1017.4, 28.4, 0),
                     spawn = vec4(438.4, -1018.3, 27.7, 90.0),
+                }
+            },
+        },
+
+        -- Fleet garage - department-owned cruisers, not personal vehicles.
+        -- See server/fleet.lua: only PD can open it at all, and each
+        -- vehicle inside still needs to be individually assigned to a
+        -- specific officer (via /assignfleet) before that officer can
+        -- actually take it out - being able to open the garage isn't
+        -- enough on its own, unlike the personal `police` garage above.
+        policefleet = {
+            label = 'Police Fleet',
+            vehicleType = VehicleType.CAR,
+            groups = 'police',
+            fleet = true,
+            accessPoints = {
+                {
+                    coords = vec4(443.65, -988.44, 20.45, 270.49),
+                    spawn = vec4(443.65, -988.44, 20.45, 270.49),
                 }
             },
         },
