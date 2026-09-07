@@ -86,6 +86,60 @@ local function isFleetBoss(source)
     return player.PlayerData.job.name == 'police' and player.PlayerData.job.isboss == true
 end
 
+exports('IsFleetBoss', isFleetBoss)
+
+-- Shared by both the /assignfleet command and qbx_police's UI
+-- (qbx_garages:server:assignFleetVehicle callback below) - one place that
+-- actually writes an assignment, so both entry points stay in sync.
+---@param source number the boss doing the assigning
+---@param vehicleId integer
+---@param targetId number the officer's server id
+---@return boolean success, string? error, string? plate, string? name
+local function assignFleetVehicle(source, vehicleId, targetId)
+    if not isFleetBoss(source) then
+        return false, 'You need to be a police boss to do that.'
+    end
+
+    local target = exports.qbx_core:GetPlayer(targetId)
+    if not target then
+        return false, 'Invalid player.'
+    end
+    if target.PlayerData.job.name ~= 'police' then
+        return false, 'That player is not police.'
+    end
+
+    local vehicle = MySQL.single.await('SELECT `plate` FROM `player_vehicles` WHERE `id` = ? AND `citizenid` = ?', { vehicleId, FLEET_OWNER_CITIZENID })
+    if not vehicle then
+        return false, 'Not a fleet vehicle.'
+    end
+
+    local name = ('%s %s'):format(target.PlayerData.charinfo.firstname, target.PlayerData.charinfo.lastname)
+    MySQL.query.await([[
+        INSERT INTO `police_fleet_assignments` (`vehicle_id`, `citizenid`, `name`, `assigned_by`)
+        VALUES (?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE `citizenid` = VALUES(`citizenid`), `name` = VALUES(`name`), `assigned_by` = VALUES(`assigned_by`), `assigned_at` = CURRENT_TIMESTAMP
+    ]], { vehicleId, target.PlayerData.citizenid, name, GetPlayerName(source) })
+
+    return true, nil, vehicle.plate, name
+end
+
+---@param source number the boss doing the unassigning
+---@param vehicleId integer
+---@return boolean success, string? error, string? plate
+local function unassignFleetVehicle(source, vehicleId)
+    if not isFleetBoss(source) then
+        return false, 'You need to be a police boss to do that.'
+    end
+
+    local vehicle = MySQL.single.await('SELECT `plate` FROM `player_vehicles` WHERE `id` = ? AND `citizenid` = ?', { vehicleId, FLEET_OWNER_CITIZENID })
+    if not vehicle then
+        return false, 'Not a fleet vehicle.'
+    end
+
+    MySQL.query.await('DELETE FROM `police_fleet_assignments` WHERE `vehicle_id` = ?', { vehicleId })
+    return true, nil, vehicle.plate
+end
+
 lib.addCommand('assignfleet', {
     help = 'Assign an available police fleet vehicle to an officer by model',
     params = {
@@ -95,21 +149,11 @@ lib.addCommand('assignfleet', {
 }, function(source, args)
     while not ready do Wait(50) end
 
-    if not isFleetBoss(source) then
-        return exports.qbx_core:Notify(source, 'You need to be a police boss to do that.', 'error')
-    end
-
-    local target = exports.qbx_core:GetPlayer(args.target)
-    if not target then
-        return exports.qbx_core:Notify(source, 'Invalid player.', 'error')
-    end
-    if target.PlayerData.job.name ~= 'police' then
-        return exports.qbx_core:Notify(source, 'That player is not police.', 'error')
-    end
-
     -- First fleet vehicle of this model that doesn't already have a row in
     -- police_fleet_assignments - picked automatically rather than by plate,
-    -- since the boss is choosing a model, not a specific physical car.
+    -- since the command is by model, not a specific physical car (the
+    -- qbx_police UI lets a boss pick a specific one instead, see
+    -- qbx_garages:server:getFleetRoster/assignFleetVehicle below).
     local vehicle = MySQL.single.await([[
         SELECT pv.id, pv.plate FROM `player_vehicles` pv
         LEFT JOIN `police_fleet_assignments` pfa ON pfa.vehicle_id = pv.id
@@ -120,14 +164,12 @@ lib.addCommand('assignfleet', {
         return exports.qbx_core:Notify(source, ('No available %s in the fleet.'):format(args.model), 'error')
     end
 
-    local name = ('%s %s'):format(target.PlayerData.charinfo.firstname, target.PlayerData.charinfo.lastname)
-    MySQL.query.await([[
-        INSERT INTO `police_fleet_assignments` (`vehicle_id`, `citizenid`, `name`, `assigned_by`)
-        VALUES (?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE `citizenid` = VALUES(`citizenid`), `name` = VALUES(`name`), `assigned_by` = VALUES(`assigned_by`), `assigned_at` = CURRENT_TIMESTAMP
-    ]], { vehicle.id, target.PlayerData.citizenid, name, GetPlayerName(source) })
+    local success, err, plate, name = assignFleetVehicle(source, vehicle.id, args.target)
+    if not success then
+        return exports.qbx_core:Notify(source, err, 'error')
+    end
 
-    exports.qbx_core:Notify(source, ('%s (%s) assigned to %s.'):format(args.model, vehicle.plate, name), 'success')
+    exports.qbx_core:Notify(source, ('%s (%s) assigned to %s.'):format(args.model, plate, name), 'success')
 end)
 
 lib.addCommand('unassignfleet', {
@@ -138,15 +180,55 @@ lib.addCommand('unassignfleet', {
 }, function(source, args)
     while not ready do Wait(50) end
 
-    if not isFleetBoss(source) then
-        return exports.qbx_core:Notify(source, 'You need to be a police boss to do that.', 'error')
-    end
-
     local vehicle = MySQL.single.await('SELECT `id` FROM `player_vehicles` WHERE `plate` = ? AND `citizenid` = ?', { args.plate:upper(), FLEET_OWNER_CITIZENID })
     if not vehicle then
         return exports.qbx_core:Notify(source, 'No fleet vehicle with that plate.', 'error')
     end
 
-    MySQL.query.await('DELETE FROM `police_fleet_assignments` WHERE `vehicle_id` = ?', { vehicle.id })
-    exports.qbx_core:Notify(source, ('%s unassigned.'):format(args.plate:upper()), 'success')
+    local success, err, plate = unassignFleetVehicle(source, vehicle.id)
+    if not success then
+        return exports.qbx_core:Notify(source, err, 'error')
+    end
+
+    exports.qbx_core:Notify(source, ('%s unassigned.'):format(plate), 'success')
+end)
+
+-- ============================================================
+-- qbx_police's /fleetvehicle UI talks to these instead of duplicating any
+-- of the above - kept in qbx_garages since this is where the fleet data
+-- actually lives (player_vehicles, police_fleet_assignments).
+-- ============================================================
+
+---@param source number
+---@return { id: integer, plate: string, model: string, assignedCitizenid: string?, assignedName: string? }[]
+lib.callback.register('qbx_garages:server:getFleetRoster', function(source)
+    while not ready do Wait(50) end
+    if not isFleetBoss(source) then return {} end
+
+    local rows = MySQL.query.await([[
+        SELECT pv.id, pv.plate, pv.vehicle AS model, pfa.citizenid AS assignedCitizenid, pfa.name AS assignedName
+        FROM `player_vehicles` pv
+        LEFT JOIN `police_fleet_assignments` pfa ON pfa.vehicle_id = pv.id
+        WHERE pv.citizenid = ?
+        ORDER BY pv.vehicle, pv.plate
+    ]], { FLEET_OWNER_CITIZENID }) or {}
+
+    return rows
+end)
+
+---@param source number
+---@param vehicleId integer
+---@param targetId number
+---@return boolean success, string? errorOrName
+lib.callback.register('qbx_garages:server:assignFleetVehicle', function(source, vehicleId, targetId)
+    local success, err, _, name = assignFleetVehicle(source, vehicleId, targetId)
+    return success, success and name or err
+end)
+
+---@param source number
+---@param vehicleId integer
+---@return boolean success, string? error
+lib.callback.register('qbx_garages:server:unassignFleetVehicle', function(source, vehicleId)
+    local success, err = unassignFleetVehicle(source, vehicleId)
+    return success, err
 end)

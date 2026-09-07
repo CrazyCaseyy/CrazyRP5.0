@@ -8,6 +8,11 @@ version '1.0.0'
 
 ox_lib 'locale'
 
+-- client/fleetmenu.lua + server/fleetmenu.lua (/fleetvehicle) talk to
+-- qbx_garages' fleet callbacks directly - not a hard requirement for
+-- anything else in this resource, but ensures it's actually up first.
+dependency 'qbx_garages'
+
 shared_scripts {
     '@ox_lib/init.lua',
     '@qbx_core/modules/lib.lua'
