@@ -301,13 +301,18 @@ local function drawDoorBadge(x, y, z)
     local scale = math.min(0.4, 1.6 / dist)
     local aspect = GetAspectRatio(true)
     local unit = scale / 0.4
-    local fillSize = 0.017 * unit
-    local borderSize = fillSize + 0.0015 * unit -- thin edge, not a second box
+    local fillSize = 0.021 * unit
+    local borderSize = fillSize + 0.0018 * unit -- thin edge, not a second box
 
     DrawRect(sx, sy, borderSize, borderSize * aspect, BADGE_BLUE_BORDER[1], BADGE_BLUE_BORDER[2], BADGE_BLUE_BORDER[3], 235)
     DrawRect(sx, sy, fillSize, fillSize * aspect, BADGE_BLUE[1], BADGE_BLUE[2], BADGE_BLUE[3], 220)
 
-    local textScale = scale * 0.8
+    -- Font 4 - same native font crazy-id uses for its overhead numbers, the
+    -- only other in-world (not NUI) text in this project. The custom
+    -- Geom Graphic display font used in crazy-adminmenu/crazy-hud/the
+    -- deathscreen only exists as a web font for their HTML/NUI overlays -
+    -- native DrawText can't load it, only GTA's own built-in font set.
+    local textScale = scale * 1.15
     SetTextScale(0.0, textScale)
     SetTextFont(4)
     SetTextProportional(1)
