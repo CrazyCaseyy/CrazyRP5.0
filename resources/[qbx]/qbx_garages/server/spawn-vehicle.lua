@@ -19,6 +19,51 @@ local function setVehicleStateToOut(vehicleId, vehicle, modelName)
     })
 end
 
+-- Fleet-only alternative to qbx.spawnVehicle (qbx_core/modules/lib.lua).
+-- Same core steps (create the entity, push props/plate, mark it
+-- persistent) but WITHOUT that function's "wait up to 5s for some client
+-- to become the network owner, delete the vehicle if nobody does" check -
+-- that's a shared qbx_core function plenty of other resources also call,
+-- so it's not something to fork or change there just for this. With
+-- Config.warpInVehicle off (nobody's forced into the seat), that 5s
+-- ownership race was exactly what was deleting freshly-spawned fleet
+-- vehicles out from under the officer walking over to it. Persistence
+-- (SetEntityOrphanMode + EnablePersistence) is kept, and matters even more
+-- here since it's now what actually stops the game's own generic
+-- ownerless-entity cleanup from doing the same thing later.
+---@param model number
+---@param coords vector4
+---@param props table
+---@return number netId, number veh
+local function spawnFleetVehicle(model, coords, props)
+    -- Same joaat(model) call qbx.spawnVehicle itself makes on this same
+    -- (already-numeric, from playerVehicle.props.model) value below.
+    local vehicleType = exports.qbx_core:GetVehiclesByHash(joaat(model)).type
+    if not vehicleType then
+        local tempVehicle = CreateVehicle(model, 0, 0, -200, 0, true, true)
+        while not DoesEntityExist(tempVehicle) do Wait(0) end
+        vehicleType = GetVehicleType(tempVehicle)
+        DeleteEntity(tempVehicle)
+    end
+
+    local veh = CreateVehicleServerSetter(model, vehicleType, coords.x, coords.y, coords.z, coords.w)
+    while not DoesEntityExist(veh) do Wait(0) end
+    while GetVehicleNumberPlateText(veh) == '' do Wait(0) end
+
+    local netId = NetworkGetNetworkIdFromEntity(veh)
+
+    if props and type(props) == 'table' and props.plate then
+        -- Broadcast rather than targeting a specific "owner" client, since
+        -- we're deliberately not waiting to find out who that is.
+        TriggerClientEvent('qbx_core:client:setVehicleProperties', -1, netId, props)
+    end
+
+    SetEntityOrphanMode(veh, 2)
+    exports.qbx_core:EnablePersistence(veh)
+
+    return netId, veh
+end
+
 ---@param player table
 ---@param depotPrice integer
 function payDepotPrice(player, depotPrice)
@@ -148,8 +193,13 @@ lib.callback.register('qbx_garages:server:spawnVehicle', function (source, vehic
 
     playerVehicle.props.lockState = 1 -- Modify the veh props lock state here to avoid conflicts with the vehicleConfig.noLock system.
 
-    local warpPed = Config.warpInVehicle and GetPlayerPed(source)
-    local netId, veh = qbx.spawnVehicle({ spawnSource = spawnCoords, model = playerVehicle.props.model, props = playerVehicle.props, warp = warpPed})
+    local netId, veh
+    if garage.fleet then
+        netId, veh = spawnFleetVehicle(playerVehicle.props.model, spawnCoords, playerVehicle.props)
+    else
+        local warpPed = Config.warpInVehicle and GetPlayerPed(source)
+        netId, veh = qbx.spawnVehicle({ spawnSource = spawnCoords, model = playerVehicle.props.model, props = playerVehicle.props, warp = warpPed})
+    end
 
     if Config.doorsLocked then
         if GetResourceState('qbx_vehiclekeys') == 'started' then
