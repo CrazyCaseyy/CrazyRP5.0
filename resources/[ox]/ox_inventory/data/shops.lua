@@ -120,13 +120,30 @@ return {
 		blip = {
 			id = 110, colour = 84, scale = 0.8
 		}, inventory = {
-			{ name = 'ammo-9', price = 5, },
-			{ name = 'ammo-rifle', price = 5, },
-			{ name = 'WEAPON_FLASHLIGHT', price = 200 },
-			{ name = 'WEAPON_NIGHTSTICK', price = 100 },
+			-- Sidearms + ammo
+			{ name = 'ammo-9', price = 5 },
 			{ name = 'WEAPON_PISTOL', price = 500, metadata = { registered = true, serial = 'POL' }, license = 'weapon' },
+			{ name = 'WEAPON_COMBATPISTOL', price = 500, metadata = { registered = true, serial = 'POL' }, license = 'weapon' },
+
+			-- Long guns + ammo (grade 3+ only, same restriction the carbine already had)
+			{ name = 'ammo-rifle', price = 5 },
 			{ name = 'WEAPON_CARBINERIFLE', price = 1000, metadata = { registered = true, serial = 'POL' }, license = 'weapon', grade = 3 },
-			{ name = 'WEAPON_STUNGUN', price = 500, metadata = { registered = true, serial = 'POL'} }
+			{ name = 'ammo-shotgun', price = 5 },
+			{ name = 'WEAPON_PUMPSHOTGUN', price = 1000, metadata = { registered = true, serial = 'POL' }, license = 'weapon', grade = 3 },
+
+			-- Less-lethal / melee
+			{ name = 'WEAPON_STUNGUN', price = 500, metadata = { registered = true, serial = 'POL' } },
+			{ name = 'WEAPON_NIGHTSTICK', price = 100 },
+			{ name = 'WEAPON_FLASHLIGHT', price = 200 },
+
+			-- Gear
+			{ name = 'handcuffs', price = 50 },
+			{ name = 'armour', price = 300 },
+			{ name = 'radio', price = 150 },
+			{ name = 'ifaks', price = 100 },
+			{ name = 'firstaid', price = 75 },
+			{ name = 'bandage', price = 15 },
+			{ name = 'empty_evidence_bag', price = 10 },
 		}, locations = {
 			vec3(451.51, -979.44, 30.68)
 		}, targets = {
