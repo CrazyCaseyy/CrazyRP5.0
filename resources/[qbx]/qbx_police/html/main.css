@@ -205,8 +205,8 @@ html {
 .fingerprint-id {
     position: absolute;
     width: 22vh;
-    height: 13vh;
-    top: 23vh;
+    height: 20vh; /* was 13vh - now also shows a Name line under the fingerprint ID */
+    top: 20vh;
     margin: 0 auto;
     left: 0;
     right: 0;
@@ -217,6 +217,6 @@ html {
 }
 
 .fingerprint-id > p {
-    padding-top: 2vh;
+    padding-top: 1.2vh;
     font-weight: lighter;
 }

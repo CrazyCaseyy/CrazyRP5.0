@@ -550,8 +550,9 @@ end)
 RegisterNetEvent('police:server:showFingerprintId', function(sessionId)
     local player = exports.qbx_core:GetPlayer(source)
     local fid = player.PlayerData.metadata.fingerprint
-    TriggerClientEvent('police:client:showFingerprintId', sessionId, fid)
-    TriggerClientEvent('police:client:showFingerprintId', source, fid)
+    local name = ('%s %s'):format(player.PlayerData.charinfo.firstname, player.PlayerData.charinfo.lastname)
+    TriggerClientEvent('police:client:showFingerprintId', sessionId, fid, name)
+    TriggerClientEvent('police:client:showFingerprintId', source, fid, name)
 end)
 
 RegisterNetEvent('police:server:SetTracker', function(targetId)

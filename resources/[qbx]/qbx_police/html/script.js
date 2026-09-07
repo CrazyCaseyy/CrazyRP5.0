@@ -86,7 +86,7 @@ HeliCam.Close = () => {
 
 Fingerprint.Open = () => {
     $(".fingerprint-container").fadeIn(150);
-    $(".fingerprint-id").html("Fingerprint ID<p>No result</p>");
+    $(".fingerprint-id").html("Fingerprint ID<p>No result</p>Name<p>No result</p>");
 }
 
 Fingerprint.Close = () => {
@@ -95,7 +95,7 @@ Fingerprint.Close = () => {
 }
 
 Fingerprint.Update = (data) => {
-    $(".fingerprint-id").html("Fingerprint ID<p>" + data.fingerprintId + "</p>");
+    $(".fingerprint-id").html("Fingerprint ID<p>" + data.fingerprintId + "</p>Name<p>" + (data.name || "Unknown") + "</p>");
 }
 
 $(document).on('click', '.take-fingerprint', () => {
