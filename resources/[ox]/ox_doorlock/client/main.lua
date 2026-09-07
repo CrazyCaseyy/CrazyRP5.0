@@ -284,34 +284,41 @@ local function useClosestDoor()
     end
 end
 
+-- Blue "E" badge drawn at a door's own world position (screen-projected via
+-- World3dToScreen2d, same technique as crazy-id's overhead numbers) instead
+-- of GTA's native DrawSprite lock icon or a fixed-position ox_lib text UI.
+local BADGE_BLUE = { 21, 115, 237 } -- this project's established accent blue (crazy-adminmenu's --ox-blue)
+
+local function drawDoorBadge(x, y, z)
+    local onScreen, sx, sy = World3dToScreen2d(x, y, z)
+    if not onScreen then return end
+
+    local dist = #(GetGameplayCamCoords() - vec3(x, y, z))
+    local scale = math.min(0.4, 1.6 / dist)
+    local boxSize = 0.028 * (scale / 0.4)
+
+    DrawRect(sx, sy, boxSize, boxSize * GetAspectRatio(true), BADGE_BLUE[1], BADGE_BLUE[2], BADGE_BLUE[3], 210)
+
+    SetTextScale(0.0, scale)
+    SetTextFont(4)
+    SetTextProportional(1)
+    SetTextColour(255, 255, 255, 255)
+    SetTextCentre(true)
+    BeginTextCommandDisplayText('STRING')
+    AddTextComponentSubstringPlayerName('E')
+    EndTextCommandDisplayText(sx, sy - scale * 0.02)
+end
+
 CreateThread(function()
     local lockDoor = locale('lock_door')
     local unlockDoor = locale('unlock_door')
     local showUI
-    local drawSprite = Config.DrawSprite
-
-    if drawSprite then
-        local sprite1 = drawSprite[0]?[1]
-        local sprite2 = drawSprite[1]?[1]
-
-        if sprite1 then
-            RequestStreamedTextureDict(sprite1, true)
-        end
-
-        if sprite2 then
-            RequestStreamedTextureDict(sprite2, true)
-        end
-    end
-
-    local SetDrawOrigin = SetDrawOrigin
-    local ClearDrawOrigin = ClearDrawOrigin
-    local DrawSprite = drawSprite and DrawSprite
+    local drawBadge = Config.DrawBadge
 
     while true do
         local num = #nearbyDoors
 
         if num > 0 then
-            local ratio = drawSprite and GetAspectRatio(true)
             for i = 1, num do
                 local door = nearbyDoors[i]
 
@@ -320,15 +327,8 @@ CreateThread(function()
                         ClosestDoor = door
                     end
 
-                    if drawSprite and not door.hideUi then
-                        local sprite = drawSprite[door.state]
-
-                        if sprite then
-                            SetDrawOrigin(door.coords.x, door.coords.y, door.coords.z)
-                            DrawSprite(sprite[1], sprite[2], sprite[3], sprite[4], sprite[5], sprite[6] * ratio,
-                                sprite[7], sprite[8], sprite[9], sprite[10], sprite[11])
-                            ClearDrawOrigin()
-                        end
+                    if drawBadge and not door.hideUi then
+                        drawDoorBadge(door.coords.x, door.coords.y, door.coords.z)
                     end
                 end
             end
