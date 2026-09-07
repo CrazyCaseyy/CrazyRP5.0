@@ -420,6 +420,8 @@ return {
                 {
                     coords = vec4(443.65, -988.44, 20.45, 270.49),
                     spawn = vec4(443.65, -988.44, 20.45, 270.49),
+                    useRadius = 3.0,
+                    dropUseRadius = 3.0,
                 }
             },
         },
