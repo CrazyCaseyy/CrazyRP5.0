@@ -298,17 +298,16 @@ local function drawDoorBadge(x, y, z)
     if not onScreen then return end
 
     local dist = #(GetGameplayCamCoords() - vec3(x, y, z))
-    local scale = math.min(0.38, 1.5 / dist)
+    local scale = math.min(0.4, 1.6 / dist)
     local aspect = GetAspectRatio(true)
-    local unit = scale / 0.38
-    local fillSize = 0.024 * unit
-    local borderSize = fillSize + 0.0035 * unit
+    local unit = scale / 0.4
+    local fillSize = 0.028 * unit
+    local borderSize = fillSize + 0.004 * unit
 
     DrawRect(sx, sy, borderSize, borderSize * aspect, BADGE_BLUE_BORDER[1], BADGE_BLUE_BORDER[2], BADGE_BLUE_BORDER[3], 235)
     DrawRect(sx, sy, fillSize, fillSize * aspect, BADGE_BLUE[1], BADGE_BLUE[2], BADGE_BLUE[3], 220)
 
-    local textScale = scale * 0.82
-    SetTextScale(0.0, textScale)
+    SetTextScale(0.0, scale)
     SetTextFont(4)
     SetTextProportional(1)
     SetTextColour(255, 255, 255, 255)
@@ -316,7 +315,7 @@ local function drawDoorBadge(x, y, z)
     SetTextOutline()
     BeginTextCommandDisplayText('STRING')
     AddTextComponentSubstringPlayerName('E')
-    EndTextCommandDisplayText(sx, sy - textScale * 0.34 * aspect)
+    EndTextCommandDisplayText(sx, sy - scale * 0.02)
 end
 
 CreateThread(function()
