@@ -284,14 +284,14 @@ local function useClosestDoor()
     end
 end
 
--- Blue "E" badge drawn at a door's own world position (screen-projected via
+-- "E" badge drawn at a door's own world position (screen-projected via
 -- World3dToScreen2d, same technique as crazy-id's overhead numbers) instead
 -- of GTA's native DrawSprite lock icon or a fixed-position ox_lib text UI.
--- A thin darker-blue border behind the fill gives it a bit of a card/frame
--- look instead of one flat block of color (no true rounded corners without
--- a texture asset, but this reads a lot less plain).
-local BADGE_BLUE = { 21, 115, 237 } -- this project's established accent blue (crazy-adminmenu's --ox-blue)
-local BADGE_BLUE_BORDER = { 11, 66, 158 } -- ~35% darker, for the border
+-- Styled like ox_lib's own textUI: a dark panel (its exact --ox-panel color
+-- from crazy-adminmenu, rgba(15,15,18)) with a blue accent bar on the left
+-- edge instead of a flat solid-blue block.
+local BADGE_PANEL = { 15, 15, 18 } -- crazy-adminmenu's --ox-panel
+local BADGE_BLUE = { 21, 115, 237 } -- this project's established accent blue (--ox-blue)
 
 local function drawDoorBadge(x, y, z)
     local onScreen, sx, sy = World3dToScreen2d(x, y, z)
@@ -301,11 +301,12 @@ local function drawDoorBadge(x, y, z)
     local scale = math.min(0.4, 1.6 / dist)
     local aspect = GetAspectRatio(true)
     local unit = scale / 0.4
-    local fillSize = 0.021 * unit
-    local borderSize = fillSize + 0.0018 * unit -- thin edge, not a second box
+    local boxWidth = 0.021 * unit
+    local boxHeight = boxWidth * aspect
+    local accentWidth = boxWidth * 0.12
 
-    DrawRect(sx, sy, borderSize, borderSize * aspect, BADGE_BLUE_BORDER[1], BADGE_BLUE_BORDER[2], BADGE_BLUE_BORDER[3], 235)
-    DrawRect(sx, sy, fillSize, fillSize * aspect, BADGE_BLUE[1], BADGE_BLUE[2], BADGE_BLUE[3], 220)
+    DrawRect(sx, sy, boxWidth, boxHeight, BADGE_PANEL[1], BADGE_PANEL[2], BADGE_PANEL[3], 225)
+    DrawRect(sx - boxWidth / 2 + accentWidth / 2, sy, accentWidth, boxHeight, BADGE_BLUE[1], BADGE_BLUE[2], BADGE_BLUE[3], 255)
 
     -- Font 4 - same native font crazy-id uses for its overhead numbers, the
     -- only other in-world (not NUI) text in this project. The custom
@@ -321,7 +322,12 @@ local function drawDoorBadge(x, y, z)
     SetTextOutline()
     BeginTextCommandDisplayText('STRING')
     AddTextComponentSubstringPlayerName('E')
-    EndTextCommandDisplayText(sx, sy - textScale * 0.02)
+    -- Text draws downward from this y (its top edge, not its center), so
+    -- shift up from the box's center by a fraction of the box's own
+    -- height - tied to boxHeight instead of scale/textScale, so this stays
+    -- correct regardless of how the box or text is sized independently
+    -- (that mismatch was why it kept drifting out of center before).
+    EndTextCommandDisplayText(sx, sy - boxHeight * 0.32)
 end
 
 CreateThread(function()
