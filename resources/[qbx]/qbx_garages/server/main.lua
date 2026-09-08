@@ -282,6 +282,56 @@ lib.callback.register('qbx_garages:server:transferVehicle', function(source, veh
     return true
 end)
 
+-- Lets a player pay to get a vehicle that's OUT but nowhere to be found
+-- (left behind, despawned, crashed out of existence, whatever) straight
+-- back into one of their garages, instead of the only recovery option
+-- being a depot/impound lot. Fleet vehicles are exempt - those already put
+-- themselves back for free the moment their entity actually despawns (see
+-- qbx_garages/server/fleet.lua's entityRemoved handler), and this is a
+-- personal-vehicle feature.
+local RECOVERY_FEE = 500
+
+---@param source number
+---@param vehicleId integer
+---@param garageName string
+---@return boolean
+lib.callback.register('qbx_garages:server:recoverVehicle', function(source, vehicleId, garageName)
+    local garage = TryGetGarage(source, garageName)
+    if not garage or garage.type == GarageType.DEPOT or garage.fleet then return false end
+
+    local player = exports.qbx_core:GetPlayer(source)
+    if not getCanAccessGarage(player, garage) then
+        exports.qbx_core:Notify(source, locale('error.no_access'), 'error')
+        return false
+    end
+
+    local filter = GetPlayerVehicleFilter(source, garageName)
+    local playerVehicle = exports.qbx_vehicles:GetPlayerVehicle(vehicleId, filter)
+    if not playerVehicle or playerVehicle.state ~= VehicleState.OUT then
+        exports.qbx_core:Notify(source, locale('error.not_owned'), 'error')
+        return false
+    end
+
+    -- Re-checked server-side regardless of what the client saw - a vehicle
+    -- that's still physically sitting somewhere in the world has to be
+    -- found (or actually despawn first), not paid back into storage out
+    -- from under whoever's driving it.
+    if FindPlateOnServer(playerVehicle.props.plate) then
+        exports.qbx_core:Notify(source, 'That vehicle is still out in the world - find it, or wait for it to despawn first.', 'error')
+        return false
+    end
+
+    local canPay = payDepotPrice(player, RECOVERY_FEE)
+    if not canPay then
+        exports.qbx_core:Notify(source, locale('error.not_enough'), 'error')
+        return false
+    end
+
+    setVehicleGarage(vehicleId, garageName)
+    exports.qbx_core:Notify(source, ('Paid $%s to recover your vehicle.'):format(lib.math.groupdigits(RECOVERY_FEE)), 'success')
+    return true
+end)
+
 ---@param source number
 ---@param vehicleId string
 ---@param garageName string

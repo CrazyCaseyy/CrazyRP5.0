@@ -7,6 +7,10 @@ local VEHICLES = exports.qbx_core:GetVehiclesByName()
 -- is just what shows up on the "Take Out" option's price tag.
 local TRANSFER_FEE = 500
 
+-- Display-only mirror of server/main.lua's RECOVERY_FEE (same idea as
+-- TRANSFER_FEE above).
+local RECOVERY_FEE = 500
+
 -- name -> GarageConfig, populated as garages are (re)created below - used
 -- by displayVehicleInfo to show a vehicle's current garage by its actual
 -- label instead of its internal config key.
@@ -113,6 +117,7 @@ local function takeOutOfGarage(vehicleId, garageName, accessPoint)
 end
 
 local transferLock = false
+local recoverLock = false
 
 -- The vehicle previewed at the current garage's spawn point (see
 -- createVehiclePreview/destroyVehiclePreview) while the vehicle info menu
@@ -157,9 +162,10 @@ AddEventHandler('onResourceStop', function(resource)
 end)
 
 -- Forward-declared (assigned below, after openGarageMenu exists) -
--- displayVehicleInfo needs to reference this before openGarageMenu itself
+-- displayVehicleInfo needs to reference these before openGarageMenu itself
 -- is defined further down the file.
 local transferVehicleToGarage
+local recoverVehicleToGarage
 
 ---@param vehicle PlayerVehicle
 ---@param garageName string
@@ -242,11 +248,26 @@ local function displayVehicleInfo(vehicle, garageName, garageInfo, accessPoint)
                     takeOutOfGarage(vehicle.id, garageName, accessPoint)
                 end,
             }
-        else
+        elseif garageInfo.fleet then
+            -- Fleet vehicles left OUT with nobody around get put back
+            -- automatically (server/fleet.lua's entityRemoved handler) as
+            -- soon as their entity actually despawns - no need for a paid
+            -- recovery option here, this is only ever a brief window.
             options[#options + 1] = {
                 title = 'Your vehicle is already out...',
                 icon = VehicleType.CAR,
                 readOnly = true,
+            }
+        else
+            options[#options + 1] = {
+                title = 'Recover Vehicle',
+                icon = 'truck-ramp-box',
+                description = ('Vehicle gone missing? Pay $%s to return it to storage.'):format(lib.math.groupdigits(RECOVERY_FEE)),
+                arrow = true,
+                onSelect = function()
+                    destroyVehiclePreview()
+                    recoverVehicleToGarage(vehicle.id, garageName, garageInfo, accessPoint)
+                end,
             }
         end
     elseif vehicle.state == VehicleState.GARAGED then
@@ -411,6 +432,22 @@ transferVehicleToGarage = function(vehicleId, garageName, garageInfo, accessPoin
 
     local ok = lib.callback.await('qbx_garages:server:transferVehicle', false, vehicleId, garageName)
     transferLock = false
+
+    if ok then
+        openGarageMenu(garageName, garageInfo, accessPoint)
+    end
+end
+
+---@param vehicleId number
+---@param garageName string
+---@param garageInfo GarageConfig
+---@param accessPoint integer
+recoverVehicleToGarage = function(vehicleId, garageName, garageInfo, accessPoint)
+    if recoverLock then return end
+    recoverLock = true
+
+    local ok = lib.callback.await('qbx_garages:server:recoverVehicle', false, vehicleId, garageName)
+    recoverLock = false
 
     if ok then
         openGarageMenu(garageName, garageInfo, accessPoint)
