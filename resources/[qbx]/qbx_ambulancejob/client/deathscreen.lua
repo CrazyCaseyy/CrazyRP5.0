@@ -113,9 +113,14 @@ exports.ox_target:addGlobalPlayer({
         distance = 2.0,
         canInteract = function(entity)
             local player = NetworkGetPlayerIndexFromPed(entity)
-            if player == -1 then return false end
+            if player == -1 then
+                print(('[helpUp debug] entity %s is not a player ped'):format(entity))
+                return false
+            end
             local targetId = GetPlayerServerId(player)
-            return Player(targetId).state[DEATH_STATE_BAG] == DEATHSTATE_LASTSTAND
+            local state = Player(targetId).state[DEATH_STATE_BAG]
+            print(('[helpUp debug] targetId=%s deathState=%s (need %s)'):format(targetId, tostring(state), DEATHSTATE_LASTSTAND))
+            return state == DEATHSTATE_LASTSTAND
         end,
         onSelect = function(data)
             local player = NetworkGetPlayerIndexFromPed(data.entity)
