@@ -78,6 +78,28 @@ end
 
 exports('GetFleetAssignment', GetFleetAssignment)
 
+-- If a fleet vehicle's entity gets removed (wrecked/exploded, an admin
+-- despawning it, network desync, etc) while it's still marked OUT, nothing
+-- else on this server would ever put it back - qbx_core's own
+-- vehicle-persistence system would normally react to a deleted vehicle,
+-- but it RESPAWNS it in place rather than returning it to the garage, and
+-- it's disabled server-wide anyway (qbx:enableVehiclePersistence,
+-- server.cfg). So instead: whenever any vehicle is removed, if it's a
+-- fleet vehicle still marked OUT, just flip it back to GARAGED - no
+-- respawn, it's simply back on the lot for the next officer to pull out.
+-- Vehicles stored properly through the normal UI (main.lua's storeVehicle,
+-- which sets GARAGED before deleting the entity) are already GARAGED by
+-- the time this fires, so this is a no-op for that path.
+AddEventHandler('entityRemoved', function(entity)
+    local vehicleId = Entity(entity).state.vehicleid
+    if not vehicleId then return end
+
+    local vehicle = MySQL.single.await('SELECT `state` FROM `player_vehicles` WHERE `id` = ? AND `citizenid` = ?', { vehicleId, FLEET_OWNER_CITIZENID })
+    if not vehicle or vehicle.state ~= VehicleState.OUT then return end
+
+    MySQL.update.await('UPDATE `player_vehicles` SET `state` = ?, `depotprice` = 0 WHERE `id` = ?', { VehicleState.GARAGED, vehicleId })
+end)
+
 ---@param source number
 ---@return boolean
 local function isFleetBoss(source)
