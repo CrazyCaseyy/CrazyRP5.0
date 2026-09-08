@@ -80,6 +80,17 @@ end)
 -- side validates the target is actually still in last stand before
 -- reviving (server/deathscreen.lua) - the canInteract check here only
 -- drives whether the option is shown.
+--
+-- NOT a plain addGlobalPlayer on the ped entity - a raycast straight at a
+-- downed player only landed on their actual capsule from certain angles
+-- (the crawl animation lays the model flat, but the collision capsule
+-- ox_target's raycast tests against stays the normal upright one, so most
+-- of the visible body doesn't actually line up with anything hittable).
+-- Instead this tracks a small sphere zone centered on whoever's currently
+-- in last stand: ox_target shows a zone's options based on where your
+-- crosshair's raycast actually LANDS (ground included) being within its
+-- radius, not on hitting a specific entity's capsule - much more forgiving
+-- of angle, and covers "their entire character model" in practice.
 -- ===================================================================
 
 -- qbx_medical/config/shared.lua's DeathState enum - LAST_STAND = 2. Read
@@ -87,6 +98,7 @@ end)
 -- shared config just for the one number.
 local DEATHSTATE_LASTSTAND = 2
 local DEATH_STATE_BAG = 'qbx_medical:deathState'
+local DOWNED_ZONE_RADIUS = 1.5
 
 -- Getting helped up isn't a full medical revive - reuses qbx_medical's own
 -- playerRevived event for the parts that actually need its internal state
@@ -105,40 +117,89 @@ RegisterNetEvent('hospital:client:HelpedUp', function()
     exports.qbx_medical:MarkHelpedUp()
 end)
 
-exports.ox_target:addGlobalPlayer({
-    {
-        name = 'hospital:helpUp',
-        icon = 'fas fa-hand-holding-medical',
-        label = 'Help Them Up',
-        distance = 2.0,
-        canInteract = function(entity)
-            local player = NetworkGetPlayerIndexFromPed(entity)
-            if player == -1 then
-                print(('[helpUp debug] entity %s is not a player ped'):format(entity))
-                return false
-            end
-            local targetId = GetPlayerServerId(player)
-            local state = Player(targetId).state[DEATH_STATE_BAG]
-            print(('[helpUp debug] targetId=%s deathState=%s (need %s)'):format(targetId, tostring(state), DEATHSTATE_LASTSTAND))
-            return state == DEATHSTATE_LASTSTAND
-        end,
-        onSelect = function(data)
-            local player = NetworkGetPlayerIndexFromPed(data.entity)
-            if player == -1 then return end
-            local targetId = GetPlayerServerId(player)
+local function helpTargetUp(targetId)
+    if lib.progressBar({
+        duration = 8000,
+        position = 'bottom',
+        label = 'Helping them up...',
+        useWhileDead = false,
+        canCancel = true,
+        disable = { move = true, car = true, combat = true, mouse = false },
+        anim = { dict = HealAnimDict, clip = HealAnim },
+    })
+    then
+        TriggerServerEvent('hospital:server:HelpPlayerUp', targetId)
+    end
+end
 
-            if lib.progressBar({
-                duration = 8000,
-                position = 'bottom',
-                label = 'Helping them up...',
-                useWhileDead = false,
-                canCancel = true,
-                disable = { move = true, car = true, combat = true, mouse = false },
-                anim = { dict = HealAnimDict, clip = HealAnim },
-            })
-            then
-                TriggerServerEvent('hospital:server:HelpPlayerUp', targetId)
-            end
-        end,
-    },
-})
+-- serverId -> ox_target zone id, one entry per other player currently
+-- known to be in last stand.
+local downedZones = {}
+
+local function removeDownedZone(targetId)
+    local zoneId = downedZones[targetId]
+    if not zoneId then return end
+    exports.ox_target:removeZone(zoneId)
+    downedZones[targetId] = nil
+end
+
+-- Re-registers the zone at the target's current position - cheap enough to
+-- just remove+recreate on an interval rather than reaching into ox_target's
+-- own zone table to mutate coords in place (not something it exports).
+local function refreshDownedZone(targetId, ped)
+    removeDownedZone(targetId)
+    downedZones[targetId] = exports.ox_target:addSphereZone({
+        coords = GetEntityCoords(ped),
+        radius = DOWNED_ZONE_RADIUS,
+        options = {
+            {
+                name = 'hospital:helpUp',
+                icon = 'fas fa-hand-holding-medical',
+                label = 'Help Them Up',
+                canInteract = function()
+                    return Player(targetId).state[DEATH_STATE_BAG] == DEATHSTATE_LASTSTAND
+                end,
+                onSelect = function()
+                    helpTargetUp(targetId)
+                end,
+            },
+        },
+    })
+end
+
+-- Tracks one downed player from this client's perspective until they're no
+-- longer in last stand (helped up, or died) - crawl movement is slow
+-- (CRAWL_SPEED in qbx_medical/client/laststand.lua), so a half-second
+-- refresh comfortably keeps the zone under them.
+local function trackDownedPlayer(targetId)
+    if downedZones[targetId] then return end -- already tracking
+
+    CreateThread(function()
+        while Player(targetId).state[DEATH_STATE_BAG] == DEATHSTATE_LASTSTAND do
+            local player = GetPlayerFromServerId(targetId)
+            local ped = player ~= -1 and GetPlayerPed(player)
+            if not ped or ped == 0 or not DoesEntityExist(ped) then break end
+
+            refreshDownedZone(targetId, ped)
+            Wait(500)
+        end
+
+        removeDownedZone(targetId)
+    end)
+end
+
+AddStateBagChangeHandler(DEATH_STATE_BAG, nil, function(bagName, _, value)
+    -- Client-side, this returns a local player HANDLE (not a server id like
+    -- the same native gives server-side) - GetPlayerServerId converts it to
+    -- what Player()/TriggerServerEvent/the rest of this file actually need.
+    local playerHandle = GetPlayerFromStateBagName(bagName)
+    if playerHandle == 0 then return end
+    local targetId = GetPlayerServerId(playerHandle)
+    if targetId == 0 or targetId == cache.serverId then return end
+
+    if value == DEATHSTATE_LASTSTAND then
+        trackDownedPlayer(targetId)
+    else
+        removeDownedZone(targetId)
+    end
+end)
