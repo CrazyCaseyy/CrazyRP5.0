@@ -167,23 +167,50 @@ local function getCanAccessGarage(player, garage)
     return true
 end
 
+-- Addon vehicles have no entry in VEHICLES (qbx_core's shared/vehicles.lua
+-- only knows the base game), so their type has to be resolved by actually
+-- spawning one - GetVehicleClassFromName would be the cheap way to do this
+-- but it's a CLIENT-ONLY native and this file is entirely server-side.
+-- Cached per model since this is the "expensive" fallback (create, check,
+-- delete an entity) and the same addon model gets asked about every time
+-- any garage's vehicle list is built.
+---@type table<string, string>
+local addonVehicleTypeCache = {}
+
+---@param modelName string
+---@return string nativeType e.g. 'automobile', 'heli', 'plane', 'boat'
+local function resolveAddonVehicleType(modelName)
+    if addonVehicleTypeCache[modelName] then
+        return addonVehicleTypeCache[modelName]
+    end
+
+    local veh = CreateVehicle(GetHashKey(modelName), 0.0, 0.0, -3000.0, 0.0, false, false)
+    local attempts = 0
+    while not DoesEntityExist(veh) and attempts < 50 do
+        Wait(0)
+        attempts += 1
+    end
+
+    local nativeType = DoesEntityExist(veh) and GetVehicleType(veh) or 'automobile'
+    if DoesEntityExist(veh) then
+        DeleteEntity(veh)
+    end
+
+    addonVehicleTypeCache[modelName] = nativeType
+    return nativeType
+end
+
 ---@param playerVehicle PlayerVehicle
 ---@return VehicleType
 local function getVehicleType(playerVehicle)
     local vehicleData = VEHICLES[playerVehicle.modelName]
-
-    -- Addon vehicles (e.g. fleet.lua's addFleetVehicle now accepts any real
-    -- model, not just ones qbx_core's own vehicles.lua knows about) have no
-    -- entry here at all - fall back to asking the game's own static vehicle
-    -- metadata for its class instead of indexing straight into a nil table.
-    -- GetVehicleClassFromName works off the model's data, not a spawned
-    -- entity, so this is cheap and needs nothing streamed in first.
     local category = vehicleData and vehicleData.category
+
     if not category then
-        local class = GetVehicleClassFromName(playerVehicle.modelName)
-        if class == 15 or class == 16 then -- Helicopters, Planes
+        local nativeType = resolveAddonVehicleType(playerVehicle.modelName)
+        if nativeType == 'heli' or nativeType == 'plane' then
             return VehicleType.AIR
-        elseif class == 14 then -- Boats
+        elseif nativeType == 'boat' then
             return VehicleType.SEA
         else
             return VehicleType.CAR

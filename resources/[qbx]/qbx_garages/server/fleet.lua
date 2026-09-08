@@ -162,6 +162,35 @@ local function unassignFleetVehicle(source, vehicleId)
     return true, nil, vehicle.plate
 end
 
+-- IsModelInCdimage/IsModelAVehicle are CLIENT-ONLY natives - calling them
+-- here threw "attempt to call a nil value" since this file is entirely
+-- server-side. The actually server-safe way to ask "is this a real
+-- vehicle model" is the same trick qbx_core's own qbx.spawnVehicle (and
+-- this file's spawnFleetVehicle, spawn-vehicle.lua) already uses for an
+-- unregistered model: spawn one at a throwaway location and see if the
+-- game actually creates it - a non-vehicle/garbage model just never comes
+-- into existence. Bounded (unlike those two, which only ever see models
+-- already vetted by this function) since this is checking arbitrary
+-- boss-typed input and a bogus string must fail fast, not hang forever.
+---@param model string
+---@return boolean
+local function isValidVehicleModel(model)
+    local veh = CreateVehicle(GetHashKey(model), 0.0, 0.0, -3000.0, 0.0, false, false)
+
+    local attempts = 0
+    while not DoesEntityExist(veh) and attempts < 50 do
+        Wait(0)
+        attempts += 1
+    end
+
+    if not DoesEntityExist(veh) then
+        return false
+    end
+
+    DeleteEntity(veh)
+    return true
+end
+
 local PLATE_CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 ---@return string
@@ -191,21 +220,20 @@ local function addFleetVehicle(source, model)
     end
 
     model = model:lower()
-    local hash = GetHashKey(model)
 
     -- exports.qbx_core:GetVehiclesByName() only knows the vehicles baked
     -- into qbx_core's own shared/vehicles.lua - real for the base game, but
     -- it has no idea an addon car even exists, so it rejected every addon
-    -- police vehicle. IsModelInCdimage/IsModelAVehicle ask the game itself
-    -- whether this model is actually streamed in and is a vehicle, which
-    -- works for addon models too as long as the resource adding them is
-    -- running - so this now accepts anything real instead of only
-    -- base-game models.
-    if not IsModelInCdimage(hash) or not IsModelAVehicle(hash) then
+    -- police vehicle. isValidVehicleModel actually tries to create it
+    -- instead, which works for addon models too as long as the resource
+    -- adding them is running - so this now accepts anything real instead
+    -- of only base-game models.
+    if not isValidVehicleModel(model) then
         return false, ('"%s" is not a real vehicle model.'):format(model)
     end
 
     local plate = generateFleetPlate()
+    local hash = GetHashKey(model)
     local props = {
         model = hash,
         plate = plate,
