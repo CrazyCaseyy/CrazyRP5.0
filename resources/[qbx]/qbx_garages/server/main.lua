@@ -113,7 +113,16 @@ function GetPlayerVehicleFilter(source, garageName)
     local player = exports.qbx_core:GetPlayer(source)
     local garage = Garages[garageName]
     local filter = {}
-    filter.states = garage.states or VehicleState.GARAGED
+    -- OUT is included by default (not just GARAGED) so a vehicle that's
+    -- left out and gone missing still shows up in the list - client/main.lua
+    -- displays it as "already out"/offers the paid Recover option instead
+    -- of Take Out or Transfer Here for anything not GARAGED, so this can't
+    -- let someone take out or transfer a vehicle that's still out.
+    -- IMPOUNDED is deliberately left out of this default - that one's
+    -- meant to force an actual trip to a depot/impound lot (its own
+    -- explicit `states` override), not show up everywhere. A garage with
+    -- its own `states` override (the depots) is untouched either way.
+    filter.states = garage.states or { VehicleState.GARAGED, VehicleState.OUT }
 
     if garage.fleet then
         -- Department-owned pool, not personal vehicles - scoped to both
