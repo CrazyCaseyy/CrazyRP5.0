@@ -184,7 +184,9 @@ local function resolveAddonVehicleType(modelName)
         return addonVehicleTypeCache[modelName]
     end
 
-    local veh = CreateVehicle(GetHashKey(modelName), 0.0, 0.0, -3000.0, 0.0, false, false)
+    -- isNetwork/netMissionEntity must be true - see the matching comment in
+    -- qbx_garages/server/fleet.lua's isValidVehicleModel.
+    local veh = CreateVehicle(GetHashKey(modelName), 0.0, 0.0, -3000.0, 0.0, true, true)
     local attempts = 0
     while not DoesEntityExist(veh) and attempts < 50 do
         Wait(0)
