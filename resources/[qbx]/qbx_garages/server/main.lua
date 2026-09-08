@@ -170,9 +170,29 @@ end
 ---@param playerVehicle PlayerVehicle
 ---@return VehicleType
 local function getVehicleType(playerVehicle)
-    if VEHICLES[playerVehicle.modelName].category == 'helicopters' or VEHICLES[playerVehicle.modelName].category == 'planes' then
+    local vehicleData = VEHICLES[playerVehicle.modelName]
+
+    -- Addon vehicles (e.g. fleet.lua's addFleetVehicle now accepts any real
+    -- model, not just ones qbx_core's own vehicles.lua knows about) have no
+    -- entry here at all - fall back to asking the game's own static vehicle
+    -- metadata for its class instead of indexing straight into a nil table.
+    -- GetVehicleClassFromName works off the model's data, not a spawned
+    -- entity, so this is cheap and needs nothing streamed in first.
+    local category = vehicleData and vehicleData.category
+    if not category then
+        local class = GetVehicleClassFromName(playerVehicle.modelName)
+        if class == 15 or class == 16 then -- Helicopters, Planes
+            return VehicleType.AIR
+        elseif class == 14 then -- Boats
+            return VehicleType.SEA
+        else
+            return VehicleType.CAR
+        end
+    end
+
+    if category == 'helicopters' or category == 'planes' then
         return VehicleType.AIR
-    elseif VEHICLES[playerVehicle.modelName].category == 'boats' then
+    elseif category == 'boats' then
         return VehicleType.SEA
     else
         return VehicleType.CAR

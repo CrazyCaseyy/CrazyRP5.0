@@ -160,7 +160,11 @@ local function displayVehicleInfo(vehicle, garageName, garageInfo, accessPoint)
     local engineColor = getProgressColor(engine)
     local bodyColor = getProgressColor(body)
     local fuelColor = getProgressColor(vehicle.props.fuelLevel)
-    local vehicleLabel = ('%s %s'):format(VEHICLES[vehicle.modelName].brand, VEHICLES[vehicle.modelName].name)
+    -- Addon vehicles have no entry in VEHICLES (qbx_core's own
+    -- vehicles.lua doesn't know about them) - fall back to the raw spawn
+    -- code instead of indexing into nil.
+    local vehicleData = VEHICLES[vehicle.modelName]
+    local vehicleLabel = vehicleData and ('%s %s'):format(vehicleData.brand, vehicleData.name) or vehicle.modelName
 
     -- Only preview a vehicle that isn't already sitting out in the world -
     -- there's a real one to go look at in that case, a ghost copy would
@@ -343,7 +347,10 @@ local function openGarageMenu(garageName, garageInfo, accessPoint)
             goto continue
         end
 
-        local vehicleLabel = ('%s %s'):format(VEHICLES[vehicleEntity.modelName].brand, VEHICLES[vehicleEntity.modelName].name)
+        -- Addon vehicles have no entry in VEHICLES - fall back to the raw
+        -- spawn code instead of indexing into nil.
+        local vehicleData = VEHICLES[vehicleEntity.modelName]
+        local vehicleLabel = vehicleData and ('%s %s'):format(vehicleData.brand, vehicleData.name) or vehicleEntity.modelName
 
         -- Fleet garages: who it's assigned to right in the list, not just
         -- after drilling into a specific vehicle - lets an officer spot

@@ -191,12 +191,21 @@ local function addFleetVehicle(source, model)
     end
 
     model = model:lower()
-    if not exports.qbx_core:GetVehiclesByName()[model] then
+    local hash = GetHashKey(model)
+
+    -- exports.qbx_core:GetVehiclesByName() only knows the vehicles baked
+    -- into qbx_core's own shared/vehicles.lua - real for the base game, but
+    -- it has no idea an addon car even exists, so it rejected every addon
+    -- police vehicle. IsModelInCdimage/IsModelAVehicle ask the game itself
+    -- whether this model is actually streamed in and is a vehicle, which
+    -- works for addon models too as long as the resource adding them is
+    -- running - so this now accepts anything real instead of only
+    -- base-game models.
+    if not IsModelInCdimage(hash) or not IsModelAVehicle(hash) then
         return false, ('"%s" is not a real vehicle model.'):format(model)
     end
 
     local plate = generateFleetPlate()
-    local hash = GetHashKey(model)
     local props = {
         model = hash,
         plate = plate,
