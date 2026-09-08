@@ -19,49 +19,42 @@ return {
         offDutyPay = false,
         grades = {
             [0] = {
-                name = 'Recruit',
+                name = 'Cadet',
                 payment = 800
             },
             [1] = {
-                name = 'Officer',
+                name = 'Patrol Officer',
                 payment = 1075
             },
             [2] = {
-                name = 'Officer 2',
+                name = 'Senior Officer',
                 payment = 1100
             },
             [3] = {
-                name = 'Officer 3',
+                name = 'Corporal',
                 payment = 1200
             },
             [4] = {
-                name = 'IA',
-                isboss = true,
+                name = 'Sergeant',
                 bankAuth = true,
                 payment = 4000
             },
             [5] = {
-                name = 'Supervisor',
+                name = 'Lieutenant',
                 payment = 1350
             },
             [6] = {
-                name = 'Lieutenant',
+                name = 'Captain',
                 isboss = true,
                 payment = 1500
             },
             [7] = {
-                name = 'Captain',
+                name = 'Assistant Chief',
                 isboss = true,
                 payment = 1700
             },
             [8] = {
                 name = 'Chief',
-                isboss = true,
-                bankAuth = true,
-                payment = 1875
-            },
-            [9] = {
-                name = 'Management',
                 isboss = true,
                 bankAuth = true,
                 payment = 7000
