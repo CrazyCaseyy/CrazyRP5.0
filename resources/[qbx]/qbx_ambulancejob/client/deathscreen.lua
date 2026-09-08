@@ -95,9 +95,14 @@ local DEATH_STATE_BAG = 'qbx_medical:deathState'
 -- health it just set back down to a critical 10 HP (native entity health
 -- is 100-200 with 100 as the "dead" floor, matching crazy-adminmenu's same
 -- -100 HUD-facing scale) instead of the full heal that event normally does.
+-- MarkHelpedUp (after playerRevived, which clears it as part of the normal
+-- "you're revived" reset) starts a 5-minute vulnerability window - getting
+-- knocked again inside it is fatal instead of another trip to last stand
+-- (qbx_medical/client/dead.lua), since this wasn't a real medical fix.
 RegisterNetEvent('hospital:client:HelpedUp', function()
     TriggerEvent('qbx_medical:client:playerRevived')
     SetEntityHealth(cache.ped, 110)
+    exports.qbx_medical:MarkHelpedUp()
 end)
 
 exports.ox_target:addGlobalPlayer({

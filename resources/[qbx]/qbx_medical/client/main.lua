@@ -89,6 +89,30 @@ exports('GetRespawnHoldTimeDeprecated', function()
     return RespawnHoldTime
 end)
 
+-- Getting "helped up" (qbx_ambulancejob's ox_target "Help Them Up"
+-- interaction, client/deathscreen.lua - not a full medical revive) leaves
+-- the player vulnerable for a while afterward - getting knocked again
+-- inside that window is fatal instead of another trip to last stand (see
+-- dead.lua's gameEventTriggered handler); past the window it plays out as
+-- a completely fresh knock again. Global, not local - dead.lua needs to
+-- clear this too, and Lua's `local` at a file's top level doesn't cross
+-- files within the same resource.
+HELPED_UP_GRACE_MS = 5 * 60 * 1000
+HelpedUpAt = nil
+
+function WasRecentlyHelpedUp()
+    return HelpedUpAt ~= nil and (GetGameTimer() - HelpedUpAt) < HELPED_UP_GRACE_MS
+end
+exports('WasRecentlyHelpedUp', WasRecentlyHelpedUp)
+
+---Marks the vulnerability window as starting now. Called by
+---qbx_ambulancejob's "Help Them Up" handler; re-helping someone up just
+---restarts the window the same as the first time.
+function MarkHelpedUp()
+    HelpedUpAt = GetGameTimer()
+end
+exports('MarkHelpedUp', MarkHelpedUp)
+
 lib.callback.register('qbx_medical:client:killPlayer', function()
     SetEntityHealth(cache.ped, 0)
 end)
@@ -217,6 +241,12 @@ end)
 
 ---Revives player, healing all injuries
 RegisterNetEvent('qbx_medical:client:playerRevived', function()
+    -- A real revive (this event) clears the "recently helped up"
+    -- vulnerability window - qbx_ambulancejob's HelpedUp handler fires this
+    -- same event first, then calls MarkHelpedUp() right after, so the
+    -- window still ends up set for that specific path.
+    HelpedUpAt = nil
+
     if DeathState ~= sharedConfig.deathState.ALIVE then
         local pos = GetEntityCoords(cache.ped, true)
         NetworkResurrectLocalPlayer(pos.x, pos.y, pos.z, GetEntityHeading(cache.ped), true, false)

@@ -26,6 +26,11 @@ exports('PlayDeadAnimation', playDeadAnimation)
 
 ---put player in death animation and make invincible
 function OnDeath(attacker, weapon)
+    -- Actually dying clears the "recently helped up" vulnerability window
+    -- (main.lua) - a fresh respawn shouldn't inherit a stale flag from a
+    -- previous life.
+    HelpedUpAt = nil
+
     SetDeathState(sharedConfig.deathState.DEAD)
     TriggerEvent('qbx_medical:client:onPlayerDied', attacker, weapon)
     TriggerServerEvent('qbx_medical:server:onPlayerDied', attacker, weapon)
@@ -111,6 +116,18 @@ AddEventHandler('gameEventTriggered', function(event, data)
     local victim, attacker, victimDied, weapon = data[1], data[2], data[4], data[7]
     if not IsEntityAPed(victim) or not victimDied or NetworkGetPlayerIndexFromPed(victim) ~= cache.playerId or not IsEntityDead(cache.ped) then return end
     if DeathState == sharedConfig.deathState.ALIVE then
+        if WasRecentlyHelpedUp() then
+            -- Knocked again inside the vulnerability window from being
+            -- merely "helped up" (not a full medical revive, main.lua) -
+            -- this one's fatal instead of another trip to last stand.
+            -- Outside the window this whole branch is skipped, so it plays
+            -- out exactly like a fresh knock again.
+            logDeath(victim, attacker, weapon)
+            DeathTime = config.deathTime
+            OnDeath(attacker, weapon)
+            return
+        end
+
         Wait(1000)
         StartLastStand(attacker, weapon)
     elseif DeathState == sharedConfig.deathState.LAST_STAND then
