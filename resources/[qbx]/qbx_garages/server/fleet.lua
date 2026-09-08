@@ -162,40 +162,6 @@ local function unassignFleetVehicle(source, vehicleId)
     return true, nil, vehicle.plate
 end
 
--- IsModelInCdimage/IsModelAVehicle are CLIENT-ONLY natives - calling them
--- here threw "attempt to call a nil value" since this file is entirely
--- server-side. The actually server-safe way to ask "is this a real
--- vehicle model" is the same trick qbx_core's own qbx.spawnVehicle (and
--- this file's spawnFleetVehicle, spawn-vehicle.lua) already uses for an
--- unregistered model: spawn one at a throwaway location and see if the
--- game actually creates it - a non-vehicle/garbage model just never comes
--- into existence. Bounded (unlike those two, which only ever see models
--- already vetted by this function) since this is checking arbitrary
--- boss-typed input and a bogus string must fail fast, not hang forever.
----@param model string
----@return boolean
-local function isValidVehicleModel(model)
-    -- isNetwork/netMissionEntity MUST be true here - the server has no
-    -- concept of a "local, unnetworked" entity, so a false/false call never
-    -- actually creates anything and DoesEntityExist would never see it,
-    -- rejecting every model including real ones. Matches qbx_core's own
-    -- qbx.spawnVehicle, which does the same thing with true, true.
-    local veh = CreateVehicle(GetHashKey(model), 0.0, 0.0, -3000.0, 0.0, true, true)
-
-    local attempts = 0
-    while not DoesEntityExist(veh) and attempts < 50 do
-        Wait(0)
-        attempts += 1
-    end
-
-    if not DoesEntityExist(veh) then
-        return false
-    end
-
-    DeleteEntity(veh)
-    return true
-end
-
 local PLATE_CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 ---@return string
@@ -229,11 +195,13 @@ local function addFleetVehicle(source, model)
     -- exports.qbx_core:GetVehiclesByName() only knows the vehicles baked
     -- into qbx_core's own shared/vehicles.lua - real for the base game, but
     -- it has no idea an addon car even exists, so it rejected every addon
-    -- police vehicle. isValidVehicleModel actually tries to create it
-    -- instead, which works for addon models too as long as the resource
-    -- adding them is running - so this now accepts anything real instead
-    -- of only base-game models.
-    if not isValidVehicleModel(model) then
+    -- police vehicle. IsModelInCdimage/IsModelAVehicle are the natives
+    -- that actually know (work for addon models too, as long as the
+    -- resource adding them is running), but they're CLIENT-ONLY - this
+    -- file is entirely server-side, so ask the boss's own client (source
+    -- is them either way, whether this came from the /addfleetvehicle
+    -- command or the UI callback) to check locally instead.
+    if not lib.callback.await('qbx_garages:client:isValidVehicleModel', source, model) then
         return false, ('"%s" is not a real vehicle model.'):format(model)
     end
 

@@ -12,6 +12,17 @@ local TRANSFER_FEE = 500
 -- label instead of its internal config key.
 local KnownGarages = {}
 
+-- server/fleet.lua's addFleetVehicle (boss-typed model, possibly an addon
+-- vehicle qbx_core's own registry has never heard of) needs to know if a
+-- model is real. IsModelInCdimage/IsModelAVehicle are the natives for that,
+-- but they're CLIENT-ONLY - so the server asks whichever client is running
+-- the command to check locally instead of trying (and failing) to
+-- replicate the check itself.
+lib.callback.register('qbx_garages:client:isValidVehicleModel', function(model)
+    local hash = GetHashKey(model)
+    return IsModelInCdimage(hash) and IsModelAVehicle(hash)
+end)
+
 ---@enum ProgressColor
 local ProgressColor = {
     GREEN = 'green.5',

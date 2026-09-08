@@ -167,61 +167,25 @@ local function getCanAccessGarage(player, garage)
     return true
 end
 
--- Addon vehicles have no entry in VEHICLES (qbx_core's shared/vehicles.lua
--- only knows the base game), so their type has to be resolved by actually
--- spawning one - GetVehicleClassFromName would be the cheap way to do this
--- but it's a CLIENT-ONLY native and this file is entirely server-side.
--- Cached per model since this is the "expensive" fallback (create, check,
--- delete an entity) and the same addon model gets asked about every time
--- any garage's vehicle list is built.
----@type table<string, string>
-local addonVehicleTypeCache = {}
-
----@param modelName string
----@return string nativeType e.g. 'automobile', 'heli', 'plane', 'boat'
-local function resolveAddonVehicleType(modelName)
-    if addonVehicleTypeCache[modelName] then
-        return addonVehicleTypeCache[modelName]
-    end
-
-    -- isNetwork/netMissionEntity must be true - see the matching comment in
-    -- qbx_garages/server/fleet.lua's isValidVehicleModel.
-    local veh = CreateVehicle(GetHashKey(modelName), 0.0, 0.0, -3000.0, 0.0, true, true)
-    local attempts = 0
-    while not DoesEntityExist(veh) and attempts < 50 do
-        Wait(0)
-        attempts += 1
-    end
-
-    local nativeType = DoesEntityExist(veh) and GetVehicleType(veh) or 'automobile'
-    if DoesEntityExist(veh) then
-        DeleteEntity(veh)
-    end
-
-    addonVehicleTypeCache[modelName] = nativeType
-    return nativeType
-end
-
 ---@param playerVehicle PlayerVehicle
 ---@return VehicleType
 local function getVehicleType(playerVehicle)
     local vehicleData = VEHICLES[playerVehicle.modelName]
-    local category = vehicleData and vehicleData.category
 
-    if not category then
-        local nativeType = resolveAddonVehicleType(playerVehicle.modelName)
-        if nativeType == 'heli' or nativeType == 'plane' then
-            return VehicleType.AIR
-        elseif nativeType == 'boat' then
-            return VehicleType.SEA
-        else
-            return VehicleType.CAR
-        end
+    -- Addon vehicles have no entry here (qbx_core's shared/vehicles.lua
+    -- only knows the base game) - default to CAR rather than indexing into
+    -- nil. Fine for this fallback's purpose: it only matters for non-fleet
+    -- garages (fleet garages skip this check entirely, see
+    -- getGarageVehicles), where getting an addon boat/heli's category
+    -- wrong just means it shows up filed under the wrong garage type
+    -- instead of erroring.
+    if not vehicleData then
+        return VehicleType.CAR
     end
 
-    if category == 'helicopters' or category == 'planes' then
+    if vehicleData.category == 'helicopters' or vehicleData.category == 'planes' then
         return VehicleType.AIR
-    elseif category == 'boats' then
+    elseif vehicleData.category == 'boats' then
         return VehicleType.SEA
     else
         return VehicleType.CAR
@@ -244,7 +208,14 @@ lib.callback.register('qbx_garages:server:getGarageVehicles', function(source, g
     local vehicleType = garage.vehicleType
     for _, vehicle in pairs(playerVehicles) do
         if not FindPlateOnServer(vehicle.props.plate) then
-            if vehicleType == getVehicleType(vehicle) then
+            -- Fleet garages skip the type check entirely - the filter above
+            -- (GetPlayerVehicleFilter) already scoped playerVehicles down
+            -- to exactly this garage's own fleet pool, so there's nothing
+            -- else in the list it could need filtering against. That also
+            -- sidesteps needing to resolve an addon vehicle's type at all,
+            -- which getVehicleType can't do reliably for one qbx_core's
+            -- registry has never heard of.
+            if garage.fleet or vehicleType == getVehicleType(vehicle) then
                 OverrideFreeDepotPriceForOutVehicle(vehicle)
 
                 -- Fleet vehicles show who they're currently assigned to
