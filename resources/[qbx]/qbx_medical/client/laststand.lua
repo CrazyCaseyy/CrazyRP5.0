@@ -119,6 +119,20 @@ local crawlWindupStarted = nil
 -- on any frame nothing is held, and only unfrozen for the instant a key
 -- actually moves it.
 local function updateCrawlMovement()
+    -- Crawling is ground locomotion (direct SetEntityVelocity on the ped) -
+    -- a ped seated in a vehicle is parented to that seat, so forcing an
+    -- independent world velocity onto it (and freezing/unfreezing it every
+    -- frame) fights the vehicle's own physics instead of moving anything,
+    -- which is what was bugging vehicles out when a downed player pressed
+    -- WASD while still in the car. setdownedstate.lua's
+    -- playUnescortedLastStandAnimation already plays a seated anim instead
+    -- of the crawl pose in this case - staying still here matches that.
+    if cache.vehicle then
+        IsCrawling = false
+        crawlWindupStarted = nil
+        return
+    end
+
     local moveForward = IsRawKeyDown(KEY_W)
     local moveBack = IsRawKeyDown(KEY_S)
     local moveLeft = IsRawKeyDown(KEY_A)
