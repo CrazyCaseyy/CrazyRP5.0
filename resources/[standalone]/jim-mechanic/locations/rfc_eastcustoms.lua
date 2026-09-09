@@ -4,7 +4,7 @@ Locations = Locations or {}
 --[[ RFC Mapping - https://store.rfcmapping.com/package/5380720 ]]--
 
 Locations["rfc_eastcustoms"] = {
-    Enabled = true,
+    Enabled = false,
     autoClock = { enter = true, exit = true, },
     job = "eastcustoms",
     label = "East Customs",
